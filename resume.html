@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>张松林 - 全栈技术顾问 / 独立开发人</title>
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-light: #ccfbf1;
+      --text: #1f2937;
+      --text-body: #374151;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --bg: #ffffff;
+      --bg-card: #f9fafb;
+      --bg-accent: #f0fdfa;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text-body);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 48px 32px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+
+    .avatar {
+      width: 135px;
+      height: 135px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary-light);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      flex-shrink: 0;
+    }
+
+    .header-info h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+
+    .header-title {
+      font-size: 16px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .header-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .header-contact a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .header-contact a:hover {
+      color: var(--primary);
+    }
+
+    .header-contact .sep {
+      color: var(--border);
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary);
+      display: inline-block;
+    }
+
+    /* Summary */
+    .summary p {
+      margin-bottom: 10px;
+    }
+
+    .summary strong {
+      color: var(--text);
+    }
+
+    /* Skills */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 10px 24px;
+    }
+
+    .skill-item {
+      display: flex;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .skill-item strong {
+      color: var(--text);
+      flex-shrink: 0;
+      min-width: 80px;
+    }
+
+    /* Experience */
+    .exp-item {
+      margin-bottom: 28px;
+    }
+
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+      margin-bottom: 8px;
+    }
+
+    .exp-company {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .exp-date {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .exp-role {
+      font-size: 14px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .exp-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .exp-list li {
+      position: relative;
+      padding-left: 16px;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .exp-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+
+    /* Project */
+    .proj-item {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .proj-item:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+      transform: translateY(-1px);
+    }
+
+    .proj-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      margin-bottom: 10px;
+    }
+
+    .proj-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .proj-role {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .proj-desc {
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-align: justify;
+    }
+
+    .proj-tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .tech-tag {
+      display: inline-block;
+      background: var(--bg-accent);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--primary-light);
+    }
+
+    .proj-value {
+      font-size: 13px;
+      color: var(--text-body);
+      padding: 10px 14px;
+      background: var(--bg-accent);
+      border-radius: 6px;
+      border-left: 3px solid var(--primary);
+      line-height: 1.6;
+    }
+
+    .proj-value strong {
+      color: var(--primary);
+    }
+
+    .proj-link {
+      font-size: 13px;
+      color: var(--primary);
+      text-decoration: none;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .proj-link:hover {
+      text-decoration: underline;
+    }
+
+    /* AI Section */
+    .ai-section {
+      background: linear-gradient(135deg, var(--bg-accent) 0%, var(--bg-card) 100%);
+      border-radius: 12px;
+      padding: 28px 28px 20px;
+      border: 1px solid var(--primary-light);
+    }
+
+    .ai-section ol {
+      padding-left: 20px;
+      margin: 14px 0;
+    }
+
+    .ai-section li {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .ai-section li strong {
+      color: var(--text);
+    }
+
+    .ai-conclusion {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Print */
+    @media print {
+      body { font-size: 12px; }
+      .container { padding: 24px; max-width: 100%; }
+      .avatar { width: 90px; height: 90px; }
+      .header-info h1 { font-size: 28px; }
+      .section { margin-bottom: 24px; page-break-inside: avoid; }
+      .proj-item { break-inside: avoid; page-break-inside: avoid; }
+      .exp-item { break-inside: avoid; page-break-inside: avoid; }
+      .ai-section { break-inside: avoid; page-break-inside: avoid; }
+      .proj-item:hover { box-shadow: none; transform: none; }
+      a { text-decoration: none; color: var(--text-body); }
+    }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      .container { padding: 24px 18px; }
+      .header { flex-direction: column; text-align: center; gap: 16px; }
+      .header-info h1 { font-size: 28px; }
+      .header-contact { justify-content: center; }
+      .exp-header { flex-direction: column; gap: 2px; }
+      .skill-grid { grid-template-columns: 1fr; }
+      .proj-header { flex-direction: column; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="/assets/avatar.jpg" alt="头像" class="avatar">
+      <div class="header-info">
+        <h1>张松林</h1>
+        <div class="header-title">全栈技术顾问 / 独立开发人 / 16年经验</div>
+        <div class="header-contact">
+          <span>Wechat: areyouok_xiaolian</span><span class="sep">|</span>
+          <span>Email: 1049180458@qq.com</span>
+        </div>
+        <div class="header-contact" style="margin-top:4px;">
+          <span>Blog: <a href="https://cnblogs.com/linvanda" target="_blank">cnblogs.com/linvanda</a></span><span class="sep">|</span>
+          <span>Github: <a href="https://github.com/linzier" target="_blank">https://github.com/linzier</a></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="section summary">
+      <div class="section-title">个人简介</div>
+      <p><strong>16年全栈开发/管理经验</strong>，覆盖后端、Web、小程序、App、物联网、AI Agent 等领域。</p>
+      <p>做过开发、管过团队、带过项目、做过产品，目前专注于独立开发，利用多年沉淀的经验和技术帮助众多初创公司和传统企业实现低成本高质量的数字化升级。因为每个环节都摸过，知道一个产品从概念到上线，坑在哪里、怎么绕过去。</p>
+      <p>长期从事 2B 产品研发，服务大客户，熟悉 B 端客户需求特性，系统定制化和稳定性远高于 C 端，对负责人的责任心要求更强，处理问题的时效性要求更高，能够快速响应并解决客户问题。</p>
+      <p>就老板而言，要的不是一个只会写代码的，而是一个能把想法变成产品的人，且要能放心地将任务交给这个人。我帮你把这条路从头走到尾——梳理需求、设计架构、开发测试、上线维护。一个人全权负责，没有甩锅的余地。</p>
+    </div>
+
+    <!-- Skills -->
+    <div class="section">
+      <div class="section-title">技术能力</div>
+      <div class="skill-grid">
+        <div class="skill-item"><strong>编程语言</strong>Node.js / TypeScript、Python、Go、PHP、Dart，熟悉 C 语言</div>
+        <div class="skill-item"><strong>后端框架</strong>Next.js、FastAPI、Gin、go-zero、Laravel、Swoole</div>
+        <div class="skill-item"><strong>前端框架</strong>Vue、Next.js，微信小程序、Flutter</div>
+        <div class="skill-item"><strong>数据存储</strong>PostgreSQL、MySQL、Redis、Elasticsearch</div>
+        <div class="skill-item"><strong>中间件</strong>Kafka、RabbitMQ</div>
+        <div class="skill-item"><strong>AI 开发</strong>LangChain、LangGraph、RAG、Agent 开发、vibe coding 工程化</div>
+        <div class="skill-item"><strong>架构设计</strong>微服务、DDD、中台、高并发设计（缓存/限流/熔断）</div>
+        <div class="skill-item"><strong>DevOps</strong>Docker、Kubernetes、CI/CD、Nginx、Linux 运维、阿里云/AWS</div>
+      </div>
+    </div>
+
+    <!-- Experience -->
+    <div class="section">
+      <div class="section-title">工作经历</div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">红杉中国</span>
+          <span class="exp-date">2023 - 至今</span>
+        </div>
+        <div class="exp-role">Senior Developer / 内部投资管理系统开发、AI 落地</div>
+        <ul class="exp-list">
+          <li>负责内部投资管理系统架构设计与核心开发，覆盖投前、投中、投后全链路</li>
+          <li>参与公司 AI 智能化转型，自研 Agent 平台 Cowork，实现 IT 部门全面 vibe coding</li>
+          <li>推动业务部门通过 AI 实现人才/公司 sourcer、投资分析、研报生成、尽调辅助</li>
+          <li>官网: <a href="https://www.hongshan.com/" target="_blank">https://www.hongshan.com/</a></li>
+          <li>产品案例: 内部系统，未对外开放</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">喂车科技 / 大客户部</span>
+          <span class="exp-date">2018 - 2023</span>
+        </div>
+        <div class="exp-role">云产品技术总监 / 大客户技术总监</div>
+        <ul class="exp-list">
+          <li>负责公司整体技术架构、SaaS 团队管理、关键系统设计与开发</li>
+          <li>组建大客户团队，服务壳牌中国、道达尔等国际能源巨头，负责需求沟通、产品设计、项目规划、里程碑管控、核心系统研发</li>
+          <li>主导一键加油、无感支付、进销存、BI 与报表、结算、营销、储值卡、自助大屏机等产品/方案的设计与研发（详情见下方"产品案例"）</li>
+          <li>官网: <a href="https://weicheche.cn/" target="_blank">https://weicheche.cn/</a></li>
+          <li>产品案例: <a href="https://www.weichekeji.com/chanpinyujiejuefangan" target="_blank">https://www.weichekeji.com/chanpinyujiejuefangan</a>, 里面绝大部分产品和解决方案都主导/参与过</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">中国平安</span>
+          <span class="exp-date">2016 - 2018</span>
+        </div>
+        <div class="exp-role">技术经理</div>
+        <ul class="exp-list">
+          <li>负责平安好车主后台的设计、开发</li>
+          <li>负责后端组的组建和管理</li>
+          <li>负责和平安科技其他部门、团队的沟通、对接、数据打通工作</li>
+          <li>官网: <a href="https://group.pingan.com/" target="_blank">https://group.pingan.com/</a></li>
+          <li>产品案例: 平安好车主(应用市场搜"平安好车主")</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">明源云</span>
+          <span class="exp-date">2013 - 2016</span>
+        </div>
+        <div class="exp-role">技术主管 / 敏捷教练</div>
+        <ul class="exp-list">
+          <li>负责 Scrum 团队管理工作</li>
+          <li>微信 API 对接核心库研发</li>
+          <li>主持商城系统、积分系统、单点登录、短链接服务、会员系统设计和开发</li>
+          <li>团队管理、日常敏捷开发迭代、项目进度管理</li>
+          <li>官网: <a href="https://www.mingyuanyun.com/" target="_blank">https://www.mingyuanyun.com/</a></li>
+          <li>产品案例: 公众号搜"明源云"</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">迅雷</span>
+          <span class="exp-date">2010 - 2013</span>
+        </div>
+        <div class="exp-role">前端开发</div>
+        <ul class="exp-list">
+          <li>负责迅雷看看前端开发工作，包括网页版开发、播放器开发、中台缓存系统架构设计</li>
+          <li>基于原生 JavaScript 开发功能库及页面交互逻辑，开发缓存服务层</li>
+          <li>官网: <a href="https://tv.xunlei.com/" target="_blank">https://tv.xunlei.com/</a></li>
+          <li>产品: 迅雷看看 Web 版、迅雷看看播放器</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="section">
+      <div class="section-title">代表项目</div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">投资管理系统（红杉中国）</span>
+          <span class="proj-role">架构设计 + 后端开发</span>
+        </div>
+        <div class="proj-desc">
+          为红杉中国私募投资业务提供投前、投中、投后全投资流程管理，实现投资流程信息化与数字化，沉淀数字资源。系统覆盖多维度人才标签与关系图谱、项目上会议程管理与会议纪要自动生成、Action Item 跟踪、多模型估值（DCF / 可比公司 / 先例交易）、Fair Value Report 自动生成等核心能力。
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Express</span><span class="tech-tag">TypeScript</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">Redis Cluster</span><span class="tech-tag">Elasticsearch</span><span class="tech-tag">Docker</span><span class="tech-tag">AWS EC2/RDS/S3/CloudFront</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>系统支撑数百亿级资产管理，跨部门协作效率提升显著；数字资源沉淀为后续全面智能化升级（AI Agent）奠定基础。实现投资流程从"人找信息"到"信息找人"的转变，投资人平均每周节省信息检索时间 8 小时+。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">AI Agent 平台 Cowork（红杉中国）</span>
+          <span class="proj-role">全栈开发</span>
+        </div>
+        <div class="proj-desc">
+          随着 AI 能力不断提升，红杉内部全面拥抱 AI。IT 自行研发适配投资业务的 Agent 平台 Cowork（类 OpenClaw、Hermes），基于 Claude Code SDK 构建多 Agent 协作工作流，集成 GPT-4、Claude、DeepSeek 等多模态 LLM，支持 RAG 知识检索、subagent、长对话记忆、自主工作流等。系统架构分为接入层（多模型统一适配、流式输出）、Agent 引擎层（工作流、Tool Use、记忆管理）、应用层（vibe coding IDE、投资分析助手、人才/公司 Sourcer、研报生成器、文档生成器等）。vibe coding IDE 支持自然语言需求输入 → AI 生成代码 → 自动 Code Review → 测试生成 → 一键部署的完整闭环，集成 Git 版本控制、Diff 对比、代码注释生成、单元测试自动生成。
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">TypeScript</span><span class="tech-tag">Electron</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">sqlite</span><span class="tech-tag">Redis</span><span class="tech-tag">React</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>IT 开发效率提升 3 倍+（传统开发 2 天的功能 vibe coding 半天完成）；业务部门投资研报生成时间从 2 天缩短至 30 分钟；人才/公司初筛效率提升 10 倍+（AI Sourcer 自动检索多源数据并生成初步分析报告）。体现对前沿技术的快速落地能力。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">交易中台（喂车科技）</span>
+          <span class="proj-role">架构设计 + 核心开发</span>
+        </div>
+        <div class="proj-desc">
+          随着业务发展，公司涉及交易的业务线越来越多。虽然有商品、订单、支付、营销等后台服务，但缺乏统一中台，各业务系统各自处理算优惠、选优惠、下单、支付、回调、通知，导致重复开发、逻辑不一致、bug 不断、改一处需到处改。因此开发交易中台，将交易通用逻辑（用户身份识别、算优惠、用券、锁库存、下单、支付、回调、发通知）抽离出来。改造调用关系为"业务前台→交易中台→订单等后台"，中台负责处理场景无关的通用业务逻辑，通过参数和配置实现不同场景的定制化。核心优化包括：互不依赖的后台调用并行化处理减少串行等待；对象延迟加载避免不必要远程调用；支付回调任务异步并行化并按依赖关系自动编排执行顺序；不同业务场景优惠计算规则通过可配置的策略隔离；本地消息表保证支付回调可靠投递与最终一致性。
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Go</span><span class="tech-tag">Go-zero</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis Cluster</span><span class="tech-tag">Kafka</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>新业务开发效率提升 50%+（前台系统只需调接口传参数，无需重复写交易逻辑）；数据一致性 bug 归零（之前数仓报表因各团队四舍五入算法不一致经常出错）；支付性能提升 3 倍（并行化 + 延迟加载 + 异步处理）；改逻辑只需改一处，系统扩展性大幅增强。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">一键加油（喂车科技）</span>
+          <span class="proj-role">架构设计 + 核心开发</span>
+        </div>
+        <div class="proj-desc">
+          公司旗舰产品，2015 年率先推出加油移动支付解决方案并获设计专利。车主无需下载 App，通过微信公众号/小程序扫码即可完成「选油品 → 输入金额/升数 → 在线支付 → 自动记账与积分累积」全流程，支付环节从 1-2 分钟压缩至数秒。系统与零售管理系统、发票系统、BI 平台深度打通，实现订单自动对账、会员数据自动沉淀、客户画像构建。支持满减、返券、积分抵扣等营销能力叠加，支持单站部署与集团多站统一管理。
+        </div>
+        <div class="proj-link">公众号: 搜"广州市公平加油站"</div>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">微信小程序/公众号</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>公司核心营收来源，服务数千家油站，日均交易笔数百万级。为油站搭建自有线上入口，沉淀客户数据，为后续储值卡、优惠券、私域运营提供数据基础。高峰期通行效率提升 3 倍+。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">无感支付（喂车科技）</span>
+          <span class="proj-role">架构设计 + 核心开发</span>
+        </div>
+        <div class="proj-desc">
+          面向车队与高频车主的「插枪即走」加油解决方案。车辆驶入油站插枪加油后，系统通过 ETC 电子标签或车牌识别自动完成车辆识别与后台扣款。基于成熟支付清结算体系，支持与银行、第三方支付机构和车队结算系统对接。
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Go</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">Kafka</span><span class="tech-tag">微信小程序</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>显著提升油枪周转率和高峰期吞吐量。为壳牌中国等大客户提供核心支付方案，是公司在高端市场的技术名片。支撑车队客户精细化管理需求，打开车队细分市场。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">储值卡系统（喂车科技）</span>
+          <span class="proj-role">架构设计 + 核心开发</span>
+        </div>
+        <div class="proj-desc">
+          用户（车主、车队）可在油站开通储值卡并充值一定金额，用储值卡加油消费享受优惠。系统需实现开卡、充值、消费、查账、查流水等功能。核心难点在于分布式环境下的<strong>幂等性</strong>和<strong>数据一致性</strong>。采用 TCC 分布式事务模式保证资金安全：Try 阶段冻结金额，Confirm 阶段确认扣款，Cancel 阶段回滚释放。通过全局唯一幂等键 + 数据库唯一索引保证同一操作只执行一次；处理空补偿与悬挂等边界问题；Redis 分布式锁保障高并发下同一账户交易串行化；布隆过滤器防缓存穿透。
+        </div>
+        <a class="proj-link" href="https://www.cnblogs.com/linvanda/p/16172767.html" target="_blank">详细技术方案 →</a>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>为油站带来高粘性用户，支撑精准营销；用户享受额外优惠。系统上线后零资金差错，稳定运行至今，支撑千万级日交易流水。技术方案在公司内部分享推广，成为分布式事务最佳实践。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">壳牌中国大客户项目群</span>
+          <span class="proj-role">技术负责人 + 项目管理</span>
+        </div>
+        <div class="proj-desc">
+          大客户项目，服务于壳牌中国，为其提供定制化开发服务。上线的壳牌项目包括会员权益、洗车系统、无感支付、短信网关等核心系统。在项目中担任技术负责人和项目管理、产品设计角色，具体工作包括：（1）前期需求沟通：与壳牌业务部门对接，理解业务诉求，将模糊需求转化为明确的功能清单和技术方案；（2）项目周期规划：基于功能清单进行工作量评估，制定 WBS 工作分解结构，设定里程碑节点；（3）任务分派：根据团队成员技术特长和工作负载分配任务，每日站会同步进度，阻塞问题当场协调；（4）节点跟进：里程碑节点前一周开始密集跟进，确保交付物质量达标；（5）技术难题处理：无感支付涉及油枪设备与支付系统的实时通信，采用 WebSocket + 心跳保活 + 断线重连机制，保证支付指令可靠投递；（6）质量保障：推动团队建立严格的 code review、自动化测试、灰度发布机制的质量保障体系。壳牌对质量要求极高，每次上线前需通过壳牌技术团队的代码审计和安全扫描，推动团队在代码规范、安全编码、性能优化方面达到国际水准。
+        </div>
+        <div class="proj-link">小程序: 搜"壳牌加油站"</div>
+        <div class="proj-tech">
+          <span class="tech-tag">Go</span><span class="tech-tag">PHP</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">Kafka</span><span class="tech-tag">微信小程序</span><span class="tech-tag">Flutter</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>壳牌项目带来可观收入和品牌影响力。合作持续 5+ 年，深得壳牌中国认可。严苛质量标准反哺团队成长，整体研发水平提升。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">智慧油站营销系统「喂加加」</span>
+          <span class="proj-role">技术主管 + 架构师</span>
+        </div>
+        <div class="proj-desc">
+          公司核心产品体系，主要包括六套功能系统：积分系统、会员定级系统、客户召回系统、邀请好友系统、营销券系统和营运车系统。涉及的端包括：PC 端管理平台（运营人员配置活动、查看数据）、油站前庭 POS 收银系统、双屏机收银系统、运营系统、自助大屏、会员端（微信小程序、微信公众号、支付宝小程序、H5）。涉及的核心服务包括：支付网关、订单服务、供销存服务、推送服务、分发中心、积分服务、会员定级服务、BI 分析系统、优惠券服务、营销引擎、储值卡服务等。作为技术主管，负责日常团队管理（20人团队）、跨团队协作沟通（与产品、运营、销售团队对接）、核心难题攻坚（高并发场景性能优化、复杂业务逻辑梳理）。作为业务和技术架构师，负责整体架构设计、关键系统架构评审和技术指导，为系统的技术正确性和运行稳定性负责。
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">Go</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis Cluster</span><span class="tech-tag">Kafka</span><span class="tech-tag">微信小程序</span><span class="tech-tag">Flutter</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>支撑公司核心营收，服务数千家油站。架构重构后系统可用性从 99.5% 提升至 99.95%。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">下载中心（喂车科技）</span>
+          <span class="proj-role">架构设计 + 开发</span>
+        </div>
+        <div class="proj-desc">
+          各产品和项目存在大量报表下载需求，各项目组存在以下痛点：（1）各团队单独编写下载逻辑，重复造轮子；（2）需要花大量时间编写生成复杂 Excel 版式的逻辑，产品提供的模板往往非常复杂，开发阶段被各种 PK 和折中；（3）大部分项目采用同步下载方式，报表数据量大了会导致超时、内存溢出等问题。为此开发独立统一的下载中心系统：（1）提供统一 API，调用方通过 HTTP 即可下载 Excel、CSV，无需关心底层实现；（2）通过 JSON 配置即可生成复杂 Excel（表头、列宽、单元格合并、样式、公式、图表等）；（3）异步下载大批量数据，自动分页拉取、缓存、拆分归档，支持分卷文件和 ZIP 压缩包；（4）支持多 tab、多报表、多数据源（HTTP API / SQL / 消息队列）；（5）支持任务状态查询和 Webhook 回调通知。基于 Swoole 协程实现高并发任务处理，Redis 队列调度支持优先级与重试。
+        </div>
+        <a class="proj-link" href="https://github.com/linvanda/download" target="_blank">代码和技术方案 →</a>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>各业务团队无需再自己实现下载逻辑，开发效率大幅提升；稳定性提升，不再因数据量过大导致下载失败（之前 10 万+ 行数据下载必超时，下载中心支持百万级数据异步下载）；复杂 Excel 模板通过 JSON 配置即可生成，开发时间从天级降至小时级。系统接入公司全部 20+ 项目，日均处理下载任务 5000+。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">平安好车主（中国平安）</span>
+          <span class="proj-role">后端团队组建 + 架构设计</span>
+        </div>
+        <div class="proj-desc">
+          平安好车主是中国平安旗下综合性车主服务平台，围绕车险、用车、养车三大场景，提供在线投保、自助理赔、违章查询、道路救援、加油、停车、年检代办、驾驶评分等一站式服务，注册用户超亿级。作为项目初创技术经理，从零组建后端开发团队（10+ 人），主导系统架构设计、核心模块开发、跨部门技术对接。核心工作包括：（1）搭建后端技术体系，制定编码规范、代码 review 流程、CI/CD 流水线，建立团队研发标准；（2）对接平安科技内部数十个系统（保险核心系统、理赔系统、支付网关、车辆数据平台、用户中心、消息中心等），完成数据打通和接口标准化；（3）设计高并发方案：车险到期集中续保期、节假日出行高峰等场景下，通过多级缓存、限流熔断、异步削峰保证系统稳定性；（4）建立跨部门协作机制，与保险业务、理赔、精算、运营、市场等多个部门及外部合作方（交警数据、加油站、停车场等）完成技术对接。
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Java</span><span class="tech-tag">Go</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">RabbitMQ</span><span class="tech-tag">Nginx</span><span class="tech-tag">平安云</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>从零搭建团队并交付产品，支持车险在线投保、自助理赔等核心功能，支撑亿级用户规模；建立后端研发标准和跨部门协作机制，为项目长期发展奠定技术和团队基础。</div>
+        <div class="proj-link">App: 应用市场/App Store 搜"平安好车主"</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">单点登录系统（明源云）</span>
+          <span class="proj-role">架构设计 + 全栈开发</span>
+        </div>
+        <div class="proj-desc">
+          随着公司团队和项目越来越多，由于没有统一的登录系统，各团队都单独开发自己的登录系统，一方面造成重复开发，另外逻辑和界面不统一，用户体验差，维护成本高。单点登录系统基于 OAuth2.0 的授权码模式开发，支持多端（PC Web、H5、小程序、App）、多项目统一接入，降低开发成本并统一交互流程。系统支持密码、手机验证码、微信扫码、企业微信等多种认证方式，以及 Cookie Session、JWT、小程序登录态等多种会话类型。支持多租户隔离（不同项目配置不同登录样式和认证方式）、Refresh Token 自动续期、单点登出全局失效、第三方应用标准 OAuth2.0 接入。
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>实现全公司所有终端（电脑、手机、智能设备）、所有项目的统一登录，用户体验一致；支持第三方应用和外包项目接入；新项目登录功能开发时间从 2 天降至 30 分钟（只需接入 SSO SDK，配置回调地址即可）。</div>
+        <a class="proj-link" href="https://github.com/linzier/sso" target="_blank">代码和技术方案 →</a>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">短链接服务（明源云）</span>
+          <span class="proj-role">架构设计 + 核心开发</span>
+        </div>
+        <div class="proj-desc">
+          短链接服务提供从短地址重定向到长地址（完整 URL）的能力，在短信等存在字数限制的场景有广泛应用。核心问题是性能，主要是短地址到长地址的查找和重定向延迟。短地址生成算法：采用自增 ID 转 62 进制算法。将数据库的自增主键转成 62 进制作为短地址标识（使用 0-9a-zA-Z 共 62 个字符）。短地址转长地址时将 62 进制转 10 进制后直接主键查询，避免哈希冲突和全表扫描，算法简单且高性能。性能优化：（1）用 Redis 的 Hash 数据结构来缓存热门 URL 的地址映射，减少数据库查询；（2）为防止缓存穿透攻击（攻击者访问大量不存在的短地址导致频繁的数据库查询），使用 Redis 的布隆过滤器执行前置拦截。不存在的短地址直接在布隆过滤器阶段就被过滤，不会打到数据库。
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Go</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>作为公司基础平台服务，为公司及外部合作商提供稳定、可靠、高效的地址转换服务，为众多上层业务应用提供基础支撑。日均处理重定向请求百万级。</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">迅雷看看（迅雷）</span>
+          <span class="proj-role">前端开发 + 缓存架构</span>
+        </div>
+        <div class="proj-desc">
+          迅雷看看是迅雷旗下在线视频平台。本人负责网页版前端开发、播放器开发及中台缓存系统架构设计。网页版基于原生 JavaScript 开发功能库和页面交互逻辑，兼容 IE6+、Chrome、Firefox 等多浏览器。播放器支持播放控制、清晰度切换、弹幕、广告插播等功能。中台缓存系统采用多级缓存架构（浏览器缓存 + CDN 边缘缓存 + 服务端缓存），通过版本号管理和主动推送失效机制保证数据一致性，大幅降低后端服务压力。
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">原生 JavaScript</span><span class="tech-tag">HTML/CSS</span><span class="tech-tag">PHP</span><span class="tech-tag">Nginx</span>
+        </div>
+        <div class="proj-value"><strong>价值：</strong>缓存系统支撑日均千万级 PV，后端请求量降低 70%+。多浏览器兼容方案成为团队前端开发规范。</div>
+      </div>
+    </div>
+
+    <!-- AI & Vibe Coding -->
+    <div class="section ai-section">
+      <div class="section-title">关于 AI & Vibe Coding</div>
+      <p>vibe coding（全程由 AI 写代码）正逐步取代传统手写代码，成为主流开发方式。客户常问我同一个问题：<strong>有了 AI，是不是随便找个人就能开发出一套系统？</strong></p>
+      <p style="margin:10px 0;font-weight:600;color:var(--text);">答案是<strong>否定的</strong>。至少未来 3 年内，一个没写过代码的人不可能仅靠 AI 做出"生产可用"的系统。</p>
+      <p style="margin-bottom:8px;">我们团队长期实践下来的真实认知：</p>
+      <ol>
+        <li><strong>AI 善功能，弱架构</strong>。实现一个功能很快，但系统整体架构设计非常依赖人的经验，AI 目前无法胜任。</li>
+        <li><strong>prompt 质量决定产出质量</strong>。一句话的差别就能造成结果的天壤之别（token 消耗也差别巨大），vibe coding 同样吃人的经验和水平。</li>
+        <li><strong>复杂度上去后，AI 的 bug 比人写的还多</strong>。严格的 code review 不可或缺。</li>
+        <li><strong>AI 代码往往仅止于"能用"</strong>。在性能、可维护性上逊于人工编写，需要人对代码做最终把关——而把关的水平取决于人的能力。</li>
+        <li><strong>幻觉不可避免</strong>。完善的 review 和测试流程是唯一兜底手段。</li>
+      </ol>
+      <div class="ai-conclusion"><strong>结论：</strong>AI 是放大器——能把有经验的人的效率提升数倍，但无法替代经验本身。我能帮您用 AI 更快更好地交付，同时确保系统线上稳定高质量运行。</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      全栈技术顾问 · 期待与您合作
+    </div>
+  </div>
+</body>
+</html>
