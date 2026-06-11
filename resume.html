@@ -351,7 +351,7 @@
         <h1>张松林</h1>
         <div class="header-title">全栈技术顾问 / 独立开发人 / 16年经验</div>
         <div class="header-contact">
-          <span>Wechat: areyouok_xiaolian</span><span class="sep">|</span>
+          <span>微信: areyouok_xiaolian</span><span class="sep">|</span>
           <span>Email: 1049180458@qq.com</span>
         </div>
         <div class="header-contact" style="margin-top:4px;">
@@ -679,5 +679,20 @@
       全栈技术顾问 · 期待与您合作
     </div>
   </div>
+  <script>
+    (function() {
+      var y = new Date().getFullYear() - 2010;
+      var ht = document.querySelector('.header-title');
+      if (ht) ht.textContent = '全栈技术顾问 / 独立开发人 / ' + y + '年经验';
+      var ps = document.querySelectorAll('.summary p');
+      for (var i = 0; i < ps.length; i++) {
+        var s = ps[i].querySelector('strong');
+        if (s && s.textContent.indexOf('年') > -1) {
+          s.textContent = y + '年全栈开发/管理经验';
+          break;
+        }
+      }
+    })();
+  </script>
 </body>
 </html>
