@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edward Zhang - Full-Stack Tech Consultant / Indie Developer</title>
+  <style>
+    :root {
+      --primary: #0d9488;
+      --primary-light: #ccfbf1;
+      --text: #1f2937;
+      --text-body: #374151;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --bg: #ffffff;
+      --bg-card: #f9fafb;
+      --bg-accent: #f0fdfa;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text-body);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 48px 32px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+
+    .avatar {
+      width: 135px;
+      height: 135px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary-light);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      flex-shrink: 0;
+    }
+
+    .header-info h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+
+    .header-title {
+      font-size: 16px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .header-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .header-contact a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .header-contact a:hover {
+      color: var(--primary);
+    }
+
+    .header-contact .sep {
+      color: var(--border);
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary);
+      display: inline-block;
+    }
+
+    /* Summary */
+    .summary p {
+      margin-bottom: 10px;
+    }
+
+    .summary strong {
+      color: var(--text);
+    }
+
+    /* Skills */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 10px 24px;
+    }
+
+    .skill-item {
+      display: flex;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .skill-item strong {
+      color: var(--text);
+      flex-shrink: 0;
+      min-width: 80px;
+    }
+
+    /* Experience */
+    .exp-item {
+      margin-bottom: 28px;
+    }
+
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+      margin-bottom: 8px;
+    }
+
+    .exp-company {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .exp-date {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .exp-role {
+      font-size: 14px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .exp-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .exp-list li {
+      position: relative;
+      padding-left: 16px;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .exp-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+
+    /* Project */
+    .proj-item {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .proj-item:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+      transform: translateY(-1px);
+    }
+
+    .proj-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      margin-bottom: 10px;
+    }
+
+    .proj-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .proj-role {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .proj-desc {
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-align: justify;
+    }
+
+    .proj-tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .tech-tag {
+      display: inline-block;
+      background: var(--bg-accent);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--primary-light);
+    }
+
+    .proj-value {
+      font-size: 13px;
+      color: var(--text-body);
+      padding: 10px 14px;
+      background: var(--bg-accent);
+      border-radius: 6px;
+      border-left: 3px solid var(--primary);
+      line-height: 1.6;
+    }
+
+    .proj-value strong {
+      color: var(--primary);
+    }
+
+    .proj-link {
+      font-size: 13px;
+      color: var(--primary);
+      text-decoration: none;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .proj-link:hover {
+      text-decoration: underline;
+    }
+
+    /* AI Section */
+    .ai-section {
+      background: linear-gradient(135deg, var(--bg-accent) 0%, var(--bg-card) 100%);
+      border-radius: 12px;
+      padding: 28px 28px 20px;
+      border: 1px solid var(--primary-light);
+    }
+
+    .ai-section ol {
+      padding-left: 20px;
+      margin: 14px 0;
+    }
+
+    .ai-section li {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .ai-section li strong {
+      color: var(--text);
+    }
+
+    .ai-conclusion {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Print */
+    @media print {
+      body { font-size: 12px; }
+      .container { padding: 24px; max-width: 100%; }
+      .avatar { width: 90px; height: 90px; }
+      .header-info h1 { font-size: 28px; }
+      .section { margin-bottom: 24px; page-break-inside: avoid; }
+      .proj-item { break-inside: avoid; page-break-inside: avoid; }
+      .exp-item { break-inside: avoid; page-break-inside: avoid; }
+      .ai-section { break-inside: avoid; page-break-inside: avoid; }
+      .proj-item:hover { box-shadow: none; transform: none; }
+      a { text-decoration: none; color: var(--text-body); }
+    }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      .container { padding: 24px 18px; }
+      .header { flex-direction: column; text-align: center; gap: 16px; }
+      .header-info h1 { font-size: 28px; }
+      .header-contact { justify-content: center; }
+      .exp-header { flex-direction: column; gap: 2px; }
+      .skill-grid { grid-template-columns: 1fr; }
+      .proj-header { flex-direction: column; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <img src="/assets/avatar.jpg" alt="Avatar" class="avatar">
+      <div class="header-info">
+        <h1>Edward Zhang (Zhang Songlin)</h1>
+        <div class="header-title">Full-Stack Tech Consultant / Indie Developer / 16 Years Experience</div>
+        <div class="header-contact">
+          <span>WeChat: areyouok_xiaolian</span><span class="sep">|</span>
+          <span>Email: 1049180458@qq.com</span>
+        </div>
+        <div class="header-contact" style="margin-top:4px;">
+          <span>Blog: <a href="https://cnblogs.com/linvanda" target="_blank">cnblogs.com/linvanda</a></span><span class="sep">|</span>
+          <span>GitHub: <a href="https://github.com/linzier" target="_blank">https://github.com/linzier</a></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="section summary">
+      <div class="section-title">Profile</div>
+      <p><strong>16 years of full-stack development and management experience</strong>, spanning backend, web, mini-programs, mobile apps, IoT, and AI Agents.</p>
+      <p>I've been a developer, a team lead, a project manager, and a product owner. Now focused on indie development, helping startups and traditional enterprises achieve high-quality digital transformation at low cost. Because I've worked in every role, I know exactly where the pitfalls are and how to avoid them.</p>
+      <p>Extensive experience in B2B product development serving enterprise clients. Familiar with the unique demands of B2B systems: far higher customization and stability requirements than B2C, stronger accountability, faster incident response, and the ability to resolve client issues quickly.</p>
+      <p>For business owners, what you need isn't just someone who can write code — it's someone who can turn ideas into products and who you can trust with full ownership. I'll take you through the entire journey: requirements analysis, architecture design, development, testing, deployment, and maintenance. One person, end-to-end, no buck-passing.</p>
+    </div>
+
+    <!-- Skills -->
+    <div class="section">
+      <div class="section-title">Technical Skills</div>
+      <div class="skill-grid">
+        <div class="skill-item"><strong>Languages</strong>Node.js / TypeScript, Python, Go, PHP, Dart, proficient in C</div>
+        <div class="skill-item"><strong>Backend</strong>Koa, FastAPI, Gin, go-zero, Laravel, Swoole</div>
+        <div class="skill-item"><strong>Frontend</strong>Vue, WeChat Mini Program, Flutter</div>
+        <div class="skill-item"><strong>Data</strong>PostgreSQL, MySQL, Redis, Elasticsearch</div>
+        <div class="skill-item"><strong>Middleware</strong>Kafka, RabbitMQ</div>
+        <div class="skill-item"><strong>AI</strong>LangChain, LangGraph, RAG, Agent Development, vibe coding engineering</div>
+        <div class="skill-item"><strong>Architecture</strong>Microservices, DDD, Middle Platform, High-Concurrency Design (Cache / Rate Limit / Circuit Breaker)</div>
+        <div class="skill-item"><strong>DevOps</strong>Docker, Kubernetes, CI/CD, Nginx, Linux Ops, Alibaba Cloud / AWS</div>
+      </div>
+    </div>
+
+    <!-- Experience -->
+    <div class="section">
+      <div class="section-title">Work Experience</div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">HongShan (Sequoia China)</span>
+          <span class="exp-date">2023 - Present</span>
+        </div>
+        <div class="exp-role">Senior Developer / Internal Investment Management System & AI Implementation</div>
+        <ul class="exp-list">
+          <li>Led architecture design and core development of the internal investment management system, covering the full deal lifecycle: pre-investment, deal execution, and post-investment</li>
+          <li>Drove the company's AI transformation by building the in-house Agent platform Cowork, enabling full vibe coding across the IT department</li>
+          <li>Empowered business teams with AI for talent/company sourcing, investment analysis, research report generation, and due diligence assistance</li>
+          <li>Website: <a href="https://www.hongshan.com/" target="_blank">https://www.hongshan.com/</a></li>
+          <li>Product: Internal system, not publicly available</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">Weiche Technology / Enterprise Division</span>
+          <span class="exp-date">2018 - 2023</span>
+        </div>
+        <div class="exp-role">Director of Cloud Products / Director of Enterprise Technology</div>
+        <ul class="exp-list">
+          <li>Responsible for overall company technical architecture, SaaS team management, and design/development of critical systems</li>
+          <li>Built the enterprise client team serving Shell China, Total, and other global energy giants; handled requirements, product design, project planning, milestone control, and core system R&D</li>
+          <li>Led design and development of one-click fueling, contactless payment, inventory management, BI & reporting, settlement, marketing, stored-value card, and self-service kiosk products/solutions (see "Featured Projects" below)</li>
+          <li>Website: <a href="https://weicheche.cn/" target="_blank">https://weicheche.cn/</a></li>
+          <li>Products: <a href="https://www.weichekeji.com/chanpinyujiejuefangan" target="_blank">https://www.weichekeji.com/chanpinyujiejuefangan</a> — led or contributed to most products and solutions listed</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">Ping An (China)</span>
+          <span class="exp-date">2016 - 2018</span>
+        </div>
+        <div class="exp-role">Engineering Manager</div>
+        <ul class="exp-list">
+          <li>Designed and developed the backend for Ping An Auto Owner (平安好车主)</li>
+          <li>Built and managed the backend engineering team</li>
+          <li>Coordinated cross-department integration and data unification with other Ping An Technology teams</li>
+          <li>Website: <a href="https://group.pingan.com/" target="_blank">https://group.pingan.com/</a></li>
+          <li>Product: Ping An Auto Owner (search "平安好车主" in app stores)</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">Mingyuanyun</span>
+          <span class="exp-date">2013 - 2016</span>
+        </div>
+        <div class="exp-role">Tech Lead / Agile Coach</div>
+        <ul class="exp-list">
+          <li>Managed Scrum teams</li>
+          <li>Developed the core WeChat API integration library</li>
+          <li>Led design and development of the mall system, points system, SSO, URL shortener, and membership system</li>
+          <li>Team management, agile sprints, and project delivery</li>
+          <li>Website: <a href="https://www.mingyuanyun.com/" target="_blank">https://www.mingyuanyun.com/</a></li>
+          <li>Product: Search "明源云" on WeChat Official Accounts</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-header">
+          <span class="exp-company">Xunlei</span>
+          <span class="exp-date">2010 - 2013</span>
+        </div>
+        <div class="exp-role">Frontend Developer</div>
+        <ul class="exp-list">
+          <li>Frontend development for Xunlei Kankan (online video platform), including web version, video player, and middle-platform cache system architecture</li>
+          <li>Built feature libraries and page interactions in vanilla JavaScript; developed the cache service layer</li>
+          <li>Website: <a href="https://tv.xunlei.com/" target="_blank">https://tv.xunlei.com/</a></li>
+          <li>Products: Xunlei Kankan Web, Xunlei Kankan Player</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="section">
+      <div class="section-title">Featured Projects</div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Investment Management System (HongShan)</span>
+          <span class="proj-role">Architecture Design + Backend Development</span>
+        </div>
+        <div class="proj-desc">
+          A full-lifecycle investment management platform for Sequoia China's private equity business, digitizing the deal flow from sourcing to exit. Core capabilities include multi-dimensional talent tagging and relationship graphs, automated meeting agendas and minutes generation, Action Item tracking, multi-model valuation (DCF / Comparable Companies / Precedent Transactions), and automated Fair Value Report generation.
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Express</span><span class="tech-tag">TypeScript</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">Redis Cluster</span><span class="tech-tag">Elasticsearch</span><span class="tech-tag">Docker</span><span class="tech-tag">AWS EC2/RDS/S3/CloudFront</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Supports tens of billions in AUM with significantly improved cross-department collaboration. Digital assets laid the groundwork for full AI-Agent upgrade. Transformed the investment process from "people searching for information" to "information finding people", saving investors 8+ hours per week on information retrieval.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">AI Agent Platform — Cowork (HongShan)</span>
+          <span class="proj-role">Full-Stack Development</span>
+        </div>
+        <div class="proj-desc">
+          As AI capabilities advanced, HongShan fully embraced AI. The IT team built Cowork, an Agent platform tailored for investment workflows (inspired by OpenClaw / Hermes). Built on the Claude Code SDK with multi-Agent collaboration, integrating GPT-4, Claude, DeepSeek, and other multimodal LLMs. Supports RAG knowledge retrieval, subagents, long-context memory, and autonomous workflows. The architecture has three layers: access layer (unified model adapter, streaming), Agent engine layer (workflows, Tool Use, memory management), and application layer (vibe coding IDE, investment analysis assistant, talent/company sourcer, research report generator, document generator). The vibe coding IDE supports a full closed loop: natural language input → AI code generation → automated code review → test generation → one-click deployment, with Git version control, diff comparison, comment generation, and auto unit tests.
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">TypeScript</span><span class="tech-tag">Electron</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">sqlite</span><span class="tech-tag">Redis</span><span class="tech-tag">React</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> 3x+ IT development efficiency (features that took 2 days now done in half a day via vibe coding); investment research report generation time reduced from 2 days to 30 minutes; talent/company pre-screening efficiency improved 10x+ (AI Sourcer automatically retrieves multi-source data and generates preliminary analysis reports). Demonstrates rapid adoption of cutting-edge technology.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Transaction Middle Platform (Weiche)</span>
+          <span class="proj-role">Architecture Design + Core Development</span>
+        </div>
+        <div class="proj-desc">
+          As the business grew, more product lines needed transaction support. While there were backend services for products, orders, payments, and marketing, there was no unified middle platform. Each business system independently handled discount calculation, coupon selection, ordering, payment, callbacks, and notifications — leading to duplicated code, inconsistent logic, endless bugs, and changes required in multiple places. Built a transaction middle platform that extracted common logic (user identification, discount calculation, coupon usage, inventory locking, ordering, payment, callbacks, notifications). Restructured the call chain to "Frontend → Transaction Middle Platform → Backend Services", with the middle platform handling scenario-agnostic business logic and enabling customization via parameters and config. Key optimizations: parallelized independent backend calls to reduce serial wait; lazy object loading to avoid unnecessary remote calls; async parallel payment callbacks with dependency-based auto-scheduling; configurable strategy isolation for discount rules across scenarios; local message table for reliable payment callback delivery and eventual consistency.
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Go</span><span class="tech-tag">Go-zero</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis Cluster</span><span class="tech-tag">Kafka</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> New business development efficiency improved 50%+ (frontend only needs to call an API with parameters, no repeated transaction logic); data consistency bugs eliminated (data warehouse reports previously had frequent errors due to inconsistent rounding algorithms across teams); payment performance improved 3x (parallelization + lazy loading + async processing); logic changes only need one modification, dramatically improving system scalability.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">One-Click Fueling (Weiche)</span>
+          <span class="proj-role">Architecture Design + Core Development</span>
+        </div>
+        <div class="proj-desc">
+          The company's flagship product, launched in 2015 as the industry's first mobile fuel payment solution with a design patent. Drivers don't need to download an app — simply scan a QR code via WeChat Official Account / Mini Program to complete the full flow: select fuel type → enter amount/volume → pay online → automatic bookkeeping and points accumulation. Payment time reduced from 1-2 minutes to a few seconds. Deep integration with the retail management system, invoicing system, and BI platform enables automatic reconciliation, member data沉淀, and customer profiling. Supports叠加 marketing capabilities like discounts, coupon returns, and points redemption. Supports both single-station deployment and multi-station group management.
+        </div>
+        <div class="proj-link">WeChat Official Account: Search "广州市公平加油站"</div>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">WeChat Mini Program / OA</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Core revenue driver, serving thousands of gas stations with millions of daily transactions. Built a proprietary online channel for stations, accumulating customer data that powers后续 stored-value cards, coupons, and private-domain operations. Peak-hour throughput efficiency improved 3x+.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Contactless Payment (Weiche)</span>
+          <span class="proj-role">Architecture Design + Core Development</span>
+        </div>
+        <div class="proj-desc">
+          A "pump and go" fueling solution for fleet operators and high-frequency drivers. After entering the station and fueling, the system automatically identifies the vehicle via ETC tag or license plate recognition and processes payment in the background — no need to get out of the car or scan QR codes. Built on a mature payment clearing and settlement system, integrated with banks, third-party payment providers, and fleet settlement systems.
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Go</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">Kafka</span><span class="tech-tag">WeChat Mini Program</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Significantly improved pump turnover and peak-hour throughput. Served as the core payment solution for Shell China and other major enterprise clients, establishing the company's technical brand in the high-end market. Enabled fleet customer fine-grained management and opened up the fleet细分 market.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Stored-Value Card System (Weiche)</span>
+          <span class="proj-role">Architecture Design + Core Development</span>
+        </div>
+        <div class="proj-desc">
+          Drivers (individuals and fleets) can open stored-value cards at gas stations and recharge for discounted fuel purchases. The system supports card opening, recharge, consumption, balance inquiry, and transaction history. The core challenge was <strong>idempotency</strong> and <strong>data consistency</strong> in a distributed environment. Recharge and consumption involve multiple services (user service, payment gateway, account service, order service, notification service), and any failure could lead to financial discrepancies. Adopted TCC distributed transaction pattern for fund safety: Try phase freezes the amount, Confirm phase commits the deduction, Cancel phase rolls back and releases. Global unique idempotency key + database unique index ensures each operation executes only once; handled empty compensation and suspension boundary cases; Redis distributed locks ensure serialization of transactions on the same account under high concurrency; Bloom filter prevents cache penetration.
+        </div>
+        <a class="proj-link" href="https://www.cnblogs.com/linvanda/p/16172767.html" target="_blank">Detailed Technical Write-up →</a>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Brought high-stickiness users to stations and supported precision marketing; drivers enjoyed additional discounts. Zero financial discrepancies since launch, stable operation to date, supporting tens of millions in daily transaction volume. The technical solution was shared internally and became the company's best practice for distributed transactions.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Shell China Enterprise Project Portfolio</span>
+          <span class="proj-role">Tech Lead + Project Management</span>
+        </div>
+        <div class="proj-desc">
+          A portfolio of custom development projects serving Shell China, including membership benefits, car wash system, contactless payment, and SMS gateway. Served as tech lead and project manager, with responsibilities spanning: (1) requirements communication with Shell business teams, translating vague needs into clear functional specs and technical proposals; (2) project planning with WBS breakdown and milestone setting; (3) task assignment based on team members' skills and workload, with daily standups and on-the-spot blocker resolution; (4) milestone tracking with intensive follow-up one week before each deadline; (5) technical problem-solving for contactless payment real-time communication between fuel pumps and payment systems using WebSocket + heartbeat + reconnection; (6) quality assurance through strict code review, automated testing, and canary release processes. Shell has extremely high quality standards — every release required code audit and security scan by Shell's technical team, pushing the team to international standards in code quality, security, and performance.
+        </div>
+        <div class="proj-link">Mini Program: Search "壳牌加油站"</div>
+        <div class="proj-tech">
+          <span class="tech-tag">Go</span><span class="tech-tag">PHP</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">Kafka</span><span class="tech-tag">WeChat Mini Program</span><span class="tech-tag">Flutter</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Shell projects brought significant revenue and brand influence. 5+ years of continuous collaboration with deep recognition from Shell China. The stringent quality standards elevated the entire team's capabilities, raising the company's overall R&D level.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Smart Gas Station Marketing System "Weijiajia"</span>
+          <span class="proj-role">Tech Lead + Architect</span>
+        </div>
+        <div class="proj-desc">
+          The company's core product suite comprising six functional systems: points system, membership tiering, customer召回, referral program, marketing coupons, and commercial fleet management. Covered multiple endpoints: PC management platform (for ops staff), front-desk POS收银, dual-screen收银, operations console, self-service kiosk, and member channels (WeChat Mini Program, WeChat Official Account, Alipay Mini Program, H5). Core services included payment gateway, order service, inventory management, push service, distribution center, points service, membership tiering, BI analytics, coupon service, marketing engine, and stored-value card service. As tech lead, managed a 20-person team, coordinated with product, operations, and sales, and tackled high-concurrency performance optimization and complex business logic梳理. As business and technical architect, responsible for overall architecture design, system architecture review, and technical guidance, ensuring technical correctness and operational stability.
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">Go</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis Cluster</span><span class="tech-tag">Kafka</span><span class="tech-tag">WeChat Mini Program</span><span class="tech-tag">Flutter</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Supported the company's core revenue, serving thousands of gas stations. System availability improved from 99.5% to 99.95% after architecture refactoring.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Download Center (Weiche)</span>
+          <span class="proj-role">Architecture Design + Development</span>
+        </div>
+        <div class="proj-desc">
+          A unified report download system addressing three pain points across teams: (1) each team wrote its own download logic, reinventing the wheel; (2) significant time spent on complex Excel formatting templates that were often negotiated and compromised during development; (3) most projects used synchronous downloads that timed out or ran out of memory with large datasets. The unified system provides: (1) a unified API for Excel/CSV downloads via HTTP with no implementation concerns; (2) complex Excel generation through JSON config (headers, column widths, cell merging, styling, formulas, charts); (3) async bulk data downloads with automatic pagination, caching, archiving, split volumes, and ZIP compression; (4) multi-tab, multi-report, multi-datasource support (HTTP API / SQL / message queue); (5) task status queries and Webhook callbacks. Built on Swoole coroutines for high-concurrency task processing with Redis queue scheduling supporting priorities and retries.
+        </div>
+        <a class="proj-link" href="https://github.com/linvanda/download" target="_blank">Code & Technical Details →</a>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> All 20+ projects in the company adopted the system, processing 5000+ download tasks daily. Eliminated download failures due to data volume (previously 100K+ rows always timed out; now supports millions via async). Complex Excel template development time reduced from days to hours.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Ping An Auto Owner (Ping An China)</span>
+          <span class="proj-role">Backend Team Build + Architecture Design</span>
+        </div>
+        <div class="proj-desc">
+          A comprehensive car owner service platform under Ping An China, covering insurance, car use, and car maintenance scenarios with online policy purchase, self-service claims, traffic violation queries, roadside assistance, fueling, parking, annual inspection代理, and driving score services, serving 100M+ registered users. As the founding tech manager, built the backend team from zero (10+ people), led system architecture design and core module development, and handled cross-department technical integration. Key work: (1) established backend tech stack, coding standards, code review processes, and CI/CD pipelines; (2) integrated with dozens of internal Ping An systems (insurance core, claims, payment gateway, vehicle data platform, user center, message center) for data unification and interface standardization; (3) designed high-concurrency solutions: multi-level cache, rate limiting, circuit breaker, and async peak shaving for renewal rush periods and holiday travel peaks; (4) established cross-department collaboration mechanisms with insurance, claims, actuarial, operations, marketing, and external partners (traffic police data, gas stations, parking lots).
+        </div>
+        <div class="proj-link">App: Search "平安好车主" in app stores / App Store</div>
+        <div class="proj-tech">
+          <span class="tech-tag">Java</span><span class="tech-tag">Go</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">RabbitMQ</span><span class="tech-tag">Nginx</span><span class="tech-tag">Ping An Cloud</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Built the team and delivered the product from scratch, supporting core features like online insurance purchase and self-service claims at 100M+ user scale. Established backend R&D standards and cross-department collaboration mechanisms, laying the technical and team foundation for long-term growth.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Single Sign-On System (Mingyuanyun)</span>
+          <span class="proj-role">Architecture Design + Full-Stack Development</span>
+        </div>
+        <div class="proj-desc">
+          As the company grew, each team built its own login system, leading to duplicated development, inconsistent logic and UI, poor user experience, and high maintenance costs. Built an SSO system based on OAuth2.0 authorization code grant, supporting unified access across multiple endpoints (PC Web, H5, Mini Program, App) and multiple projects, reducing development cost and unifying interaction flows. Supports password, SMS verification, WeChat scan, and WeChat Work authentication, as well as Cookie Session, JWT, and Mini Program session types. Supports multi-tenant isolation (different projects can configure different login styles and auth methods), Refresh Token auto-renewal, global logout, and standard OAuth2.0 third-party app integration.
+        </div>
+        <a class="proj-link" href="https://github.com/linzier/sso" target="_blank">Code & Technical Details →</a>
+        <div class="proj-tech">
+          <span class="tech-tag">PHP</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Unified login across all company endpoints (desktop, mobile, smart devices) and all projects with consistent user experience. Supports third-party apps and outsourced projects. New project login feature development time reduced from 2 days to 30 minutes (just integrate the SSO SDK and configure the callback URL).</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">URL Shortener Service (Mingyuanyun)</span>
+          <span class="proj-role">Architecture Design + Core Development</span>
+        </div>
+        <div class="proj-desc">
+          Provides short URL to long URL redirection, widely used in SMS and other character-limited scenarios. The core challenge was performance in short-to-long URL lookup and redirection latency. Algorithm: auto-increment ID converted to base-62. The database auto-increment primary key is converted to base-62 as the short URL identifier (using 0-9a-zA-Z, 62 characters). When resolving, convert base-62 back to decimal for direct primary key lookup, avoiding hash collisions and full table scans — simple and high-performance. Optimizations: (1) Redis Hash caches hot URL mappings to reduce DB queries; (2) Redis Bloom filter intercepts non-existent short URLs to prevent cache penetration attacks.
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Go</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Served as the company's foundational platform service, providing stable, reliable, and efficient URL conversion for internal teams and external partners, supporting numerous upper-layer applications. Processes millions of redirection requests daily.</div>
+      </div>
+
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Xunlei Kankan (Xunlei)</span>
+          <span class="proj-role">Frontend Development + Cache Architecture</span>
+        </div>
+        <div class="proj-desc">
+          Xunlei's online video platform. Responsible for web frontend development, video player development, and middle-platform cache system architecture. The web version was built with vanilla JavaScript, compatible with IE6+, Chrome, Firefox, and other browsers. The player supported playback control, resolution switching,弹幕 (danmu), and ad insertion. The middle-platform cache system used a multi-level cache architecture (browser cache + CDN edge cache + server-side cache), with version-based management and proactive push invalidation for data consistency, significantly reducing backend service pressure.
+        </div>
+        <div class="proj-tech">
+          <span class="tech-tag">Vanilla JavaScript</span><span class="tech-tag">HTML/CSS</span><span class="tech-tag">PHP</span><span class="tech-tag">Nginx</span>
+        </div>
+        <div class="proj-value"><strong>Impact:</strong> Cache system supported tens of millions of daily PVs, reducing backend request volume by 70%+. The multi-browser compatibility approach became the team's frontend development standard.</div>
+      </div>
+    </div>
+
+    <!-- AI & Vibe Coding -->
+    <div class="section ai-section">
+      <div class="section-title">On AI & Vibe Coding</div>
+      <p>Vibe coding (letting AI write all the code) is gradually replacing hand-written code as the mainstream development approach. Clients often ask me the same question: <strong>With AI, can just anyone build a production system?</strong></p>
+      <p style="margin:10px 0;font-weight:600;color:var(--text);">The answer is <strong>no</strong>. For at least the next 3 years, someone with no coding experience cannot build a production-ready system relying solely on AI.</p>
+      <p style="margin-bottom:8px;">Here are the key insights from our team's long-term practice:</p>
+      <ol>
+        <li><strong>AI excels at features, not architecture.</strong> Building a feature is fast, but overall system architecture design heavily depends on human experience — AI cannot yet handle this.</li>
+        <li><strong>Prompt quality determines output quality.</strong> A single word difference can produce drastically different results (with vastly different token consumption). Vibe coding is equally dependent on human experience and skill.</li>
+        <li><strong>As complexity grows, AI produces more bugs than humans.</strong> Rigorous code review is indispensable.</li>
+        <li><strong>AI code often stops at "it works."</strong> It falls short on performance and maintainability compared to human-written code — and the quality of the final review depends entirely on the reviewer's ability.</li>
+        <li><strong>Hallucinations are inevitable.</strong> Even Claude Opus hallucinates, sometimes in subtle but critical places. Robust review and testing processes are the only safety net.</li>
+      </ol>
+      <div class="ai-conclusion"><strong>Conclusion:</strong> AI is an amplifier — it can multiply the efficiency of experienced developers several times over, but it cannot replace experience itself. I can help you deliver faster and better with AI while ensuring your systems run stably and at high quality in production.</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      Full-Stack Tech Consultant · Open to Collaborations
+    </div>
+  </div>
+  <script>
+    (function() {
+      var y = new Date().getFullYear() - 2010;
+      var ht = document.querySelector('.header-title');
+      if (ht) ht.textContent = 'Full-Stack Tech Consultant / Indie Developer / ' + y + ' Years Experience';
+      var ps = document.querySelectorAll('.summary p');
+      for (var i = 0; i < ps.length; i++) {
+        var s = ps[i].querySelector('strong');
+        if (s && s.textContent.indexOf('Years') > -1) {
+          s.textContent = y + ' Years of Full-Stack Development & Management Experience';
+          break;
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
