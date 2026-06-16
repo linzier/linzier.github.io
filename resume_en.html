@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edward Zhang - Full-Stack Tech Consultant / Indie Developer</title>
+  <title>Linzier - Full-Stack Tech Consultant / Indie Developer</title>
   <style>
     :root {
       --primary: #0d9488;
@@ -348,10 +348,10 @@
     <div class="header">
       <img src="/assets/avatar.jpg" alt="Avatar" class="avatar">
       <div class="header-info">
-        <h1>Edward Zhang (Zhang Songlin)</h1>
+        <h1>Linzier</h1>
         <div class="header-title">Full-Stack Tech Consultant / Indie Developer / 16 Years Experience</div>
         <div class="header-contact">
-          <span>WeChat: areyouok_xiaolian</span><span class="sep">|</span>
+          <span>Whatsapp: 18971140945</span><span class="sep">|</span>
           <span>Email: 1049180458@qq.com</span>
         </div>
         <div class="header-contact" style="margin-top:4px;">
@@ -414,8 +414,8 @@
           <li>Responsible for overall company technical architecture, SaaS team management, and design/development of critical systems</li>
           <li>Built the enterprise client team serving Shell China, Total, and other global energy giants; handled requirements, product design, project planning, milestone control, and core system R&D</li>
           <li>Led design and development of one-click fueling, contactless payment, inventory management, BI & reporting, settlement, marketing, stored-value card, and self-service kiosk products/solutions (see "Featured Projects" below)</li>
-          <li>Website: <a href="https://weicheche.cn/" target="_blank">https://weicheche.cn/</a></li>
-          <li>Products: <a href="https://www.weichekeji.com/chanpinyujiejuefangan" target="_blank">https://www.weichekeji.com/chanpinyujiejuefangan</a> — led or contributed to most products and solutions listed</li>
+          <li>Website: <a href="https://www.wecartechnology.com" target="_blank">https://www.wecartechnology.com</a></li>
+          <li>Products: <a href="https://www.wecartechnology.com/projects" target="_blank">https://www.wecartechnology.com/projects</a></li>
         </ul>
       </div>
 
@@ -519,7 +519,6 @@
         <div class="proj-desc">
           The company's flagship product, launched in 2015 as the industry's first mobile fuel payment solution with a design patent. Drivers don't need to download an app — simply scan a QR code via WeChat Official Account / Mini Program to complete the full flow: select fuel type → enter amount/volume → pay online → automatic bookkeeping and points accumulation. Payment time reduced from 1-2 minutes to a few seconds. Deep integration with the retail management system, invoicing system, and BI platform enables automatic reconciliation, member data沉淀, and customer profiling. Supports叠加 marketing capabilities like discounts, coupon returns, and points redemption. Supports both single-station deployment and multi-station group management.
         </div>
-        <div class="proj-link">WeChat Official Account: Search "广州市公平加油站"</div>
         <div class="proj-tech">
           <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">WeChat Mini Program / OA</span>
         </div>
@@ -548,7 +547,6 @@
         <div class="proj-desc">
           Drivers (individuals and fleets) can open stored-value cards at gas stations and recharge for discounted fuel purchases. The system supports card opening, recharge, consumption, balance inquiry, and transaction history. The core challenge was <strong>idempotency</strong> and <strong>data consistency</strong> in a distributed environment. Recharge and consumption involve multiple services (user service, payment gateway, account service, order service, notification service), and any failure could lead to financial discrepancies. Adopted TCC distributed transaction pattern for fund safety: Try phase freezes the amount, Confirm phase commits the deduction, Cancel phase rolls back and releases. Global unique idempotency key + database unique index ensures each operation executes only once; handled empty compensation and suspension boundary cases; Redis distributed locks ensure serialization of transactions on the same account under high concurrency; Bloom filter prevents cache penetration.
         </div>
-        <a class="proj-link" href="https://www.cnblogs.com/linvanda/p/16172767.html" target="_blank">Detailed Technical Write-up →</a>
         <div class="proj-tech">
           <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
         </div>
@@ -563,7 +561,6 @@
         <div class="proj-desc">
           A portfolio of custom development projects serving Shell China, including membership benefits, car wash system, contactless payment, and SMS gateway. Served as tech lead and project manager, with responsibilities spanning: (1) requirements communication with Shell business teams, translating vague needs into clear functional specs and technical proposals; (2) project planning with WBS breakdown and milestone setting; (3) task assignment based on team members' skills and workload, with daily standups and on-the-spot blocker resolution; (4) milestone tracking with intensive follow-up one week before each deadline; (5) technical problem-solving for contactless payment real-time communication between fuel pumps and payment systems using WebSocket + heartbeat + reconnection; (6) quality assurance through strict code review, automated testing, and canary release processes. Shell has extremely high quality standards — every release required code audit and security scan by Shell's technical team, pushing the team to international standards in code quality, security, and performance.
         </div>
-        <div class="proj-link">Mini Program: Search "壳牌加油站"</div>
         <div class="proj-tech">
           <span class="tech-tag">Go</span><span class="tech-tag">PHP</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">Kafka</span><span class="tech-tag">WeChat Mini Program</span><span class="tech-tag">Flutter</span>
         </div>
@@ -592,7 +589,6 @@
         <div class="proj-desc">
           A unified report download system addressing three pain points across teams: (1) each team wrote its own download logic, reinventing the wheel; (2) significant time spent on complex Excel formatting templates that were often negotiated and compromised during development; (3) most projects used synchronous downloads that timed out or ran out of memory with large datasets. The unified system provides: (1) a unified API for Excel/CSV downloads via HTTP with no implementation concerns; (2) complex Excel generation through JSON config (headers, column widths, cell merging, styling, formulas, charts); (3) async bulk data downloads with automatic pagination, caching, archiving, split volumes, and ZIP compression; (4) multi-tab, multi-report, multi-datasource support (HTTP API / SQL / message queue); (5) task status queries and Webhook callbacks. Built on Swoole coroutines for high-concurrency task processing with Redis queue scheduling supporting priorities and retries.
         </div>
-        <a class="proj-link" href="https://github.com/linvanda/download" target="_blank">Code & Technical Details →</a>
         <div class="proj-tech">
           <span class="tech-tag">PHP</span><span class="tech-tag">Swoole</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
         </div>
@@ -607,7 +603,6 @@
         <div class="proj-desc">
           A comprehensive car owner service platform under Ping An China, covering insurance, car use, and car maintenance scenarios with online policy purchase, self-service claims, traffic violation queries, roadside assistance, fueling, parking, annual inspection代理, and driving score services, serving 100M+ registered users. As the founding tech manager, built the backend team from zero (10+ people), led system architecture design and core module development, and handled cross-department technical integration. Key work: (1) established backend tech stack, coding standards, code review processes, and CI/CD pipelines; (2) integrated with dozens of internal Ping An systems (insurance core, claims, payment gateway, vehicle data platform, user center, message center) for data unification and interface standardization; (3) designed high-concurrency solutions: multi-level cache, rate limiting, circuit breaker, and async peak shaving for renewal rush periods and holiday travel peaks; (4) established cross-department collaboration mechanisms with insurance, claims, actuarial, operations, marketing, and external partners (traffic police data, gas stations, parking lots).
         </div>
-        <div class="proj-link">App: Search "平安好车主" in app stores / App Store</div>
         <div class="proj-tech">
           <span class="tech-tag">Java</span><span class="tech-tag">Go</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span><span class="tech-tag">RabbitMQ</span><span class="tech-tag">Nginx</span><span class="tech-tag">Ping An Cloud</span>
         </div>
@@ -622,7 +617,6 @@
         <div class="proj-desc">
           As the company grew, each team built its own login system, leading to duplicated development, inconsistent logic and UI, poor user experience, and high maintenance costs. Built an SSO system based on OAuth2.0 authorization code grant, supporting unified access across multiple endpoints (PC Web, H5, Mini Program, App) and multiple projects, reducing development cost and unifying interaction flows. Supports password, SMS verification, WeChat scan, and WeChat Work authentication, as well as Cookie Session, JWT, and Mini Program session types. Supports multi-tenant isolation (different projects can configure different login styles and auth methods), Refresh Token auto-renewal, global logout, and standard OAuth2.0 third-party app integration.
         </div>
-        <a class="proj-link" href="https://github.com/linzier/sso" target="_blank">Code & Technical Details →</a>
         <div class="proj-tech">
           <span class="tech-tag">PHP</span><span class="tech-tag">MySQL</span><span class="tech-tag">Redis</span>
         </div>
