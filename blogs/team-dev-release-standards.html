@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technical Team Development & Release Standards</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Technical Team Development &amp; Release Standards</h1>
+    <div class="meta">2020-04-23 | Process</div>
+
+    <h2>Iteration Cycle</h2>
+
+    <p>Our team operates on a <strong>monthly iteration cycle</strong>. Each month is divided into two sprints:</p>
+
+    <ul>
+      <li><strong>S1</strong> &mdash; the first two weeks of the month.</li>
+      <li><strong>S2</strong> &mdash; the last two weeks of the month.</li>
+    </ul>
+
+    <p>Each sprint has a defined scope of requirements that the team commits to delivering. At the end of each sprint, there is a demo and retrospective to assess what was accomplished and identify areas for improvement.</p>
+
+    <h2>Requirements Management</h2>
+
+    <h3>Product vs Technical Requirements</h3>
+
+    <p>Requirements come in two flavors:</p>
+
+    <ul>
+      <li><strong>Product requirements</strong> &mdash; features and changes driven by business needs, defined by the product manager.</li>
+      <li><strong>Technical requirements</strong> &mdash; infrastructure improvements, refactoring, performance optimization, and tech debt reduction, initiated by the engineering team.</li>
+    </ul>
+
+    <p>Both types go through the same review and planning process. Technical requirements are just as important as product requirements and must be allocated dedicated capacity in each sprint.</p>
+
+    <h3>Planned vs Ad-hoc Requirements</h3>
+
+    <ul>
+      <li><strong>Planned requirements</strong> are those identified during sprint planning and committed to at the beginning of the sprint.</li>
+      <li><strong>Ad-hoc requirements</strong> are urgent requests that arise mid-sprint. These must be evaluated for priority and impact before being accepted. If an ad-hoc requirement is accepted, something else must be deprioritized to maintain the sprint's balance.</li>
+    </ul>
+
+    <h3>Review Process</h3>
+
+    <p>All requirements must go through a formal review process before development begins:</p>
+
+    <ol>
+      <li>Product manager writes the requirement document.</li>
+      <li>Technical lead reviews feasibility and estimates effort.</li>
+      <li>The team discusses the requirement in a planning meeting.</li>
+      <li>Acceptance criteria are clearly defined and agreed upon.</li>
+    </ol>
+
+    <h2>Development Phase</h2>
+
+    <h3>Branch Strategy</h3>
+
+    <p>Each requirement gets its own feature branch, branched from the latest <code>master</code>. Branch naming follows the convention:</p>
+
+    <pre><code>feature-&lt;developer&gt;-&lt;description&gt;</code></pre>
+
+    <p>Developers should merge the latest master into their feature branch daily to catch integration issues early.</p>
+
+    <h3>Daily Standups</h3>
+
+    <p>Each day, the team holds a brief standup meeting (15 minutes max) where each member answers three questions:</p>
+
+    <ol>
+      <li>What did I accomplish yesterday?</li>
+      <li>What do I plan to work on today?</li>
+      <li>Are there any blockers in my way?</li>
+    </ol>
+
+    <p>The standup is not a status report to management; it is a synchronization mechanism for the team.</p>
+
+    <h2>Testing Phase</h2>
+
+    <h3>Submission for Testing</h3>
+
+    <p>When development is complete, the developer submits the feature for testing by sending an email to the QA team with the following information:</p>
+
+    <ul>
+      <li>Requirement ID and description</li>
+      <li>Branch name and version number</li>
+      <li>Impact scope (which modules are affected)</li>
+      <li>Test suggestions and key scenarios to verify</li>
+      <li>Known issues or limitations</li>
+      <li>Database migration scripts (if any)</li>
+      <li>Configuration changes (if any)</li>
+    </ul>
+
+    <h3>Bug Fix SLA</h3>
+
+    <p>Once testing begins, bugs are categorized by severity, and the development team commits to the following response times:</p>
+
+    <ul>
+      <li><strong>Critical (P0)</strong> &mdash; blocks testing or causes data loss: fix within <strong>4 hours</strong>.</li>
+      <li><strong>High (P1)</strong> &mdash; major functionality broken: fix within <strong>1 business day</strong>.</li>
+      <li><strong>Medium (P2)</strong> &mdash; minor functionality issue: fix within <strong>2 business days</strong>.</li>
+      <li><strong>Low (P3)</strong> &mdash; cosmetic or trivial: fix before release or deferred to next sprint.</li>
+    </ul>
+
+    <h2>Pre-release Phase</h2>
+
+    <h3>Release Branch</h3>
+
+    <p>When the sprint is ready for release, a release branch is created from the latest <code>master</code>:</p>
+
+    <pre><code>release-YYYYMMDD.NN</code></pre>
+
+    <p>All features that have passed testing are merged into this release branch. The release branch is then deployed to the pre-production (staging) environment for final verification.</p>
+
+    <h3>Deployment Notification</h3>
+
+    <p>Before deploying to production, the release manager sends a deployment email to all stakeholders containing:</p>
+
+    <ul>
+      <li>List of features/requirements included in this release</li>
+      <li>Deployment time window</li>
+      <li>Expected downtime (if any)</li>
+      <li>Database migration steps</li>
+      <li>Configuration changes</li>
+      <li>Rollback plan</li>
+      <li>Verification steps after deployment</li>
+    </ul>
+
+    <h2>Production Release</h2>
+
+    <h3>Approval Process</h3>
+
+    <p>Production releases require formal approval:</p>
+
+    <ol>
+      <li>QA signs off that all test cases pass and no critical bugs remain open.</li>
+      <li>Technical lead confirms the code review is complete and the architecture is sound.</li>
+      <li>Product manager confirms the delivered features match the requirements.</li>
+      <li>Operations team confirms the deployment runbook is ready.</li>
+    </ol>
+
+    <h3>Risk Assessment</h3>
+
+    <p>Before every production release, the team conducts a risk assessment:</p>
+
+    <ul>
+      <li>What is the blast radius if something goes wrong?</li>
+      <li>Are there dependencies on other systems being released?</li>
+      <li>Is this a peak traffic period? Should we defer the release?</li>
+      <li>Are there database schema changes that could lock tables?</li>
+    </ul>
+
+    <h3>Rollback Plan</h3>
+
+    <p>Every release must have a rollback plan. The rollback plan should specify:</p>
+
+    <ul>
+      <li>The exact steps to revert to the previous version.</li>
+      <li>How to handle database migrations (forward-only or reversible?).</li>
+      <li>Who is responsible for executing the rollback.</li>
+      <li>The criteria that trigger a rollback (e.g., error rate above threshold).</li>
+      <li>Estimated time to complete the rollback.</li>
+    </ul>
+
+    <blockquote>A release without a rollback plan is not a release; it is a gamble.</blockquote>
+
+    <h2>Summary</h2>
+
+    <p>Following a disciplined development and release process is not about bureaucracy; it is about reducing uncertainty and building trust. When everyone knows what to expect, the team can move faster with fewer surprises. The key principles are:</p>
+
+    <ul>
+      <li>Clear requirements before coding begins.</li>
+      <li>Isolated branches for each feature.</li>
+      <li>Formal handoff between development, testing, and operations.</li>
+      <li>Risk assessment and rollback plans for every production change.</li>
+    </ul>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>&copy; 2020 Linzer's Blog</p>
+  </div>
+</footer>
+</body>
+</html>

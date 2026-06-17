@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Red-Black Trees Came to Be</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda/p/17400505.html" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>How Red-Black Trees Came to Be</h1>
+    <div class="meta">2023-05-22 | Data Structures | <a href="https://www.cnblogs.com/linvanda/p/17400505.html">Original</a></div>
+
+    <h2>The Key to Balance</h2>
+
+    <p>Picking up where we left off &mdash; in the previous article, <em>The Essence of Binary Search Trees</em>, we mentioned a serious practical problem with binary search trees: tree skew. Inserting data in a particular order can cause a binary search tree to degenerate into a plain linked list, degrading all operations to O(n) time complexity.</p>
+
+    <p><img src="images/rbtree-01.png" alt="Binary search tree degenerated into a linked list"></p>
+
+    <p>How can we keep the tree balanced after write operations?</p>
+
+    <p>Professor R sat sipping his black coffee, staring at this "deformed" binary tree.</p>
+
+    <p>"How can we add new nodes without destroying the tree's balance?"</p>
+
+    <p>Suddenly, his eyes lit up!</p>
+
+    <p>"Yes! That's the problem: <strong>growing downward</strong>." Professor R realized that every time we add a new node, we create a new child under an existing leaf. Each new node increases the tree height by 1.</p>
+
+    <p>"Then what if we stop the tree from growing downward?"</p>
+
+    <p>For example, when inserting element 2, instead of making it a child of node 1, what if we put it <em>together</em> with 1?</p>
+
+    <p><img src="images/rbtree-02.png" alt="Inserting element 2 together with node 1"></p>
+
+    <p>Now the tree stops growing in height. But there's a problem: if the entire tree collapses into a single node, haven't we just regressed to an array?</p>
+
+    <p><img src="images/rbtree-03.png" alt="Continuing to insert elements into a single node"></p>
+
+    <p>"Since it needs to grow, but can't grow downward, it can only grow <strong>upward</strong>."</p>
+
+    <p>When the number of elements in a node reaches 3, we take the middle element as the parent P, and the two remaining elements become P's left and right children.</p>
+
+    <p><img src="images/rbtree-04.png" alt="Node splitting in a 2-3 tree"></p>
+
+    <p>The original node containing 3 elements <strong>splits</strong> into three nodes, and the height of the subtree rooted at that node increases by 1.</p>
+
+    <p>In a binary search tree, each node P can have at most 2 children. In our new search tree, a node can hold up to 2 elements. When a node has 2 elements a and b, it can represent 3 intervals. So a node can have 2 or 3 children. We call this a <strong>2-3 tree</strong>.</p>
+
+    <p><img src="images/rbtree-05.png" alt="A 2-3 tree"></p>
+
+    <p>Let us insert elements 1 through 11 in order and see what the resulting 2-3 tree looks like.</p>
+
+    <p><img src="images/rbtree-06.png" alt="Inserting elements 1 to 11 into a 2-3 tree"></p>
+
+    <p>Only one situation increases the tree height: splitting of the root node. This process is symmetric, so no matter how the splits occur, the entire tree remains balanced.</p>
+
+    <h2>The Problem with 2-3 Trees</h2>
+
+    <p>Professor R ran into trouble during implementation. This seemingly simple data structure turned out to be extremely complex to code.</p>
+
+    <p>Professor L explained: "Whether it's a 2-node or a 3-node, they are logically equivalent. We can represent a 2-3 tree using a binary tree!"</p>
+
+    <p><img src="images/rbtree-07.png" alt="Professor L's sketch: representing 3-nodes with 2-nodes"></p>
+
+    <p>Use red lines to mark the relationship between the two elements within a 3-node. This way, we can use 2-nodes to represent 3-nodes.</p>
+
+    <p><img src="images/rbtree-08.png" alt="A 4-node represented with two red lines"></p>
+
+    <p>We can transfer the edge color to the lower node, giving us a tree with two types of nodes: red and black.</p>
+
+    <p><img src="images/rbtree-09.png" alt="Red-black tree with edge colors transferred to nodes"></p>
+
+    <h2>Properties of Red-Black Trees</h2>
+
+    <p>Property 1: No two consecutive red nodes are allowed.</p>
+    <p>Property 2: Every simple path from any leaf to the root contains the same number of black nodes.</p>
+    <p>Property 3: The root node is black.</p>
+    <p>Property 4: A red node must be the left child of its parent. (Left-leaning red-black tree)</p>
+
+    <p>Here is a complete 2-3 tree represented as a red-black tree:</p>
+
+    <p><img src="images/rbtree-10.png" alt="A 2-3 tree represented as a left-leaning red-black tree"></p>
+
+    <h2>The Magical Three Axes</h2>
+
+    <p>Left rotation:</p>
+
+    <p><img src="images/rbtree-14.png" alt="Left rotation"></p>
+
+    <p>Right rotation:</p>
+
+    <p><img src="images/rbtree-15.png" alt="Right rotation"></p>
+
+    <p>Color flip:</p>
+
+    <p><img src="images/rbtree-16.png" alt="Color flip"></p>
+
+    <p>Left rotation, right rotation, and color flip &mdash; with these three tools, we can handle all red-black tree properties without ever thinking about 2-3 trees again.</p>
+
+    <h2>Inserting an Element</h2>
+
+    <p>Let's look at inserting element 1.5. In the 2-3 tree:</p>
+
+    <p><img src="images/rbtree-11.png" alt="Inserting element 1.5 in a 2-3 tree"></p>
+
+    <p>Converted to a red-black tree:</p>
+
+    <p><img src="images/rbtree-12.png" alt="Inserting element 1.5 in a red-black tree"></p>
+
+    <p>Now let's look at inserting element 11, which triggers a cascade of splits:</p>
+
+    <p><img src="images/rbtree-13.png" alt="Inserting element 11 causing cascade splits"></p>
+
+    <p>The new node is initialized as red, then we use the "three axes" to restore the properties.</p>
+
+    <p>Case 1: The parent of the new node is black:</p>
+
+    <p><img src="images/rbtree-17.png" alt="Insertion case 1: parent is black"></p>
+
+    <p>Case 2: The parent of the new node is red:</p>
+
+    <p><img src="images/rbtree-18.png" alt="Insertion case 2: parent is red"></p>
+
+    <p>Right-rotate the parent P around x:</p>
+
+    <p><img src="images/rbtree-19.png" alt="Right rotation of P around x"></p>
+
+    <p>Flip colors of x, a, and P:</p>
+
+    <p><img src="images/rbtree-20.png" alt="Color flip to resolve red-red conflict"></p>
+
+    <p>The correspondence between red node merging and 2-3 tree splitting:</p>
+
+    <p><img src="images/rbtree-21.png" alt="Red node merging and splitting correspondence"></p>
+
+    <p>When the recursion reaches the root, we simply make the root black:</p>
+
+    <p><img src="images/rbtree-22.png" alt="Recursion to root: making root black"></p>
+
+    <p>Here are the rotation code implementations. Left rotation to make right-leaning red nodes left-leaning:</p>
+
+    <p><img src="images/rbtree-23.png" alt="Left rotation code"></p>
+
+    <p>Symmetrically, right rotation:</p>
+
+    <p><img src="images/rbtree-24.png" alt="Right rotation code"></p>
+
+    <h2>Deletion</h2>
+
+    <p>Consider this red-black tree. What happens if we delete leaf node 7?</p>
+
+    <p><img src="images/rbtree-25.png" alt="A red-black tree before deleting node 7"></p>
+
+    <p>After deleting node 7, it is still a valid red-black tree, but it can no longer be converted to a 2-3 tree:</p>
+
+    <p><img src="images/rbtree-26.png" alt="After deleting node 7: path disappears"></p>
+
+    <p>We must ensure that no path disappears when a node is deleted. We introduce sentinel nodes (nil nodes), which are always black:</p>
+
+    <p><img src="images/rbtree-27.png" alt="Red-black tree with sentinel nil nodes"></p>
+
+    <p>To delete a black node, we first find a red node on the path from the node to the root and swap colors:</p>
+
+    <p><img src="images/rbtree-28.png" alt="Path from node 7 to root"></p>
+
+    <p>After the color swap, node 7 becomes red and can be safely deleted:</p>
+
+    <p><img src="images/rbtree-29.png" alt="Color swap to make node 7 red before deletion"></p>
+
+    <h2>Search</h2>
+
+    <p>Search can be implemented directly using standard binary search tree logic. Node color does not affect the search at all.</p>
+
+    <h2>Summary</h2>
+
+    <ol>
+      <li>Identified the cause of binary tree skew: downward growth;</li>
+      <li>Strategy to prevent skew: change the growth direction &mdash; adopt a split-based upward growth strategy;</li>
+      <li>From point 2, the 2-3 tree evolved naturally;</li>
+      <li>Due to the implementation complexity of 2-3 trees, red-black trees were introduced;</li>
+      <li>Based on 2-3 tree properties, we distilled 4 properties of left-leaning red-black trees;</li>
+      <li>Based on binary search tree properties, we discovered three core operations: left rotation, right rotation, and color flip;</li>
+    </ol>
+
+    <p>Full source code: <a href="https://github.com/linzier/algo-ts">https://github.com/linzier/algo-ts</a></p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>

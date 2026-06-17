@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Programmer's Mathematical Thinking: Deriving Rectangle Area - Linzer's Blog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>A Programmer's Mathematical Thinking: Deriving Rectangle Area</h1>
+    <div class="meta">2022-07-11 | Thinking</div>
+
+    <p>Most people learn the area of a rectangle in elementary school: area equals length times width. You memorize the formula, you use it on tests, you move on. But have you ever stopped to ask <em>why</em>? Why is the area of a rectangle equal to length times width? Where does this formula come from? Who decided it was true?</p>
+
+    <p>This question might seem trivial — after all, it's just a rectangle — but the process of answering it reveals something profound about mathematical thinking. And that same process, it turns out, is exactly what programmers do every day when they solve algorithmic problems.</p>
+
+    <p>In this article, I'll derive the area of a rectangle from first principles, then show how the same thinking pattern applies to one of the classic programming problems: string edit distance.</p>
+
+    <h2>Part 1: Deriving Rectangle Area from Scratch</h2>
+
+    <h3>The Farmer's Curiosity</h3>
+
+    <p>Imagine a farmer who owns a rectangular plot of land. He knows it's rectangular. He can measure the length and the width. But he wants to know the area — the total amount of land he has. How would he figure that out?</p>
+
+    <p>He doesn't know the formula. Nobody has told him "area equals length times width." All he has is his ability to measure lengths and his intuition about space. How does he get from "I know the length and width" to "I know the area"?</p>
+
+    <p><img src="images/math-01.png" alt="A farmer's rectangular plot of land"></p>
+
+    <p><img src="images/math-02.png" alt="Measuring the length and width of the land"></p>
+
+    <p>Let's walk through his thought process step by step.</p>
+
+    <h3>Step 1: Symbolize the Unknown</h3>
+
+    <p><img src="images/math-03.png" alt="Rectangle with arbitrary length l and width w"></p>
+
+    <p>The first step is to give the unknown a name. The farmer doesn't know the area, so let's call it <strong>S</strong>. Now we have a symbol that represents what we're trying to find. This might seem like a small thing, but it's crucial. By giving the unknown a name, we can talk about it, reason about it, and manipulate it.</p>
+
+    <p>So: let <strong>S</strong> be the area of the rectangle.</p>
+
+    <h3>Step 2: Parameterize</h3>
+
+    <p>Next, we identify what we <em>do</em> know. The farmer can measure the length and the width. Let's call the length <strong>l</strong> and the width <strong>w</strong>. Now we can express the area as a function of these known quantities:</p>
+
+    <p><strong>S = S(l, w)</strong></p>
+
+    <p>This says: the area S depends on the length l and the width w. We don't know <em>how</em> it depends on them yet, but we know that it does. This is progress. We've gone from "I don't know the area" to "the area is some function of the length and width."</p>
+
+    <h3>Step 3: Find Relationships Through Experimentation</h3>
+
+    <p>Now the farmer does some experiments. He starts with a rectangle of length l and width w, and he measures its area S(l, w).</p>
+
+    <p><strong>Experiment 1: Double the length.</strong></p>
+
+    <p><img src="images/math-04.png" alt="Doubling the length of the rectangle"></p>
+
+    <p>He takes a rectangle of length l and width w. Then he puts two of them side by side to make a rectangle of length 2l and width w. Intuitively, the new rectangle has twice as much land as the old one. So:</p>
+
+    <p><strong>S(2l, w) = 2 * S(l, w)</strong></p>
+
+    <p><strong>Experiment 2: Double the width.</strong></p>
+
+    <p><img src="images/math-05.png" alt="Doubling the width of the rectangle"></p>
+
+    <p>Similarly, he puts two rectangles one on top of the other to make a rectangle of length l and width 2w. Again, the new rectangle has twice as much land:</p>
+
+    <p><strong>S(l, 2w) = 2 * S(l, w)</strong></p>
+
+    <p>These are powerful observations. They tell us how the area changes when we scale one dimension.</p>
+
+    <h3>Step 4: Generalize</h3>
+
+    <p>The farmer notices a pattern. If doubling the length doubles the area, then tripling the length should triple the area. And multiplying the length by any number # should multiply the area by the same number #:</p>
+
+    <p><strong>S(#l, w) = # * S(l, w)</strong></p>
+
+    <p>This is a generalization from specific cases (doubling) to a general principle (any scaling). It's an inductive leap, and it requires some faith. But it's a faith grounded in observation and intuition. If doubling works, and tripling works, and quadrupling works, then it's reasonable to believe that any scaling works.</p>
+
+    <p>Similarly, by the same reasoning applied to the width:</p>
+
+    <p><strong>S(l, #w) = # * S(l, w)</strong></p>
+
+    <h3>Step 5: Derive the Formula</h3>
+
+    <p>Now we have everything we need. Let's apply the generalization to derive the formula.</p>
+
+    <p>Start with S(l, w). We can rewrite l as l * 1, so:</p>
+
+    <p><strong>S(l, w) = S(l * 1, w) = l * S(1, w)</strong></p>
+
+    <p>Here we used the rule S(#l, w) = # * S(l, w) with # = l and the base length being 1.</p>
+
+    <p>Now apply the same rule to the width. We can rewrite w as w * 1:</p>
+
+    <p><strong>S(1, w) = S(1, w * 1) = w * S(1, 1)</strong></p>
+
+    <p>Substituting back:</p>
+
+    <p><strong>S(l, w) = l * S(1, w) = l * w * S(1, 1)</strong></p>
+
+    <p>So the area of any rectangle is l * w times the area of a 1x1 square. Now we just need to figure out what S(1, 1) is.</p>
+
+    <h3>Step 6: Define the Unit</h3>
+
+    <p>What is S(1, 1)? It's the area of a square with side length 1. This is our unit of area. By definition, we <em>define</em> the area of a 1x1 square to be 1:</p>
+
+    <p><strong>S(1, 1) = 1</strong></p>
+
+    <p>This is not something we prove — it's something we define. We choose the 1x1 square as our unit of area, just as we choose the meter as our unit of length. It's a convention.</p>
+
+    <p>Substituting this into our formula:</p>
+
+    <p><strong>S(l, w) = l * w * 1 = l * w</strong></p>
+
+    <p>And there it is: the area of a rectangle is length times width. Not because someone handed it down from on high, but because we derived it from first principles through observation, experimentation, generalization, and definition.</p>
+
+    <h2>Part 2: What Just Happened?</h2>
+
+    <h3>Math Is Not Divine Revelation</h3>
+
+    <p>The process we just went through is, I believe, the essence of mathematical thinking. And it's not what most people think it is.</p>
+
+    <p>Many people imagine that mathematics is a collection of eternal truths, discovered by geniuses through pure intuition or divine inspiration. Euclid just <em>saw</em> the axioms of geometry. Newton just <em>knew</em> the laws of calculus. Gauss just <em>perceived</em> the patterns in number theory.</p>
+
+    <p>But that's not how it works. Mathematics is built on experience, observation, experimentation, symbolization, generalization, and reasoning. It's a human activity, grounded in the physical world, refined through rigorous logic.</p>
+
+    <p>Let's trace the steps we took:</p>
+
+    <ol>
+      <li><strong>Experience:</strong> We started with a concrete, physical situation — a farmer with a rectangular plot of land.</li>
+      <li><strong>Observation:</strong> We observed what happens when we double the length or the width — the area doubles.</li>
+      <li><strong>Experimentation:</strong> We tested specific cases to build confidence in the pattern.</li>
+      <li><strong>Symbolization:</strong> We gave names to the unknown (S) and the known (l, w).</li>
+      <li><strong>Parameterization:</strong> We expressed the unknown as a function of the known: S(l, w).</li>
+      <li><strong>Generalization:</strong> We generalized from specific cases (doubling) to a general principle (any scaling).</li>
+      <li><strong>Reasoning:</strong> We used logical deduction to derive the formula from the general principle.</li>
+      <li><strong>Definition:</strong> We defined the unit (S(1,1) = 1) to complete the derivation.</li>
+    </ol>
+
+    <p>This is not divine revelation. This is human thinking, systematic and rigorous, but fundamentally grounded in observation and experience.</p>
+
+    <h2>Part 3: How Does This Relate to Programmers?</h2>
+
+    <p>You might be wondering: this is nice, but what does it have to do with programming? The answer is: everything. The same thinking pattern — observe, symbolize, parameterize, generalize, reason — is exactly what programmers use to solve algorithmic problems.</p>
+
+    <p>Let me show you with a concrete example.</p>
+
+    <h3>The String Edit Distance Problem</h3>
+
+    <p>The edit distance (or Levenshtein distance) between two strings is the minimum number of operations needed to transform one string into the other. The allowed operations are:</p>
+
+    <ul>
+      <li><strong>Replace</strong> a character with another character</li>
+      <li><strong>Delete</strong> a character</li>
+      <li><strong>Insert</strong> a character</li>
+    </ul>
+
+    <p>For example, the edit distance between "abcd" and "acdb" is 3:</p>
+
+    <ol>
+      <li>Replace 'b' with 'c': "abcd" -> "accd"</li>
+      <li>Replace 'c' with 'd': "accd" -> "acdd"</li>
+      <li>Replace 'd' with 'b': "acdd" -> "acdb"</li>
+    </ol>
+
+    <p>How do we solve this problem? Let's apply the same thinking pattern we used for the rectangle area.</p>
+
+    <h3>Step 1: Start with Concrete Examples</h3>
+
+    <p>Before we try to solve the general problem, let's look at specific examples. What's the edit distance between "abcd" and "acdb"?</p>
+
+    <p>We can try various sequences of operations:</p>
+
+    <ul>
+      <li>"abcd" -> "accd" -> "acdd" -> "acdb" (3 replacements)</li>
+      <li>"abcd" -> "acd" -> "acdb" (1 delete + 1 insert = 2 operations)</li>
+    </ul>
+
+    <p>Wait, the second one is only 2 operations! Let me verify:</p>
+
+    <ul>
+      <li>"abcd" -> delete 'b' -> "acd"</li>
+      <li>"acd" -> insert 'b' at the end -> "acdb"</li>
+    </ul>
+
+    <p>Yes, that's 2 operations. So the edit distance is at most 2. Can we do it in 1? No, because the strings are different in at least 2 positions. So the edit distance is 2.</p>
+
+    <p>By working through concrete examples, we build intuition for the problem. We see what operations are useful, and we start to notice patterns.</p>
+
+    <h3>Step 2: Identify the Operations</h3>
+
+    <p>From the examples, we identify the allowed operations:</p>
+
+    <ul>
+      <li><strong>No-op:</strong> The current characters match, so we don't need to do anything.</li>
+      <li><strong>Replace:</strong> The current characters don't match, so we replace one with the other (cost: 1).</li>
+      <li><strong>Delete:</strong> We delete a character from the first string (cost: 1).</li>
+      <li><strong>Insert:</strong> We insert a character into the first string (cost: 1).</li>
+    </ul>
+
+    <h3>Step 3: Parameterize</h3>
+
+    <p>Now we parameterize the problem. Instead of thinking about specific strings like "abcd" and "acdb," we think about prefixes of the strings. Let:</p>
+
+    <p><strong>shortestEditDist(str1, str2, i, j)</strong></p>
+
+    <p>be the edit distance between the first i characters of str1 and the first j characters of str2.</p>
+
+    <p>This is the key insight. By parameterizing, we've turned a single problem (edit distance between two specific strings) into a family of problems (edit distance between all possible prefixes). And the family is easier to solve than the individual problem, because the subproblems are related to each other.</p>
+
+    <p><img src="images/math-06.png" alt="Edit distance subproblem illustration"></p>
+
+    <h3>Step 4: Symbolize the Unknown and Find Relationships</h3>
+
+    <p>Now we ask: what is the relationship between shortestEditDist(str1, str2, i, j) and smaller subproblems?</p>
+
+    <p>Consider the last characters of the prefixes: str1[i-1] and str2[j-1]. There are two cases:</p>
+
+    <p><strong>Case 1: The characters match (str1[i-1] == str2[j-1]).</strong></p>
+
+    <p>If the last characters match, we don't need to do anything with them. The edit distance is the same as the edit distance of the shorter prefixes:</p>
+
+    <p><strong>shortestEditDist(str1, str2, i, j) = shortestEditDist(str1, str2, i-1, j-1)</strong></p>
+
+    <p><img src="images/math-07.png" alt="Case 1: characters match, no operation needed"></p>
+
+    <p><strong>Case 2: The characters don't match (str1[i-1] != str2[j-1]).</strong></p>
+
+    <p>If the last characters don't match, we need to do something. We have three options, and we take the one that gives the minimum edit distance:</p>
+
+    <ul>
+      <li><strong>Replace:</strong> Replace str1[i-1] with str2[j-1]. The cost is 1 + shortestEditDist(str1, str2, i-1, j-1).</li>
+    </ul>
+
+    <p><img src="images/math-10.png" alt="Case 4: replace a character"></p>
+
+    <ul>
+      <li><strong>Delete:</strong> Delete str1[i-1]. The cost is 1 + shortestEditDist(str1, str2, i-1, j).</li>
+    </ul>
+
+    <p><img src="images/math-08.png" alt="Case 2: delete a character"></p>
+
+    <ul>
+      <li><strong>Insert:</strong> Insert str2[j-1] into str1. The cost is 1 + shortestEditDist(str1, str2, i, j-1).</li>
+    </ul>
+
+    <p><img src="images/math-09.png" alt="Case 3: insert a character"></p>
+
+    <p>So:</p>
+
+    <p><strong>shortestEditDist(str1, str2, i, j) = 1 + min(</strong><br>
+    &nbsp;&nbsp;<strong>shortestEditDist(str1, str2, i-1, j-1),  // replace</strong><br>
+    &nbsp;&nbsp;<strong>shortestEditDist(str1, str2, i-1, j),      // delete</strong><br>
+    &nbsp;&nbsp;<strong>shortestEditDist(str1, str2, i, j-1)       // insert</strong><br>
+    <strong>)</strong></p>
+
+    <p>This is the recurrence relation. It expresses the solution to a problem in terms of solutions to smaller problems. It's the same kind of relationship we found for the rectangle area: a general principle that connects different instances of the problem.</p>
+
+    <h3>Step 5: Define the Base Cases</h3>
+
+    <p>Every recursive definition needs base cases. What is the edit distance when one of the prefixes is empty?</p>
+
+    <ul>
+      <li><strong>shortestEditDist(str1, str2, 0, j) = j</strong> — to transform an empty string into a string of length j, we need j insertions.</li>
+      <li><strong>shortestEditDist(str1, str2, i, 0) = i</strong> — to transform a string of length i into an empty string, we need i deletions.</li>
+    </ul>
+
+    <p>These are our base cases, analogous to S(1, 1) = 1 in the rectangle area derivation.</p>
+
+    <h3>Step 6: Implement the Solution</h3>
+
+    <p>Now we can implement the solution. The recurrence relation directly translates into a recursive function. For efficiency, we use dynamic programming (memoization or tabulation) to avoid recomputing subproblems.</p>
+
+<pre><code>function editDistance(str1, str2) {
+    const m = str1.length;
+    const n = str2.length;
+
+    // Create a table to store subproblem solutions
+    const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+
+    // Base cases
+    for (let i = 0; i <= m; i++) {
+        dp[i][0] = i;  // deleting all characters from str1
+    }
+    for (let j = 0; j <= n; j++) {
+        dp[0][j] = j;  // inserting all characters into str1
+    }
+
+    // Fill the table using the recurrence relation
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            if (str1[i - 1] === str2[j - 1]) {
+                // Characters match: no operation needed
+                dp[i][j] = dp[i - 1][j - 1];
+            } else {
+                // Characters don't match: take the minimum of three options
+                dp[i][j] = 1 + Math.min(
+                    dp[i - 1][j - 1],  // replace
+                    dp[i - 1][j],      // delete
+                    dp[i][j - 1]       // insert
+                );
+            }
+        }
+    }
+
+    return dp[m][n];
+}</code></pre>
+
+    <p>And there it is: the edit distance algorithm, derived from first principles using the same thinking pattern we used for the rectangle area.</p>
+
+    <h2>Part 4: The Common Pattern</h2>
+
+    <p>Let's step back and look at what we did in both problems. The pattern is striking:</p>
+
+    <table style="width:100%; border-collapse:collapse; margin:20px 0;">
+      <thead>
+        <tr style="border-bottom:2px solid #2c3e50;">
+          <th style="text-align:left; padding:10px;">Step</th>
+          <th style="text-align:left; padding:10px;">Rectangle Area</th>
+          <th style="text-align:left; padding:10px;">Edit Distance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:10px;">1. Define the problem</td>
+          <td style="padding:10px;">Find the area of a rectangle</td>
+          <td style="padding:10px;">Find the edit distance between two strings</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:10px;">2. Use concrete examples</td>
+          <td style="padding:10px;">Farmer with a plot of land</td>
+          <td style="padding:10px;">"abcd" -> "acdb"</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:10px;">3. Parameterize</td>
+          <td style="padding:10px;">S(l, w) — area as function of length and width</td>
+          <td style="padding:10px;">shortestEditDist(str1, str2, i, j) — distance as function of prefixes</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:10px;">4. Symbolize the unknown</td>
+          <td style="padding:10px;">S for area</td>
+          <td style="padding:10px;">shortestEditDist for the distance</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:10px;">5. Find relationships through observation</td>
+          <td style="padding:10px;">S(2l, w) = 2*S(l, w)</td>
+          <td style="padding:10px;">Recurrence relation based on last characters</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:10px;">6. Generalize</td>
+          <td style="padding:10px;">S(#l, w) = #*S(l, w)</td>
+          <td style="padding:10px;">General recurrence for all i, j</td>
+        </tr>
+        <tr>
+          <td style="padding:10px;">7. Derive the solution</td>
+          <td style="padding:10px;">S(l, w) = l * w</td>
+          <td style="padding:10px;">Dynamic programming algorithm</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>The pattern is the same. The details are different, but the thinking process is identical. This is not a coincidence. Both problems are instances of the same fundamental activity: using mathematical thinking to solve a problem.</p>
+
+    <h3>Why This Matters for Programmers</h3>
+
+    <p>Many programmers think of mathematics as a collection of formulas and theorems to be memorized. They think of mathematical thinking as something that happens only in academia, not in everyday programming. But that's a mistake.</p>
+
+    <p>Mathematical thinking — the ability to observe patterns, symbolize unknowns, parameterize problems, generalize from specifics, and reason deductively — is the core skill of programming. Every time you solve an algorithmic problem, every time you design a data structure, every time you debug a complex issue, you're doing mathematical thinking.</p>
+
+    <p>The good news is that this skill can be developed. You don't need to memorize more formulas. You need to practice the process: start with concrete examples, identify patterns, symbolize and parameterize, generalize, and reason. Do this often enough, and it becomes second nature.</p>
+
+    <h2>Conclusion</h2>
+
+    <p>The area of a rectangle is length times width. But the interesting thing is not the formula — it's how we got there. The process of observation, experimentation, symbolization, generalization, and reasoning is the heart of mathematical thinking. And it's the heart of programming too.</p>
+
+    <p>The next time you're faced with a difficult algorithmic problem, don't panic. Don't try to remember a formula. Instead, start with concrete examples. Play with them. Look for patterns. Symbolize the unknown. Parameterize the problem. Generalize from the specific to the general. And then reason your way to the solution.</p>
+
+    <p>It's the same process the farmer used to figure out the area of his land. It's the same process mathematicians have used for thousands of years. And it's the same process you can use to solve any programming problem.</p>
+
+    <p>Math is not divine revelation. It's human thinking, systematic and rigorous. And it's available to all of us.</p>
+
+    <p><img src="images/math-11.png" alt="Summary"></p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda" style="color:#3498db;">林子er's blog</a> on cnblogs.com</p>
+  </div>
+</footer>
+</body>
+</html>

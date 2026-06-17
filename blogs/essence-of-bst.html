@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Essence of Binary Search Trees</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda/p/17283480.html" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>The Essence of Binary Search Trees</h1>
+    <div class="meta">2023-04-03 | Data Structures | <a href="https://www.cnblogs.com/linvanda/p/17283480.html">Original</a></div>
+
+    <p><img src="images/bst-01.png" alt="The essence of binary search trees"></p>
+
+    <h2>Introduction</h2>
+
+    <p>I plan to write a series on tree-based data structures: binary search trees, red-black trees, skip lists, and B-trees. All of these data structures exist to solve the same fundamental problem: how to efficiently perform insertions, deletions, and searches on a large collection.</p>
+
+    <p>This is the first article in the series. We'll cover the foundation: the binary search tree.</p>
+
+    <h2>The Basic Problem</h2>
+
+    <p>How do you quickly find the phone number 13012345432 among ten million numbers?</p>
+
+    <p>The dumbest approach: linear scan, O(n).</p>
+
+    <p>The cleverest approach: hash table, O(1).</p>
+
+    <h2>The Problem with Hash Tables</h2>
+
+    <p>Hash tables have excellent query performance, but what's the catch?</p>
+
+    <p>How do you find all phone numbers between 13011111111 and 13022222222 among those ten million numbers?</p>
+
+    <p>This is a <strong>range query</strong>. The randomness of hash functions produces disorder, making fast range searches impossible.</p>
+
+    <h2>Binary Search on Sorted Arrays</h2>
+
+    <p>If the phone numbers are sorted, binary search can find any number in O(log n) time. For ten million numbers, you need at most 24 comparisons.</p>
+
+    <p><img src="images/bst-02.png" alt="Binary search illustrated by a number guessing game"></p>
+
+    <h2>The Problem with Binary Search</h2>
+
+    <p>Binary search requires an array. But arrays are unfriendly to insertions and deletions.</p>
+
+    <h2>The Insight from Binary Search</h2>
+
+    <p>Replace the array elements with a linked list. Replace the left and right sub-arrays with left and right pointers. This is the binary search tree.</p>
+
+    <p><img src="images/bst-03.png" alt="From sorted array to linked list to binary search tree"></p>
+
+    <p>Building a binary search tree from a sorted array using binary search:</p>
+
+    <p><img src="images/bst-04.png" alt="Converting a sorted array into a binary search tree"></p>
+
+    <h2>Searching in a Binary Search Tree</h2>
+
+    <p>The search logic is identical to binary search &mdash; we just replace left/right sub-arrays with left/right subtrees.</p>
+
+    <p><img src="images/bst-05.png" alt="Searching for element 13 in a binary search tree"></p>
+
+    <h2>Special Search: Finding the Minimum</h2>
+
+    <p>Start from the root and keep going left.</p>
+
+    <p><img src="images/bst-06.png" alt="Finding the minimum element by going left"></p>
+
+    <h2>In-Order Traversal</h2>
+
+    <p>In-order traversal: left subtree &rarr; root &rarr; right subtree.</p>
+
+    <p><img src="images/bst-07.png" alt="In-order traversal of a binary search tree"></p>
+
+    <h2>Range Queries</h2>
+
+    <p>Add range constraints during traversal.</p>
+
+    <p><img src="images/bst-08.png" alt="Range query on a binary search tree"></p>
+
+    <h2>Insertion</h2>
+
+    <p><img src="images/bst-09.png" alt="Inserting element 14 into a binary search tree"></p>
+
+    <ol>
+      <li>Search for the position where the new node belongs;</li>
+      <li>Insert the new node;</li>
+    </ol>
+
+    <p>Time complexity: O(log n).</p>
+
+    <h2>Deletion</h2>
+
+    <p>Case 1: Deleting a leaf node.</p>
+
+    <p><img src="images/bst-10.png" alt="Deletion case 1: deleting a leaf node"></p>
+
+    <p>Case 2: The node to be deleted has only one child.</p>
+
+    <p><img src="images/bst-11.png" alt="Deletion case 2: node with one child"></p>
+
+    <p>Case 3: The node to be deleted has both left and right children &mdash; replace it with the minimum node from its right subtree.</p>
+
+    <p><img src="images/bst-12.png" alt="Deletion case 3: node with two children"></p>
+
+    <h2>The Problem with Binary Search Trees</h2>
+
+    <p>New nodes are always added at the bottom (as leaves), which tends to cause the tree to become skewed.</p>
+
+    <p><img src="images/bst-13.png" alt="A skewed binary search tree degenerated into a linked list"></p>
+
+    <h2>Summary</h2>
+
+    <ol>
+      <li>Hash tables solve exact-match queries but cannot handle range queries;</li>
+      <li>Binary search solves both exact-match and range queries but cannot handle insertions and deletions efficiently;</li>
+      <li>Binary search trees solve all operations in O(log n);</li>
+      <li>Binary search trees suffer from node skew;</li>
+      <li>To fix the skew problem, we need balancing schemes: red-black trees, skip lists, and B-trees;</li>
+    </ol>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>

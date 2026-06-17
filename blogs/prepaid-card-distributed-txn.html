@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distributed Transaction Design: Lessons from a Prepaid Card Recharge System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Distributed Transaction Design: Lessons from a Prepaid Card Recharge System</h1>
+    <div class="meta">2020-04-20 | Distributed Systems</div>
+
+    <h2>The Original Implementation</h2>
+
+    <p>The prepaid card recharge system started with a deceptively simple implementation. A user would select a card, choose a recharge amount, and the system would:</p>
+
+    <ol>
+      <li>Deduct the amount from the user's payment account.</li>
+      <li>Credit the amount to the prepaid card balance.</li>
+      <li>Record the transaction.</li>
+    </ol>
+
+    <p>All of this logic lived in a single service, with the payment deduction and card recharge executed sequentially in the same transaction. There was no distributed transaction handling to speak of. It worked fine most of the time &mdash; until it didn't.</p>
+
+    <h2>The Problems</h2>
+
+    <h3>No Failure Handling</h3>
+
+    <p>The original implementation assumed a happy path where every step succeeds. If the card recharge failed after the payment was deducted, the user's money was simply lost. There was no rollback, no compensation, and no reconciliation. This is unacceptable for a financial system.</p>
+
+    <h3>Business Logic in the Wrong Place</h3>
+
+    <p>Most of the business logic resided in the frontend controller or the orchestration layer, rather than in a dedicated domain service. The controller was making decisions about payment validation, balance calculation, and error handling. This violated the separation of concerns and made the code difficult to test and maintain.</p>
+
+    <h3>No Pre-check</h3>
+
+    <p>The system did not validate whether the recharge was legal before executing it. For example, it did not check whether the card was active, whether the amount exceeded the card's maximum balance, or whether the user's account had sufficient funds. These checks happened implicitly during the transaction, leading to confusing error messages and partial failures.</p>
+
+    <h3>Assumption That Card Recharge Always Succeeds</h3>
+
+    <p>The original code treated the card recharge as an infallible operation. In reality, the card system is a separate service with its own failure modes: network timeouts, database deadlocks, service restarts, and so on. Assuming it always succeeds is a recipe for data inconsistency.</p>
+
+    <h2>The Refactoring</h2>
+
+    <h3>Separate Recharge Service</h3>
+
+    <p>The first step was to extract the recharge logic into a dedicated <code>RechargeService</code>. This service became the single owner of the recharge business rules: validating the card, checking limits, calculating the new balance, and recording the transaction. The controller was reduced to a thin adapter that delegated to the service.</p>
+
+    <h3>Pre-check Legality</h3>
+
+    <p>Before any money moves, the <code>RechargeService</code> performs a comprehensive pre-check:</p>
+
+    <ul>
+      <li>Is the card active and not frozen?</li>
+      <li>Will the new balance exceed the card's maximum allowed balance?</li>
+      <li>Does the user have sufficient funds in their payment account?</li>
+      <li>Are there any pending transactions on this card?</li>
+    </ul>
+
+    <p>If any check fails, the recharge is rejected immediately, before any state changes occur. This prevents partial failures and makes error handling much cleaner.</p>
+
+    <h3>Handle Recharge Failure</h3>
+
+    <p>If the pre-check passes but the actual card recharge fails (e.g., the card service returns an error), the system must refund the payment. This introduces the classic distributed transaction problem: how do you ensure that the payment deduction and the card recharge are either both committed or both rolled back, when they involve two separate services?</p>
+
+    <h2>The Timeout Problem</h2>
+
+    <p>The naive approach to handling recharge failure is: if the recharge fails, refund the payment immediately. But this breaks down when the failure is a <strong>timeout</strong>.</p>
+
+    <p>Consider this scenario:</p>
+
+    <ol>
+      <li>The system deducts the payment successfully.</li>
+      <li>The system calls the card recharge service.</li>
+      <li>The card recharge service processes the request successfully and credits the card.</li>
+      <li>But the response is lost due to a network issue, and the calling system receives a timeout.</li>
+    </ol>
+
+    <p>From the calling system's perspective, the recharge failed (timeout). If it immediately refunds the payment, the user has been refunded <em>and</em> the card has been credited. The user now has more money than they started with, and the system has lost money.</p>
+
+    <blockquote>You cannot assume that a timeout means failure. The remote operation may have succeeded; you just don't know.</blockquote>
+
+    <h2>Query Before Refund Does Not Work Either</h2>
+
+    <p>A common workaround is: before refunding, query the card service to check whether the recharge actually went through. If the card balance was updated, do not refund. If it was not, proceed with the refund.</p>
+
+    <p>This approach has its own problems:</p>
+
+    <ul>
+      <li><strong>The query itself might timeout.</strong> If the network is unreliable, the query is just as likely to fail as the original request, leaving you in the same uncertain state.</li>
+      <li><strong>The recharge might still be in progress.</strong> The card service may have received the request and is still processing it. A query at this moment would return "not yet credited," prompting a refund, but then the recharge completes, and you have the same double-credit problem.</li>
+      <li><strong>There is a race condition</strong> between the query and the recharge completion. No matter how you slice it, you cannot atomically determine the state of the remote system.</li>
+    </ul>
+
+    <h2>The Solution: Scheduled Reconciliation</h2>
+
+    <p>The robust solution is to accept uncertainty and defer the resolution. Instead of trying to determine the outcome immediately, the system:</p>
+
+    <ol>
+      <li>Records the recharge attempt as "pending" in a local transaction log.</li>
+      <li>If the recharge response is a clear success, marks the transaction as "completed."</li>
+      <li>If the recharge response is a clear failure (not a timeout), marks the transaction as "failed" and initiates a refund.</li>
+      <li>If the recharge response is a timeout, leaves the transaction as "pending" and does nothing immediately.</li>
+      <li>A <strong>scheduled reconciliation task</strong> runs periodically (e.g., every hour) and scans all "pending" transactions that are older than a threshold (e.g., 1 hour). For each pending transaction, it queries the card service to determine the actual outcome and takes the appropriate action (complete or refund).</li>
+    </ol>
+
+    <p>The one-hour delay is critical. It provides a generous window for any in-flight operations to complete and for transient network issues to resolve. By the time the reconciliation task runs, the state of the recharge is almost certainly determinable.</p>
+
+    <h2>Pre-charging: The "Recharging" Record</h2>
+
+    <p>To further strengthen the system, we introduced the concept of <strong>pre-charging</strong>. The flow becomes:</p>
+
+    <ol>
+      <li>Before deducting the payment, create a transaction record with status "recharging" in the local database.</li>
+      <li>Deduct the payment.</li>
+      <li>Call the card recharge service.</li>
+      <li>If the recharge succeeds, update the transaction record to status "success."</li>
+      <li>If the recharge clearly fails, update the transaction record to status "refunded" and initiate the refund.</li>
+      <li>If timeout, leave the record as "recharging" for the reconciliation task to handle.</li>
+    </ol>
+
+    <p>The "recharging" record acts as a sentinel. It ensures that even if the system crashes between the payment deduction and the card recharge, the transaction is not lost. The reconciliation task will pick it up and resolve it.</p>
+
+    <h2>Key Lessons</h2>
+
+    <h3>Remote Calls Lack Ordering Guarantees</h3>
+
+    <p>In a distributed system, you cannot assume that operations happen in a specific order. A call that you made first may complete after a call you made second. A response that you expected to receive may be delayed, duplicated, or lost entirely. Design your system to handle all of these possibilities.</p>
+
+    <h3>Minimize the Probability of Exceptions</h3>
+
+    <p>While you cannot eliminate failures, you can minimize their probability. Pre-checks, idempotency keys, and circuit breakers all help reduce the chance of entering an inconsistent state. The less likely a failure is, the less often the reconciliation task has to clean up.</p>
+
+    <h3>Add Reconciliation Sentinels</h3>
+
+    <p>Every distributed transaction should have a reconciliation mechanism. This is typically a scheduled task that scans for unresolved transactions and brings them to a consistent state. The sentinel is the safety net that catches all the edge cases you could not handle in real time.</p>
+
+    <blockquote>In distributed systems, consistency is not achieved by preventing failures; it is achieved by detecting and repairing inconsistencies after they occur.</blockquote>
+
+    <h2>Summary</h2>
+
+    <p>The prepaid card recharge system taught us that distributed transactions cannot be handled with simple request-response patterns. Timeouts are not failures; they are uncertainties. Querying for the outcome is not a silver bullet; it introduces its own race conditions. The only reliable approach is to embrace eventual consistency: record the intent, attempt the operation, and reconcile the outcomes asynchronously.</p>
+
+    <p>The three pillars of a robust distributed transaction design are:</p>
+
+    <ol>
+      <li><strong>Pre-check</strong> &mdash; validate everything before changing any state.</li>
+      <li><strong>Minimize exceptions</strong> &mdash; use idempotency, timeouts, and circuit breakers to reduce failure probability.</li>
+      <li><strong>Reconcile</strong> &mdash; always have a sentinel that detects and repairs inconsistencies.</li>
+    </ol>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>&copy; 2020 Linzer's Blog</p>
+  </div>
+</footer>
+</body>
+</html>

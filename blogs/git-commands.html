@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Common Commands Reference</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Git Common Commands Reference</h1>
+    <div class="meta">2020-04-26 | Tools</div>
+
+    <h2>Three Versions of Branches</h2>
+
+    <p>When working with Git, it is important to understand that there are effectively three "versions" of a branch at any given time:</p>
+
+    <ol>
+      <li><strong>Remote branch</strong> &mdash; the branch as it exists on the remote server (e.g., GitHub, GitLab).</li>
+      <li><strong>Remote snapshot (remote-tracking branch)</strong> &mdash; the local copy of the remote branch, typically named <code>origin/branch-name</code>. This is updated when you run <code>git fetch</code> or <code>git pull</code>, and reflects the state of the remote branch at the time of the last fetch.</li>
+      <li><strong>Local branch</strong> &mdash; your own local working copy of the branch, where you make commits.</li>
+    </ol>
+
+    <p>Understanding the distinction between these three is crucial for avoiding confusion when pushing, pulling, and merging.</p>
+
+    <h2>Repository = Version Control + Working Directory</h2>
+
+    <p>A Git repository is composed of two main parts:</p>
+
+    <ul>
+      <li><strong>The version control database</strong> (the <code>.git</code> directory), which stores all commits, branches, tags, and metadata.</li>
+      <li><strong>The working directory</strong>, which is the checked-out set of files you actually edit.</li>
+    </ul>
+
+    <h3>Three Key Areas</h3>
+
+    <ul>
+      <li><strong>Working Directory</strong> &mdash; where you edit files.</li>
+      <li><strong>Staging Area (Index)</strong> &mdash; a intermediate area where you prepare changes before committing. You use <code>git add</code> to move changes here.</li>
+      <li><strong>Version Area (Repository)</strong> &mdash; where committed snapshots are permanently stored.</li>
+    </ul>
+
+    <p>The typical workflow is: edit files in the working directory, stage changes in the staging area, then commit them to the version area.</p>
+
+    <h2>The .git Directory Overview</h2>
+
+    <p>The <code>.git</code> directory is the heart of a Git repository. Here are its key components:</p>
+
+    <ul>
+      <li><strong>FETCH_HEAD</strong> &mdash; records the branches that were fetched from the remote during the last <code>git fetch</code> operation.</li>
+      <li><strong>HEAD</strong> &mdash; a reference to the currently checked-out branch. It typically contains a pointer like <code>ref: refs/heads/main</code>.</li>
+      <li><strong>ORIG_HEAD</strong> &mdash; created before operations that move HEAD (such as merge, rebase, or reset), allowing you to recover the previous position.</li>
+      <li><strong>config</strong> &mdash; repository-level configuration settings (remotes, branch tracking, etc.).</li>
+      <li><strong>hooks/</strong> &mdash; client-side or server-side scripts that run at certain points in the Git workflow (pre-commit, post-merge, etc.).</li>
+      <li><strong>logs/</strong> &mdash; reflog data that records all updates to branch tips, useful for recovery.</li>
+      <li><strong>objects/</strong> &mdash; the object database containing all content (blobs), directory structures (trees), commits, and tags, stored by their SHA-1 hash.</li>
+      <li><strong>refs/</strong> &mdash; pointers to commit objects, organized into <code>heads/</code> (local branches), <code>remotes/</code> (remote-tracking branches), and <code>tags/</code>.</li>
+    </ul>
+
+    <h2>Local and Remote Repositories</h2>
+
+    <h3>Cloning a Repository</h3>
+
+    <pre><code>git clone &lt;url&gt;</code></pre>
+
+    <p>This creates a full local copy of a remote repository, including all history and branches.</p>
+
+    <h3>Initializing a New Repository</h3>
+
+    <pre><code>git init</code></pre>
+
+    <p>Creates a new Git repository in the current directory.</p>
+
+    <h3>Adding a Remote</h3>
+
+    <pre><code>git remote add origin &lt;url&gt;</code></pre>
+
+    <p>Links a local repository to a remote server. The name <code>origin</code> is a convention, not a requirement.</p>
+
+    <h2>Creating Branches from Remote</h2>
+
+    <p>To create a local branch that tracks a remote branch:</p>
+
+    <pre><code>git checkout -b &lt;local-branch&gt; origin/&lt;remote-branch&gt;</code></pre>
+
+    <p>Or, if the local branch name matches the remote branch name:</p>
+
+    <pre><code>git checkout &lt;branch-name&gt;</code></pre>
+
+    <p>Git will automatically set up tracking if there is exactly one remote branch with that name.</p>
+
+    <h2>git pull: Rebase vs Merge</h2>
+
+    <p><code>git pull</code> is essentially a combination of <code>git fetch</code> followed by either <code>git merge</code> or <code>git rebase</code>.</p>
+
+    <h3>Merge Mode (Default)</h3>
+
+    <pre><code>git pull origin &lt;branch&gt;</code></pre>
+
+    <p>This fetches the remote changes and creates a merge commit to combine them with your local branch. The history is non-linear.</p>
+
+    <h3>Rebase Mode</h3>
+
+    <pre><code>git pull --rebase origin &lt;branch&gt;</code></pre>
+
+    <p>This fetches the remote changes and replays your local commits on top of the updated remote branch. The result is a clean, linear history.</p>
+
+    <blockquote>You can set rebase as the default behavior for a branch: <code>git config branch.&lt;name&gt;.rebase true</code></blockquote>
+
+    <h2>Merging Branches: Best Practices</h2>
+
+    <p>When merging a feature branch into the main branch, it is recommended to use the <code>--no-ff</code> flag:</p>
+
+    <pre><code>git checkout main
+git merge --no-ff feature-branch</code></pre>
+
+    <p>The <code>--no-ff</code> flag forces Git to create a merge commit even when a fast-forward merge would be possible. This preserves the history of the feature branch as a distinct unit of work, making it easier to understand the project history and to revert entire features if needed.</p>
+
+    <h2>git diff: Various Comparisons</h2>
+
+    <p>Git provides many ways to compare changes:</p>
+
+    <ul>
+      <li><code>git diff</code> &mdash; shows unstaged changes (working directory vs staging area).</li>
+      <li><code>git diff --staged</code> &mdash; shows staged changes (staging area vs last commit).</li>
+      <li><code>git diff HEAD</code> &mdash; shows all changes (working directory vs last commit).</li>
+      <li><code>git diff branch1 branch2</code> &mdash; compares two branches.</li>
+      <li><code>git diff commit1 commit2</code> &mdash; compares two specific commits.</li>
+      <li><code>git diff --stat</code> &mdash; shows a summary of changes (files changed, insertions, deletions).</li>
+    </ul>
+
+    <h2>Reverting Changes</h2>
+
+    <h3>Discarding Working Directory Changes</h3>
+
+    <pre><code>git checkout -- &lt;file&gt;</code></pre>
+
+    <p>This discards uncommitted changes in the working directory, restoring the file to the staging area version.</p>
+
+    <h3>Unstaging Files</h3>
+
+    <pre><code>git reset HEAD &lt;file&gt;</code></pre>
+
+    <p>This moves a file from the staging area back to the working directory (unstages it).</p>
+
+    <h3>Resetting to a Previous Commit</h3>
+
+    <pre><code>git reset --hard &lt;commit&gt;</code></pre>
+
+    <p>This resets both the staging area and the working directory to match the specified commit, discarding all changes after it. Use with caution.</p>
+
+    <h2>Squashing Commits with Interactive Rebase</h2>
+
+    <p>To combine multiple commits into one:</p>
+
+    <pre><code>git rebase -i HEAD~N</code></pre>
+
+    <p>This opens an editor showing the last N commits. You can mark commits with <code>squash</code> (or <code>s</code>) to combine them with the previous commit, or <code>fixup</code> (or <code>f</code>) to discard the commit message. This is useful for cleaning up a messy commit history before pushing.</p>
+
+    <h2>File History: git blame</h2>
+
+    <pre><code>git blame &lt;file&gt;</code></pre>
+
+    <p>This shows the last commit that modified each line of a file, along with the author and date. It is invaluable for understanding why a particular line was changed and who made the change.</p>
+
+    <h2>Git Log: Various Options</h2>
+
+    <p>The <code>git log</code> command has many useful options:</p>
+
+    <ul>
+      <li><code>git log --oneline</code> &mdash; compact one-line-per-commit view.</li>
+      <li><code>git log --graph</code> &mdash; shows the branch structure as an ASCII graph.</li>
+      <li><code>git log --all</code> &mdash; shows all branches.</li>
+      <li><code>git log -p</code> &mdash; shows the full diff for each commit.</li>
+      <li><code>git log --author="name"</code> &mdash; filters by author.</li>
+      <li><code>git log --since="2020-01-01"</code> &mdash; filters by date.</li>
+      <li><code>git log --format="%h %s (%an, %ar)"</code> &mdash; custom output format.</li>
+      <li><code>git log --follow &lt;file&gt;</code> &mdash; tracks a file across renames.</li>
+    </ul>
+
+    <h2>Cherry-pick</h2>
+
+    <pre><code>git cherry-pick &lt;commit&gt;</code></pre>
+
+    <p>This applies a specific commit from another branch onto the current branch. It is useful when you want to bring in a particular fix or feature without merging the entire branch.</p>
+
+    <h2>Reverting Merges</h2>
+
+    <p>Reverting a merge commit requires special care because a merge has two parents:</p>
+
+    <pre><code>git revert -m 1 &lt;merge-commit&gt;</code></pre>
+
+    <p>The <code>-m 1</code> flag specifies which parent to keep (usually 1, which is the branch you merged into). This creates a new commit that undoes the changes introduced by the merge.</p>
+
+    <blockquote>Note: after reverting a merge, if you later want to re-merge the same branch, you must first revert the revert commit, otherwise Git will think those changes are already included.</blockquote>
+
+    <h2>Deleting Branches</h2>
+
+    <h3>Local Branch</h3>
+
+    <pre><code>git branch -d &lt;branch&gt;</code></pre>
+
+    <p>Use <code>-D</code> (capital) to force-delete an unmerged branch.</p>
+
+    <h3>Remote Branch</h3>
+
+    <pre><code>git push origin --delete &lt;branch&gt;</code></pre>
+
+    <h2>Git Flow</h2>
+
+    <p>Git Flow is a branching model that defines a structured workflow:</p>
+
+    <ul>
+      <li><strong>main/master</strong> &mdash; production-ready code.</li>
+      <li><strong>develop</strong> &mdash; integration branch for features.</li>
+      <li><strong>feature/*</strong> &mdash; new features branched from develop.</li>
+      <li><strong>release/*</strong> &mdash; preparation for production releases.</li>
+      <li><strong>hotfix/*</strong> &mdash; urgent fixes for production.</li>
+    </ul>
+
+    <p>This model works well for projects with scheduled releases but can be overly complex for continuous deployment environments.</p>
+
+    <h2>Batch Deleting Branches</h2>
+
+    <p>To delete multiple local branches that have already been merged:</p>
+
+    <pre><code>git branch --merged | grep -v "main\|master\|develop" | xargs git branch -d</code></pre>
+
+    <p>To delete multiple remote branches:</p>
+
+    <pre><code>git branch -r --merged | grep "origin/feature-" | sed 's/origin\///' | xargs -I {} git push origin --delete {}</code></pre>
+
+    <h2>Line Ending Issues: CRLF vs LF</h2>
+
+    <p>Different operating systems use different line endings:</p>
+
+    <ul>
+      <li><strong>Windows</strong>: CRLF (<code>\r\n</code>)</li>
+      <li><strong>Linux/macOS</strong>: LF (<code>\n</code>)</li>
+    </ul>
+
+    <p>When developers on different platforms collaborate, line ending mismatches can cause spurious diffs and build failures. Git provides the <code>core.autocrlf</code> setting to handle this:</p>
+
+    <ul>
+      <li><strong>Windows</strong>: <code>git config --global core.autocrlf true</code> &mdash; converts LF to CRLF on checkout, and CRLF back to LF on commit.</li>
+      <li><strong>Linux/macOS</strong>: <code>git config --global core.autocrlf input</code> &mdash; converts CRLF to LF on commit, but does not change line endings on checkout.</li>
+    </ul>
+
+    <p>A better approach is to use a <code>.gitattributes</code> file in the repository root to enforce consistent line endings per file type:</p>
+
+    <pre><code>* text=auto
+*.js text eol=lf
+*.py text eol=lf
+*.bat text eol=crlf
+*.png binary</code></pre>
+
+    <p>This ensures that all team members use the same line endings regardless of their operating system, eliminating an entire class of cross-platform issues.</p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>&copy; 2020 Linzer's Blog</p>
+  </div>
+</footer>
+</body>
+</html>

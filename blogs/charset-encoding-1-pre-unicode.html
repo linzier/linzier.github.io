@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Encoding (Part 1): Before Unicode</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Character Encoding (Part 1): Before Unicode</h1>
+    <div class="meta">2022-02-15 | Encoding</div>
+
+    <p>Before we can understand Unicode, we need to understand the world that came before it &mdash; a world of incompatible encodings, garbled text, and endless frustration. This is the story of how humanity tried to teach computers to speak every language, one encoding at a time.</p>
+
+    <h2>ASCII: The Foundation of Everything</h2>
+
+    <p>In the early 1960s, computers from different manufacturers could barely talk to each other. Each vendor had its own way of representing characters as binary numbers. It was chaos. Something had to be done.</p>
+
+    <p>In 1963, the American Standards Association (ASA, now ANSI) published the first version of the <strong>American Standard Code for Information Interchange</strong>, or <strong>ASCII</strong>. It was a simple, elegant idea: use 7 bits to represent each character, giving us 128 possible values (0&ndash;127).</p>
+
+    <p>These 128 characters included:</p>
+    <ul>
+      <li>Control characters (0&ndash;31 and 127): things like newline, carriage return, tab, bell, and the infamous NULL.</li>
+      <li>Punctuation and symbols: spaces, digits 0&ndash;9, common punctuation marks.</li>
+      <li>Upper and lowercase English letters: A&ndash;Z and a&ndash;z.</li>
+    </ul>
+
+    <p>ASCII was good enough for English. In fact, it was so well-designed that every major encoding that followed &mdash; including Unicode &mdash; kept ASCII as its foundation. The letter 'A' is still 65 (0x41) in UTF-8, UTF-16, and UTF-32. That is a remarkable 60-year legacy.</p>
+
+    <p><img src="images/pre-unicode-01-char-code-table.png" alt="Character to code point mapping"></p>
+
+    <p><img src="images/pre-unicode-02-font-pixel-matrix.jpg" alt="Font pixel matrix for Chinese character"><em>A 16x16 pixel matrix used to display a character</em></p>
+
+    <p><img src="images/pre-unicode-03-code-to-glyph-mapping.png" alt="Code point to glyph encoding mapping"></p>
+
+    <p><img src="images/pre-unicode-04-input-display-flow.png" alt="Input, encode, display flow"></p>
+
+    <p><img src="images/pre-unicode-05-ebcdic-table.jpg" alt="EBCDIC encoding table"><em>EBCDIC encoding table</em></p>
+
+    <p><img src="images/pre-unicode-06-ascii-table.png" alt="ASCII encoding table"><em>ASCII encoding table</em></p>
+
+    <p><img src="images/pre-unicode-07-intel-4004.jpg" alt="Intel 4004 microprocessor"><em>The first microprocessor: Intel 4004</em></p>
+
+    <p><img src="images/pre-unicode-08-altair-8800.jpg" alt="Altair 8800 minicomputer"><em>The Altair 8800, the first minicomputer</em></p>
+
+    <p><img src="images/pre-unicode-09-ibm-pc.jpg" alt="IBM PC"><em>The IBM PC, released in 1981</em></p>
+
+    <p>But English is just one language. What about the rest of the world?</p>
+
+    <h2>ISO-8859: Extending ASCII for Europe</h2>
+
+    <p>ASCII uses 7 bits, but a byte has 8 bits. The 8th bit was left unused, which seemed like a waste. Why not use those extra 128 values (128&ndash;255) to add more characters?</p>
+
+    <p>That is exactly what the <strong>ISO 8859</strong> series did. Published between 1986 and 1992, the ISO 8859 family defined a set of 8-bit encodings, each targeting a different group of languages:</p>
+
+    <ul>
+      <li><strong>ISO 8859-1 (Latin-1):</strong> Western European languages &mdash; French, German, Spanish, Portuguese, and more. Added accented characters like &eacute;, &uuml;, &ntilde;.</li>
+      <li><strong>ISO 8859-2 (Latin-2):</strong> Central and Eastern European languages &mdash; Polish, Czech, Hungarian, Romanian.</li>
+      <li><strong>ISO 8859-5 (Cyrillic):</strong> Russian, Bulgarian, Serbian, and other Cyrillic-script languages.</li>
+      <li><strong>ISO 8859-6 (Arabic):</strong> Arabic script.</li>
+      <li><strong>ISO 8859-7 (Greek):</strong> Greek script.</li>
+      <li><strong>ISO 8859-8 (Hebrew):</strong> Hebrew script.</li>
+      <li><strong>ISO 8859-15 (Latin-9):</strong> An update to Latin-1 that added the Euro sign (&euro;) and a few other missing characters.</li>
+    </ul>
+
+    <p>All ISO 8859 encodings share a crucial property: <strong>they are backward-compatible with ASCII</strong>. The first 128 characters (0&ndash;127) are identical to ASCII. Only the upper half (128&ndash;255) differs between encodings.</p>
+
+    <p><img src="images/pre-unicode-10-iso8859-1.png" alt="ISO/IEC 8859-1 character set"><em>ISO/IEC 8859-1 character set, note compatibility with ASCII below 007F</em></p>
+
+    <p><img src="images/pre-unicode-14-ms-codepage.png" alt="Microsoft support for IBM code pages"><em>Microsoft's support for IBM code pages (partial)</em></p>
+
+    <p><img src="images/pre-unicode-15-windows-ansi.jpg" alt="Windows ANSI encoding option"><em>The ANSI encoding option in Windows Notepad</em></p>
+
+    <p>This was a clever approach, but it had a fundamental limitation: each encoding could only handle one language group at a time. A document encoded in ISO 8859-1 (French) could not contain Russian text, and vice versa. If you opened a Latin-1 file with a Cyrillic decoder, you got gibberish.</p>
+
+    <h2>Enter the East Asians</h2>
+
+    <p>European languages could squeeze by with 8-bit encodings. But East Asian languages &mdash; Chinese, Japanese, Korean &mdash; have tens of thousands of characters. No 8-bit encoding (limited to 256 characters) could possibly cover them. A fundamentally different approach was needed.</p>
+
+    <h3>GB 2312: Simplified Chinese</h3>
+
+    <p>In 1980, China published <strong>GB 2312</strong> (GuoBiao, or "National Standard"), the first widely used encoding for Simplified Chinese. It contained 6,763 Chinese characters, covering over 99% of characters used in everyday writing.</p>
+
+    <p>How did it work? GB 2312 uses a <strong>two-byte encoding scheme</strong>:</p>
+    <ul>
+      <li>Bytes in the range 0x00&ndash;0x7F are treated as ASCII (single-byte, backward-compatible).</li>
+      <li>Bytes in the range 0xA1&ndash;0xFE signal the start of a two-byte Chinese character. The first byte is called the "high byte" and the second the "low byte."</li>
+    </ul>
+
+    <p>This design was elegant: ASCII text remained readable, and Chinese characters were clearly distinguishable by their high-bit-set bytes.</p>
+
+    <p><img src="images/pre-unicode-11-gb2312-table.png" alt="GB 2312 encoding table (partial)"><em>GB 2312 encoding table (partial)</em></p>
+
+    <p><img src="images/pre-unicode-12-quwei-matrix.png" alt="Quwei matrix diagram"><em>Quwei matrix diagram. Note: zone and position numbers are in decimal</em></p>
+
+    <p><img src="images/pre-unicode-13-quwei-code-table.jpg" alt="Code value comparison table"><em>Comparison of original quwei code, national standard code, and internal code</em></p>
+
+    <p>Later, GB 2312 was extended to <strong>GBK</strong> (1995), which added more characters (including traditional Chinese characters and ethnic minority scripts), bringing the total to over 20,000 characters. GBK was in turn extended to <strong>GB 18030</strong> (2000), which supports over 70,000 characters using a mix of one-, two-, and four-byte sequences.</p>
+
+    <h3>Big5: Traditional Chinese</h3>
+
+    <p>In Taiwan and Hong Kong, a different encoding emerged: <strong>Big5</strong> (1984). It contained 13,060 Traditional Chinese characters. Like GB 2312, Big5 uses a two-byte scheme and is ASCII-compatible for the lower half.</p>
+
+    <p>Big5 had a notorious problem: certain byte values in the second byte position happened to correspond to special characters in other contexts (like the pipe character <code>|</code> in some programming languages). This caused subtle bugs when mixing Big5 text with code &mdash; a problem that would not be fully solved until Unicode.</p>
+
+    <h3>Shift JIS and EUC-JP: Japanese</h3>
+
+    <p>Japan developed several encodings. The most common were:</p>
+
+    <ul>
+      <li><strong>Shift JIS</strong> (1997): A two-byte encoding that, like GB 2312, is ASCII-compatible in the single-byte range. It encodes the JIS X 0208 character set (about 6,879 characters) plus half-width katakana. Shift JIS is still widely used in Japan, especially in legacy systems and mobile phones.</li>
+      <li><strong>EUC-JP</strong>: An encoding where ASCII characters are one byte, JIS X 0208 characters are two bytes (both bytes in the 0xA1&ndash;0xFE range), and half-width katakana are two bytes (0x8E followed by 0xA1&ndash;0xDF). EUC encodings are common on Unix systems.</li>
+    </ul>
+
+    <h3>EUC-KR: Korean</h3>
+
+    <p>Korea used <strong>EUC-KR</strong>, which encodes the KS X 1001 character set (about 2,350 Hangul syllables plus 4,888 Chinese characters used in Korean). Like other EUC encodings, it uses two bytes for CJK characters and one byte for ASCII.</p>
+
+    <p>Later, <strong>JOHAB</strong> and <strong>ISO 2022-KR</strong> were also used, but EUC-KR remained the most common.</p>
+
+    <h2>The Chaos</h2>
+
+    <p>By the early 1990s, the world had dozens of incompatible character encodings. A single byte sequence could mean completely different things depending on which encoding you used to interpret it.</p>
+
+    <p>For example, the byte <code>0xB0</code> in ISO 8859-1 is the degree sign (&deg;). But in GB 2312, <code>0xB0</code> is the first byte of a two-byte Chinese character. And in Shift JIS, it might be part of a completely different character.</p>
+
+    <p>This led to the infamous problem of <strong>mojibake</strong> (a Japanese word meaning "garbled text"): when you open a file with the wrong encoding, you see nonsense like <code>&Atilde;&uml;&Acirc;&icirc;</code> instead of the intended text.</p>
+
+    <p>The problem was especially bad on the early internet. Email, web pages, and newsgroups did not always specify their encoding. You had to guess. And when you guessed wrong, the text was unreadable.</p>
+
+    <p>Software developers had to build encoding detection heuristics &mdash; programs that looked at the byte patterns and tried to guess which encoding was most likely. These heuristics were error-prone and language-specific. A detector trained on English text might misidentify a French document as Turkish.</p>
+
+    <h2>The Need for a Universal Solution</h2>
+
+    <p>The situation was untenable. As the internet grew and global communication became the norm, the world needed a single encoding that could represent every character in every language &mdash; and do it without ambiguity.</p>
+
+    <p>That solution was <strong>Unicode</strong>.</p>
+
+    <p>In the next article, we will explore the character encoding model &mdash; the theoretical framework that helps us understand how Unicode works and why it is designed the way it is.</p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>

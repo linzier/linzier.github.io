@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Character Encoding (Part 3): Unicode</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Character Encoding (Part 3): Unicode</h1>
+    <div class="meta">2022-02-28 | Encoding</div>
+
+    <p>In the first two articles of this series, we explored the pre-Unicode world of incompatible encodings and the four-layer character encoding model. Now we arrive at the hero of our story: <strong>Unicode</strong>, the universal character encoding that finally brought order to the chaos.</p>
+
+    <h2>The Origins of Unicode</h2>
+
+    <p>The story begins in 1987, when two engineers &mdash; Joe Becker from Apple and Lee Collins from Xerox &mdash; began investigating the feasibility of a universal character set. Their goal was ambitious: create a single encoding that could represent every character in every writing system on Earth.</p>
+
+    <p>At the time, many people thought this was impossible. How could you fit tens of thousands of Chinese characters, thousands of Korean Hangul syllables, and hundreds of other scripts into a single encoding? The existing approach &mdash; separate encodings for each language group &mdash; seemed like the only practical option.</p>
+
+    <p>Becker and Collins made several key findings that changed the conversation:</p>
+
+    <ol>
+      <li><strong>Two bytes are sufficient.</strong> Careful analysis showed that 16 bits (65,536 possible values) could accommodate all characters in current use across all modern writing systems, with room to spare. This was a revelation: a universal encoding did not require 32-bit code points.</li>
+      <li><strong>Fixed-width encoding is preferred.</strong> Variable-width encodings (like the pre-Unicode CJK encodings) are harder to process. Searching, sorting, and indexing are all simpler when every character has the same width. With 16 bits, a fixed-width encoding was feasible.</li>
+      <li><strong>CJK characters can be unified.</strong> Chinese, Japanese, and Korean all use Chinese characters (hanzi/kanji/hanja). Many of these characters are identical or nearly identical across the three languages. By unifying them &mdash; assigning the same code point to the same character regardless of which language uses it &mdash; the total number of required code points was dramatically reduced.</li>
+    </ol>
+
+    <p>Armed with these findings, Becker drafted the <strong>Unicode 88</strong> proposal in 1988. The proposal outlined a 16-bit fixed-width encoding that could represent all modern characters.</p>
+
+    <p>In 1991, the <strong>Unicode Consortium</strong> was founded, and <strong>Unicode 1.0</strong> was published. This first release contained 7,161 characters covering 24 scripts. It was a start, but it was far from complete &mdash; CJK characters were not yet included.</p>
+
+    <p>The big expansion came in 1992 with <strong>Unicode 1.0.1</strong>, which added CJK unified ideographs (over 20,000 characters). Suddenly, Unicode could handle Chinese, Japanese, and Korean text. The dream of a universal encoding was becoming reality.</p>
+
+    <h2>UCS: The Parallel Effort at ISO</h2>
+
+    <p>While the Unicode Consortium was working on Unicode, the International Organization for Standardization (ISO) was developing its own universal encoding: the <strong>Universal Coded Character Set (UCS)</strong>, defined in the ISO/IEC 10646 standard.</p>
+
+    <p>UCS and Unicode were remarkably similar. Both aimed to encode all the world's characters. Both used similar code point assignments. But they were developed independently, and there were subtle differences in scope and structure.</p>
+
+    <p>Recognizing the absurdity of maintaining two nearly identical standards, the Unicode Consortium and ISO reached an agreement in 1991&ndash;1993 to <strong>merge the two efforts</strong>. From that point on, Unicode and UCS have been kept in sync. The Unicode standard references ISO/IEC 10646, and the two standards share the same code points. Today, "Unicode" and "UCS" are effectively interchangeable, though "Unicode" is the more commonly used name.</p>
+
+    <h2>Unicode Overview</h2>
+
+    <p>It is critical to understand that Unicode encodes <strong>abstract characters, not glyphs</strong>. A glyph is a specific visual representation of a character &mdash; the way it looks on a screen or page. A character is the abstract concept itself.</p>
+
+    <p>For example, the Latin letter "A" has many glyphs: <span style="font-family: serif">A</span>, <span style="font-family: sans-serif">A</span>, <span style="font-family: cursive">A</span>, <b>A</b>, <i>A</i>. These are all different glyphs, but they all represent the same abstract character: "Latin Capital Letter A." Unicode assigns this character the code point U+0041, regardless of how it is rendered.</p>
+
+    <h3>Code Points</h3>
+
+    <p>A <strong>code point</strong> is the numerical value assigned to an abstract character. Code points are written in hexadecimal with the prefix "U+", like U+0041 or U+4E2D.</p>
+
+    <p>The Unicode codespace ranges from U+0000 to U+10FFFF, giving a total of 1,114,112 possible code points. As of Unicode 15.0 (2022), about 149,000 code points are assigned. The rest are reserved for future use or intentionally left unassigned.</p>
+
+    <h3>Planes</h3>
+
+    <p>The 1,114,112 code points are divided into 17 <strong>planes</strong>, each containing 65,536 (0x10000) code points:</p>
+
+    <ul>
+      <li><strong>Plane 0: The Basic Multilingual Plane (BMP).</strong> U+0000 to U+FFFF. This plane contains almost all modern scripts, common symbols, and CJK characters. The vast majority of text you encounter is in the BMP.</li>
+      <li><strong>Planes 1&ndash;16: Supplementary Planes.</strong> U+10000 to U+10FFFF. These planes contain less common characters: historical scripts (Egyptian hieroglyphs, cuneiform), rare CJK characters, emoji, musical symbols, and more.</li>
+    </ul>
+
+    <p>Plane 1 (U+10000 to U+1FFFF) is called the <strong>Supplementary Multilingual Plane (SMP)</strong>. Plane 2 (U+20000 to U+2FFFF) is the <strong>Supplementary Ideographic Plane (SIP)</strong>, which contains rare CJK characters. Planes 3&ndash;13 are mostly unreserved. Plane 14 (U+E0000 to U+EFFFF) is the <strong>Supplementary Special-purpose Plane (SSP)</strong>, used for special tags. Planes 15 and 16 are the <strong>Supplementary Private Use Area Planes (SPUA)</strong>, available for private use.</p>
+
+    <p><img src="images/unicode-01-planes.png" alt="Unicode 17 planes overview"></p>
+
+    <p><img src="images/unicode-02-cjk-extension.png" alt="CJK extension block with rare characters"><em>Rare CJK characters in an extension block</em></p>
+
+    <h2>The Three Encoding Forms</h2>
+
+    <p>Unicode defines the code points, but how do we turn those code points into bytes? That is the job of the three <strong>Unicode encoding forms</strong>: UTF-8, UTF-16, and UTF-32.</p>
+
+    <h3>UTF-16: The Original Fixed-Width Encoding</h3>
+
+    <p>When Unicode 1.0 was designed, the plan was simple: use 16 bits (2 bytes) for every character. With 65,536 possible values, there was plenty of room for all modern characters. UTF-16 was born as a fixed-width, 16-bit encoding.</p>
+
+    <p>But then reality intruded. The CJK unification project revealed that there were more than 65,536 characters that needed to be encoded. The 16-bit codespace was not big enough.</p>
+
+    <p>The solution was <strong>surrogate pairs</strong>. Code points in the BMP (U+0000 to U+FFFF) are encoded as a single 16-bit code unit. Code points above U+FFFF (in the supplementary planes) are encoded as a pair of 16-bit code units, drawn from reserved ranges in the BMP called the <strong>surrogate ranges</strong>:</p>
+
+    <ul>
+      <li>High surrogates: U+D800 to U+DBFF</li>
+      <li>Low surrogates: U+DC00 to U+DFFF</li>
+    </ul>
+
+    <p>A high surrogate followed by a low surrogate represents a single supplementary character. The two code units together encode a 20-bit offset, which is added to U+10000 to get the actual code point.</p>
+
+    <p>For example, the emoji U+1F600 (grinning face) is encoded in UTF-16 as:</p>
+    <pre><code>Code point: U+1F600
+Subtract 0x10000: 0xF600
+High 10 bits: 0x3D8 → high surrogate: U+D800 + 0x3D8 = U+D83D
+Low 10 bits: 0x200 → low surrogate:  U+DC00 + 0x200 = U+DE00
+UTF-16: 0xD83D 0xDE00</code></pre>
+
+    <p>UTF-16 is now a <strong>variable-width</strong> encoding: characters are either 2 or 4 bytes. This was a significant compromise from the original fixed-width design, but it was necessary to accommodate the full Unicode codespace.</p>
+
+    <p>UTF-16 is the encoding used internally by Java, C#, JavaScript, and Windows. These systems represent strings as sequences of 16-bit code units, and supplementary characters are handled via surrogate pairs.</p>
+
+    <h3>UTF-8: The Encoding That Won</h3>
+
+    <p>UTF-8 was designed by Ken Thompson (of Unix fame) and Rob Pike in 1992&ndash;1993. It uses 8-bit code units (bytes) and encodes each code point using one to four bytes:</p>
+
+    <ul>
+      <li>U+0000 to U+007F: 1 byte (0xxxxxxx)</li>
+      <li>U+0080 to U+07FF: 2 bytes (110xxxxx 10xxxxxx)</li>
+      <li>U+0800 to U+FFFF: 3 bytes (1110xxxx 10xxxxxx 10xxxxxx)</li>
+      <li>U+10000 to U+10FFFF: 4 bytes (11110xxx 10xxxxxx 10xxxxxx 10xxxxxx)</li>
+    </ul>
+
+    <p>The brilliance of UTF-8 lies in its <strong>ASCII compatibility</strong>. The first 128 code points (U+0000 to U+007F) are encoded as single bytes that are identical to ASCII. This means:</p>
+
+    <ul>
+      <li>Any ASCII text is automatically valid UTF-8.</li>
+      <li>UTF-8 can be safely processed by software that only understands ASCII (as long as it does not try to interpret non-ASCII bytes).</li>
+      <li>Legacy ASCII files do not need to be converted; they are already UTF-8.</li>
+    </ul>
+
+    <p>This backward compatibility was the key reason UTF-8 won the encoding wars. The world had billions of lines of ASCII text and decades of software that assumed ASCII. UTF-8 could coexist with this legacy; UTF-16 and UTF-32 could not.</p>
+
+    <p>UTF-8 also has other desirable properties:</p>
+    <ul>
+      <li><strong>Self-synchronizing.</strong> You can find character boundaries in a byte stream without reading from the beginning. The leading byte of each character has a distinctive pattern (11...0), and continuation bytes have the pattern 10xxxxxx.</li>
+      <li><strong>Byte-order independent.</strong> Unlike UTF-16 and UTF-32, UTF-8 has no byte order issues. A byte is a byte, regardless of the CPU's endianness.</li>
+      <li><strong>Compact for ASCII-heavy text.</strong> English text encoded in UTF-8 is the same size as ASCII. For text that is mostly ASCII with occasional non-ASCII characters (like HTML with English tags and occasional accented words), UTF-8 is very space-efficient.</li>
+    </ul>
+
+    <p>Today, UTF-8 is the dominant encoding on the web. Over 98% of web pages use UTF-8. It is the default encoding for HTML5, XML, JSON, and most modern protocols.</p>
+
+    <h3>UTF-32: The Simple but Wasteful Encoding</h3>
+
+    <p>UTF-32 is the simplest encoding: every code point is represented by exactly one 32-bit code unit. It is a fixed-width encoding where character n is always at byte offset n&times;4.</p>
+
+    <p>UTF-32 is rarely used for text storage or transmission because it wastes a lot of space. Most text has code points well below U+10000, so the upper two bytes of each 4-byte code unit are usually zero. UTF-32 text is roughly twice the size of UTF-16 text and three to four times the size of UTF-8 text for ASCII-heavy content.</p>
+
+    <p>However, UTF-32 is useful internally in some text processing systems. When you need to index into a string by character position, UTF-32 makes it trivial: the nth character is at offset n&times;4. With UTF-8 or UTF-16, you have to scan from the beginning to find the nth character because characters have variable widths.</p>
+
+    <h2>The Compromises: Compatibility vs. Purity</h2>
+
+    <p>Unicode's design philosophy prioritizes <strong>round-trip compatibility</strong> with existing encodings. This means that if a character existed in a pre-Unicode encoding, Unicode should be able to represent it, and converting from the old encoding to Unicode and back should produce the original bytes.</p>
+
+    <p>This principle led to some unfortunate compromises. The most notable is the existence of <strong>duplicate code points</strong>: different code points that represent the same abstract character.</p>
+
+    <p>The classic example is the <strong>Kelvin sign</strong> (U+212A, "&#x212A;") and the <strong>Latin capital letter K</strong> (U+004B, "K"). Visually, they are identical. Semantically, they represent the same letter. But Unicode assigns them different code points because the Kelvin sign existed as a distinct character in some pre-Unicode encodings, and round-trip compatibility required preserving that distinction.</p>
+
+    <p>Similarly, the <strong>Angstrom sign</strong> (U+212B, "&#x212B;") is a duplicate of <strong>Latin capital letter A with ring above</strong> (U+00C5, "&#xC5;"). The <strong>Ohm sign</strong> (U+2126) is a duplicate of <strong>Latin capital letter Omega</strong> (U+03A9, "&#x3A9;").</p>
+
+    <p>The Unicode standard recommends treating these duplicates as equivalent (using a process called <strong>normalization</strong>), but they exist in the codespace for historical reasons. This is a pragmatic compromise: purity was sacrificed for compatibility, and the result is an encoding that could actually be adopted in the real world.</p>
+
+    <p><img src="images/unicode-03-fullwidth.png" alt="Full Width characters from East Asian standards"><em>Full Width characters inherited from East Asian encoding standards</em></p>
+
+    <p><img src="images/unicode-04-combining.png" alt="Precomposed and combining characters"><em>Precomposed characters and combining characters in Unicode</em></p>
+
+    <h2>Summary</h2>
+
+    <ol>
+      <li>Unicode was born from the vision of a universal character set, made possible by the insight that 16 bits were enough for all modern characters and that CJK characters could be unified.</li>
+      <li>Unicode and UCS (ISO/IEC 10646) were developed in parallel and merged in 1991&ndash;1993. They are now effectively the same standard.</li>
+      <li>Unicode encodes abstract characters, not glyphs. Code points are written as U+XXXX.</li>
+      <li>The Unicode codespace has 17 planes. Plane 0 (the BMP) contains almost all modern text. Planes 1&ndash;16 contain supplementary characters.</li>
+      <li>Three encoding forms: UTF-16 (variable-width, 2 or 4 bytes, used by Java/C#/JS/Windows), UTF-8 (variable-width, 1&ndash;4 bytes, ASCII-compatible, dominant on the web), and UTF-32 (fixed-width, 4 bytes, used internally for indexing).</li>
+      <li>Round-trip compatibility with legacy encodings led to duplicate code points (e.g., Kelvin sign vs. Latin K). This is a pragmatic compromise that enabled widespread adoption.</li>
+    </ol>
+
+    <p>Unicode is not perfect, but it is the best we have. It is a testament to the power of standards and the importance of pragmatism in engineering design. And it is the foundation of all modern text processing.</p>
+
+    <p><img src="images/unicode-05-summary.png" alt="Unicode article summary"></p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>

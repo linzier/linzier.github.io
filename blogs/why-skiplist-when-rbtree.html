@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why Skip Lists When We Have Red-Black Trees?</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda/p/17538558.html" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Why Skip Lists When We Have Red-Black Trees?</h1>
+    <div class="meta">2023-07-10 | Data Structures | <a href="https://www.cnblogs.com/linvanda/p/17538558.html">Original</a></div>
+
+    <p>Picking up where we left off &mdash; in the previous article, <em>How Red-Black Trees Came to Be</em>, we discussed how red-black trees (which are essentially an implementation of 2-3 trees or 2-3-4 trees) maintain the balance of binary search trees. From the implementation perspective, although red-black trees simplify things considerably compared to 2-3 trees, they are still quite complex.</p>
+
+    <p>Is there a simpler approach?</p>
+
+    <h2>Born from the Idea of Binary Search</h2>
+
+    <p>In an earlier article, <em>The Essence of Binary Search Trees</em>, we derived binary search trees by turning the binary search on sorted arrays into a linked structure. This time, let's start from the same place &mdash; binary search on a sorted array &mdash; and see if we can invent something new.</p>
+
+    <p>The difference this time: we first convert the sorted array into a linked list.</p>
+
+    <p><img src="images/skiplist-01.png" alt="Sorted linked list"></p>
+
+    <p>As shown in the figure, we now have a sorted linked list. Consider how we would search for the element 40.</p>
+
+    <p>The simplest approach is to traverse from the head one node at a time, with time complexity O(n) &mdash; clearly not what we want.</p>
+
+    <p>Our initial thought: can we perform binary search on this linked list?</p>
+
+    <p>With an array, we can jump directly to the middle element (15) via address offset, discover that 40 is greater than 15, and then continue the binary search on the right half.</p>
+
+    <p>The problem with a linked list is that there is no way to jump directly to an arbitrary position &mdash; no address offset trick available.</p>
+
+    <p>But we are not ready to give up. Is there some clever trick to simulate binary search on a linked list?</p>
+
+    <p>Since a linked list only allows traversal via pointers, could we add extra pointers between key nodes &mdash; the head, the tail, and the middle elements that binary search would touch &mdash; to enable fast jumps?</p>
+
+    <p><img src="images/skiplist-02.png" alt="Adding extra pointers between key nodes"></p>
+
+    <p>We build an additional linked list (1 &rarr; 15 &rarr; 60), where each node also has a "down" pointer to the corresponding node in the layer below.</p>
+
+    <p>What does this buy us?</p>
+
+    <p>Let's see how we would search for 40 now.</p>
+
+    <p>We first traverse the upper (second-level) linked list. In just two steps, we reach element 15. We see that 40 lies between 15 and 60 (15's next element), so we follow 15's "down" pointer to the first-level linked list and continue searching from there.</p>
+
+    <p><img src="images/skiplist-03.png" alt="Searching for 40 with one index layer"></p>
+
+    <p>Unlike a plain linear traversal, by adding one layer of "index" linked list, we can "jump" directly to the middle element, just like binary search does. Search efficiency doubles immediately.</p>
+
+    <p>Can we optimize further?</p>
+
+    <p>In the diagram above, the search after 15 is still linear. We can apply the same trick again &mdash; build index lists for the sub-lists between 1&ndash;15 and 15&ndash;60:</p>
+
+    <p><img src="images/skiplist-04.png" alt="Two layers of index linked lists"></p>
+
+    <p>It looks a bit complicated at first glance, but it is really just another level of binary search simulation.</p>
+
+    <p>Let's look at it from the top layer down.</p>
+
+    <p>The third layer performs the first binary split, with 15 as the pivot. Depending on the comparison, we go to either the 1&ndash;15 range or the 15&ndash;60 range.</p>
+
+    <p>The second layer performs the second binary split within the chosen range, narrowing down to a finer-grained interval.</p>
+
+    <p>So if we search from the topmost index layer downward, we are effectively simulating repeated binary searches on a sorted array.</p>
+
+    <p>Brilliant!</p>
+
+    <p>Let's trace the search path for element 40 after adding two layers of indexes:</p>
+
+    <p><img src="images/skiplist-05.png" alt="Search path for element 40 with two index layers"></p>
+
+    <p>Compared to a single layer, the search path is much shorter.</p>
+
+    <p>Unlike a plain linked list, this structure uses index layers to "skip" over nodes for faster searching. Hence the delightfully self-explanatory name: <strong>skip list</strong>.</p>
+
+    <p>Since a skip list is essentially a simulation of binary search, its search time complexity is O(log n), same as binary search.</p>
+
+    <h2>Data Structure</h2>
+
+    <p>A skip list node (except those in the bottom layer) needs not only a pointer to its successor (and predecessor, if doubly linked) but also a pointer to the corresponding node in the layer below. So we might initially define the node structure as:</p>
+
+    <pre><code>class Node {
+    key: number
+    val: unknown
+    next: Node | null
+    down: Node | null
+    public constructor(key: number, val: unknown) { }
+}</code></pre>
+
+    <p>Let's analyze whether this design has any issues.</p>
+
+    <p>First, a note: using index lists to speed up search is a classic space-for-time tradeoff.</p>
+
+    <p>However, we create a separate object for the same element (say, 15) at every layer. Isn't that wasteful?</p>
+
+    <p>All three nodes for element 15 share the same key and val. The main difference lies in the <code>next</code> pointers &mdash; each layer has a different successor. Upper-layer nodes always "descend" layer by layer.</p>
+
+    <p>So we can try merging the per-layer nodes for the same element into one. We combine <code>next</code> and <code>down</code> into a single <code>nexts</code> pointer array, where <code>nexts[i]</code> represents the node's successor at layer i+1.</p>
+
+    <p><img src="images/skiplist-06.png" alt="Optimized skip list node structure"></p>
+
+    <p>As shown in the diagram, we made four changes:</p>
+    <ol>
+      <li>Merged same-key nodes across all layers into a single node;</li>
+      <li>Introduced the <code>nexts</code> pointer array, where <code>node.nexts[i]</code> is node's successor at layer i+1;</li>
+      <li>Added a sentinel <code>head</code> node (representing no actual element) for coding convenience;</li>
+      <li>No longer create index entries for the tail node;</li>
+    </ol>
+
+    <h2>Searching for an Element</h2>
+
+    <p>Let's see how to find node 40. Every search starts from <code>head</code> at the topmost layer and works down to layer 1:</p>
+
+    <ol>
+      <li>Take <code>head.nexts[top layer]</code> &mdash; it's 15, which is less than 40, so move to node 15;</li>
+      <li>Take <code>node15.nexts[top layer]</code> &mdash; it's null, meaning we can't go further right at this layer, so drop down to the second layer;</li>
+      <li>Take <code>node15.nexts[second layer]</code> &mdash; it's 30, less than 40, so move to node 30;</li>
+      <li>Take <code>node30.nexts[second layer]</code> &mdash; it's null, so drop down to the first layer;</li>
+      <li>Take <code>node30.nexts[first layer]</code> &mdash; it's 40. Found! Return and done.</li>
+    </ol>
+
+    <p><img src="images/skiplist-07.png" alt="Searching for element 40 in the skip list"></p>
+
+    <p>Ridiculously simple, right?</p>
+
+    <h2>Number of Index Layers</h2>
+
+    <p>Before discussing insertion, let's think about a question: how many layers should a given element have?</p>
+
+    <p>Skip lists use a simple, brute-force, yet effective approach: <strong>probability</strong>.</p>
+
+    <p>The idea is this: we stipulate that the number of elements at layer n is 1/N of the count at layer n-1. In other words, each element has a 1/N probability of gaining one more index layer above.</p>
+
+    <p>With N=4 as an example:</p>
+    <ul>
+      <li>3/4 probability of having no index at all (only the bottom layer)</li>
+      <li>1/4 probability of 1 index layer</li>
+      <li>1/16 probability of 2 index layers</li>
+      <li>1/64 probability of 3 index layers</li>
+    </ul>
+
+    <p>The resulting data structure is essentially an N-ary tree.</p>
+
+    <h2>Inserting an Element</h2>
+
+    <p>The average time complexity of insertion is O(log n). The key is finding the predecessor node at each layer.</p>
+
+    <p><img src="images/skiplist-08.png" alt="Searching for the insertion position of element 22"></p>
+
+    <p><img src="images/skiplist-09.png" alt="Skip list after inserting element 22"></p>
+
+    <h2>Deleting an Element</h2>
+
+    <p><img src="images/skiplist-10.png" alt="Skip list after deleting element 22"></p>
+
+    <p>Deletion in a skip list is essentially the inverse of insertion: remove the node from every layer.</p>
+
+    <p>Remarkably, the structure after deletion is identical to the structure before insertion &mdash; such dynamic stability is truly admirable.</p>
+
+    <h2>The Source of Simplicity</h2>
+
+    <p>Compare the insertion and deletion implementations of red-black trees with those of skip lists, and you will be struck by how simple skip lists are.</p>
+
+    <p>Skip lists adopt a simple, brute-force, yet equally effective probabilistic approach. When inserting an element, we determine the number of index layers through a probability calculation. Updating the indexes only affects the predecessor nodes of the new element at each layer &mdash; a very localized impact, making the update process extraordinarily simple.</p>
+
+    <p>In short, the probabilistic nature of this data structure is the source of its simplicity.</p>
+
+    <h2>Summary</h2>
+
+    <ol>
+      <li>Derived the multi-level index approach for linked structures from the binary search idea on sorted arrays;</li>
+      <li>Used probability to determine each element's index layer count, ensuring implementation simplicity while maintaining theoretical correctness;</li>
+      <li>The key to insertion and deletion is finding the predecessor node at each layer;</li>
+      <li>Insertion and deletion are perfect inverses of each other, demonstrating excellent dynamic stability;</li>
+      <li>Skip lists and red-black trees offer the same level of time complexity, but skip lists are simpler to implement and more intuitive for range queries;</li>
+    </ol>
+
+    <p>Full source code: <a href="https://github.com/linzier/algo-ts">https://github.com/linzier/algo-ts</a></p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>

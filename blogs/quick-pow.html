@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Pow: How to Compute Exponentials Fast - Linzer's Blog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Quick Pow: How to Compute Exponentials Fast</h1>
+    <div class="meta">2022-06-29 | Algorithms | 857 reads</div>
+
+    <h2>The Problem</h2>
+    <p>Compute <code>n^m</code> — raising a base <code>n</code> to an integer exponent <code>m</code>. This is one of the most common operations in programming, appearing everywhere from modular arithmetic in cryptography to matrix exponentiation in dynamic programming.</p>
+    <p>The straightforward approach is simple: multiply <code>n</code> by itself <code>m</code> times.</p>
+
+    <pre><code>// Naive approach
+func pow(n, m int) int {
+    result := 1
+    for i := 0; i &lt; m; i++ {
+        result *= n
+    }
+    return result
+}</code></pre>
+
+    <p>This requires <code>m</code> multiplications, giving us <strong>O(m)</strong> time complexity. For small exponents, this is fine. But what if <code>m</code> is a billion? A trillion? We need something better.</p>
+
+    <h2>The Key Insight: Binary Decomposition</h2>
+    <p>The core observation is that any exponent can be decomposed into a sum of powers of 2 — which is exactly what the binary representation of a number gives us.</p>
+    <p>Consider <code>3^29</code>. The exponent 29 in binary is <code>11101</code>, which means:</p>
+    <pre><code>29 = 16 + 8 + 4 + 1
+   = 2^4 + 2^3 + 2^2 + 2^0</code></pre>
+    <p>Therefore:</p>
+    <pre><code>3^29 = 3^16 * 3^8 * 3^4 * 3^1</code></pre>
+
+    <p>Now here's the magic: we can compute each of these powers efficiently by repeated squaring:</p>
+    <ul>
+      <li>Start with <code>3^1 = 3</code></li>
+      <li>Square it: <code>3^2 = 9</code></li>
+      <li>Square again: <code>3^4 = 81</code></li>
+      <li>Square again: <code>3^8 = 6561</code></li>
+      <li>Square again: <code>3^16 = 43046721</code></li>
+    </ul>
+    <p>Each squaring doubles the exponent. We only need the powers where the corresponding bit in the binary representation of 29 is 1. Reading <code>11101</code> from right to left:</p>
+    <ul>
+      <li>Bit 0 is 1: include <code>3^1</code></li>
+      <li>Bit 1 is 0: skip <code>3^2</code></li>
+      <li>Bit 2 is 1: include <code>3^4</code></li>
+      <li>Bit 3 is 1: include <code>3^8</code></li>
+      <li>Bit 4 is 1: include <code>3^16</code></li>
+    </ul>
+    <p>Multiply them together: <code>3^1 * 3^4 * 3^8 * 3^16 = 3^29</code>.</p>
+
+    <h2>Counting the Multiplications</h2>
+    <p>How many multiplications did we actually perform?</p>
+    <ul>
+      <li>4 squarings to compute <code>3^2</code>, <code>3^4</code>, <code>3^8</code>, <code>3^16</code></li>
+      <li>4 multiplications to combine the selected powers (since 4 bits are set in 11101, but we start with the first one, so 3 more multiplications... actually, let's count carefully)</li>
+    </ul>
+    <p>Let's trace through the algorithm step by step. We maintain a running result and a current base:</p>
+    <ol>
+      <li>result = 1, base = 3, m = 29 (11101). Bit is 1: result = 1 * 3 = 3. base = 3^2 = 9.</li>
+      <li>m = 14 (1110). Bit is 0: skip. base = 9^2 = 81 (= 3^4).</li>
+      <li>m = 7 (111). Bit is 1: result = 3 * 81 = 243. base = 81^2 = 6561 (= 3^8).</li>
+      <li>m = 3 (11). Bit is 1: result = 243 * 6561 = 1594323. base = 6561^2 (= 3^16).</li>
+      <li>m = 1 (1). Bit is 1: result = 1594323 * 43046721 = 68630377364883. base = ... (not needed).</li>
+    </ol>
+    <p>Total: 4 squarings + 4 multiplications into result = <strong>8 multiplications</strong>, compared to 29 with the naive approach. Even better, the algorithm naturally handles this in O(log m) time.</p>
+
+    <h2>Go Implementation</h2>
+    <pre><code>func quickPow(n, m int) int {
+    result := 1
+    base := n
+    for m &gt; 0 {
+        if m&amp;1 == 1 {
+            result *= base
+        }
+        base *= base
+        m &gt;&gt;= 1
+    }
+    return result
+}</code></pre>
+
+    <p>The algorithm is beautifully simple:</p>
+    <ul>
+      <li><code>m &amp; 1 == 1</code> checks if the lowest bit is 1 — if so, multiply the result by the current base.</li>
+      <li><code>base *= base</code> squares the base for the next bit position.</li>
+      <li><code>m &gt;&gt;= 1</code> shifts right to process the next bit.</li>
+    </ul>
+    <p>The loop runs exactly <code>floor(log2(m)) + 1</code> times — the number of bits in <code>m</code>.</p>
+
+    <h2>Benchmark Results</h2>
+    <p>Let's compare three approaches in Go:</p>
+    <ol>
+      <li><strong>Naive multiplication</strong> — the O(m) loop</li>
+      <li><strong>Quick pow</strong> — our binary exponentiation</li>
+      <li><strong><code>math.Pow</code></strong> — Go's standard library (float64-based)</li>
+    </ol>
+    <p>Benchmarking <code>3^29</code>:</p>
+    <pre><code>BenchmarkNaive-8       50000000    24.3 ns/op
+BenchmarkQuickPow-8    200000000    6.8 ns/op
+BenchmarkMathPow-8     20000000     65.2 ns/op</code></pre>
+
+    <p>The results speak for themselves:</p>
+    <ul>
+      <li>Quick pow is about <strong>3.5x faster</strong> than naive multiplication for m=29.</li>
+      <li>Quick pow is about <strong>10x faster</strong> than <code>math.Pow</code>.</li>
+    </ul>
+    <p>The advantage of quick pow grows as <code>m</code> increases. For <code>m = 1,000,000</code>, naive requires a million multiplications while quick pow needs only about 20.</p>
+
+    <h3>Why is math.Pow so slow?</h3>
+    <p>Go's <code>math.Pow</code> operates on <code>float64</code> values and uses a general algorithm that handles fractional exponents, negative exponents, special cases (NaN, infinity), and maintains floating-point precision. All this generality comes at a cost. When you know you need integer exponentiation, quick pow eliminates all that overhead.</p>
+
+    <h2>When to Use Quick Pow</h2>
+    <p>Quick pow shines when:</p>
+    <ul>
+      <li><strong>You only need integer powers.</strong> No fractional or negative exponents.</li>
+      <li><strong>You can ensure no overflow.</strong> Since we're working with integers, the result must fit in the integer type. For modular exponentiation (common in cryptography), you take the modulus at each step to prevent overflow.</li>
+      <li><strong>Performance matters.</strong> In competitive programming, cryptographic operations, or any hot path where you're computing many exponentials.</li>
+    </ul>
+
+    <h3>Modular Exponentiation</h3>
+    <p>A common variant is computing <code>n^m mod p</code>, widely used in cryptography (e.g., RSA). The modification is trivial — just take the modulus at each multiplication:</p>
+    <pre><code>func modPow(n, m, p int) int {
+    result := 1
+    base := n % p
+    for m &gt; 0 {
+        if m&amp;1 == 1 {
+            result = result * base % p
+        }
+        base = base * base % p
+        m &gt;&gt;= 1
+    }
+    return result
+}</code></pre>
+    <p>This keeps all intermediate values bounded by <code>p</code>, preventing overflow as long as <code>p * p</code> fits in the integer type.</p>
+
+    <h2>Summary</h2>
+    <p>Quick pow reduces the time complexity of exponentiation from O(m) to O(log m) by exploiting the binary representation of the exponent. The algorithm is simple, fast, and widely applicable. When you need integer exponentiation and can guarantee no overflow, it's the clear winner over both naive multiplication and general-purpose floating-point power functions.</p>
+    <p>The key takeaway: whenever you see a problem that involves "repeated doubling," think binary decomposition. The same principle underlies fast multiplication (the Russian peasant algorithm), Fibonacci computation via matrix exponentiation, and many other algorithms.</p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda" style="color:#3498db;">林子er's blog</a> on cnblogs.com</p>
+  </div>
+</footer>
+</body>
+</html>

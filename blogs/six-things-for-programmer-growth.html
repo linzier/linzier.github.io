@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Six Things for Programmer Growth</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda/p/16104883.html" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Six Things for Programmer Growth</h1>
+    <div class="meta">2022-04-06 | Career | <a href="https://www.cnblogs.com/linvanda/p/16104883.html">Original</a></div>
+
+    <h2>1. Do More Projects</h2>
+
+    <p>I came to programming late &mdash; I didn't shave my head for the occasion (and frankly, I still have plenty of hair). I spent half a year at a training institution before job hunting.</p>
+
+    <p>My first job was a failure &mdash; my foundation was too thin, I couldn't handle the work, and I resigned quickly (better to quit than be asked to leave).</p>
+
+    <p>I then spent time cramming. By today's standards, my foundation was still pitifully thin, but it was enough for junior work.</p>
+
+    <p>My second job &mdash; I independently delivered many projects. For a novice, having independent projects matters enormously. It forces you to think about design early, not just CRUD. The worst fate for a junior developer is spending years doing nothing but CRUD &mdash; it's devastating for future growth.</p>
+
+    <p>But here's the paradox: juniors rarely get handed independent projects (especially ones with performance or stability requirements). If you were the team lead, who would you assign the important work to?</p>
+
+    <p>So you must be proactive. Have ideas, and express them. Speak up in meetings &mdash; share your thinking (but stay humble, don't argue, and never let people think you're arrogant or difficult to work with). To get important assignments, you first need your lead's trust. You need to look like someone with potential worth investing in.</p>
+
+    <p>One critical but often overlooked point: <strong>find work for yourself</strong>. Learn to create your own tasks. Throughout my career, half the projects that improved my skills the most were ones I found myself. By "projects" I don't mean formal project-management projects &mdash; they can be requirements, system optimizations, anything from cross-team collaborations to building a single reusable component.</p>
+
+    <p>Of course, don't just pick randomly. Look for pain points in your company's products and systems. Can you solve them? What benefits would that bring to you and the company? Win-win is the only path forward.</p>
+
+    <p>I discovered our login flow was a mess, constantly branching into ad-hoc side paths &mdash; so I proposed refactoring the login module. I noticed every team built their own download feature, and large datasets would crash them all &mdash; so I proposed a unified download center. I saw admin systems multiplying with no unified login solution &mdash; so I built an SSO system in my spare time. I even wrote my own framework and promoted it internally...</p>
+
+    <p>I burrowed everywhere like a groundhog, building wheels. There are so many wheels in the world for a good reason: building wheels is an effective way for teams and individuals to accumulate technical depth. I understood most design patterns by developing a framework.</p>
+
+    <p>So if you're just starting out, the number of classic books you've read matters less than the number of projects you've done &mdash; especially challenging ones. Don't fear failure. Many of my projects failed (some optimizations turned out worse than the original; some never went live). So what? At least I thought it through and tried.</p>
+
+    <h2>2. Read More Books</h2>
+
+    <p>Doing projects alone won't dramatically level you up. Programming ability doesn't correlate directly with project count &mdash; you may be encountering new nails, but you're still wielding the same hammer.</p>
+
+    <p>Some people use "I'm a hands-on learner" as an excuse to despise reading. They believe "practice reveals truth" and books are useless (especially theoretical ones).</p>
+
+    <p>They fail to realize that books <em>are</em> distilled experience &mdash; the experience of brilliant people at that. You must read. You can never read too much.</p>
+
+    <p>The reason I say "do projects first, read books second" is that without practical experience, many books will be incomprehensible.</p>
+
+    <p>In reality, the order isn't precise &mdash; they usually happen in parallel, with different emphasis at different stages.</p>
+
+    <p><strong>At first, read tool-oriented books</strong> &mdash; the various "Deep Dive into..." series (Deep Dive into MySQL, Deep Dive into Redis). Deepen your understanding of the tools you work with daily (the programming language, database, and cache you use are all "tools" here &mdash; not IDEs or MySQL clients). Go somewhat deep into their internals &mdash; but unless you're genuinely fascinated by something, there's no need to go all the way to source-code level at this stage. It's mentally exhausting, and time is finite.</p>
+
+    <p>After studying these tools, you'll realize some of your past code implementations and database designs were flawed and could be optimized &mdash; proof that the reading wasn't wasted. The hallmark of growing ability is recognizing the shortcomings in your previous work.</p>
+
+    <p><strong>Then move to books unrelated to specific tools</strong> &mdash; computer architecture, operating systems, design patterns, system architecture, algorithms, even software engineering. If the previous stage was about learning how to build a cache with Redis, this stage is about learning caching patterns in system architecture.</p>
+
+    <p>These books focus on ideas and practical experience, so they tend to be abstract. After reading one, you might feel like you learned something, yet also feel like you learned nothing. This is normal &mdash; your practical experience isn't yet rich enough to support deep understanding.</p>
+
+    <p>When I read <em>Domain-Driven Design</em>, I felt excitement on every page, yet many concepts went in one ear and out the other. Aggregates, aggregate roots, bounded contexts, domain services, application services &mdash; looking down at the book, everything seemed clear; looking up to think, everything blurred. This reflected both my inexperience and the fact that I was touching the edge of my cognitive boundary, absorbing an entirely new way of thinking &mdash; once broken through, it would yield a qualitative leap.</p>
+
+    <p>After finishing DDD, I started consciously applying its concepts when designing systems. I'd often get stuck &mdash; frequently stuck. So I'd go back to the book, this time reading with a specific problem in mind, going directly to the relevant topic. Then came the "aha, so that's what it means" moment.</p>
+
+    <p>For example, some controllers had too much logic, and multiple controllers shared similar logic that clearly didn't belong in the domain layer. What to do? I suddenly remembered the concept of application services &mdash; this logic should be extracted into a service, but an application-layer service. Once I practiced this, the abstract concept clicked. <strong>Every concept exists to solve a problem. If you don't know what problem a concept solves, you haven't understood it.</strong></p>
+
+    <p>So projects and reading are an iterative process: keep learning, keep practicing, keep thinking, and you'll keep breaking through.</p>
+
+    <p>Learning is hard. Breakthroughs are painful. The brain instinctively prefers the comfort zone. Learning a new programming language today and another tomorrow feels easy &mdash; because both use the same learning patterns, and the brain stays comfortable. But learning a language today and studying its implementation tomorrow is painful &mdash; because these are different cognitive modes. The brain must leave the comfort zone and enter a state of chaos &mdash; which it hates.</p>
+
+    <p>To achieve major breakthroughs, you must learn to accept being in a state of chaos.</p>
+
+    <p><strong>Read some history books too.</strong> Not required, but "reading history makes one wise" is genuine. If interested, read human history (not textbook history) and the history of technology. At minimum, read computer history. History explains why things are the way they are. Why is it called "Computer"? Why is a byte 8 bits? Why is the keyboard QWERTY? Did computers always use binary? Why is von Neumann called the father of the modern computer? History has no necessary relationship with programming, but it broadens your horizons and shows you what problems people faced and how they solved them. Some things you think are new were invented or conceived long ago (the cloud computing concept popular a decade ago was already thriving in the 1960s as "computer utilities").</p>
+
+    <p>One reason people dislike reading: after finishing a book, they've forgotten most of it. This feels terrible.</p>
+
+    <p><img src="images/growth-01-reading-list.jpg" alt="Personal reading list"><em>A personal reading list</em></p>
+
+    <p>There's a saying: "Read widely, don't seek overly deep understanding." My interpretation of "overly deep" is trying to memorize every single point and sentence.</p>
+
+    <p>That's unnecessary. Unless you have an extraordinary memory (von Neumann reportedly did), most people forget most of what they read (the slower you read, the more you might forget &mdash; paradoxically). But when you revisit any chapter later, it will feel familiar. Sometimes during projects, a "forgotten" insight will suddenly surface. This is normal brain physiology &mdash; no need to fight it.</p>
+
+    <p>Sometimes after finishing a book, my mind retains just one concept and forgets everything else. After reading <em>The Design of Design</em>, all I had left was the term "conceptual integrity." Maybe I didn't truly understand the book at the time, but that single term has benefited me enormously. In system design, team management, and especially cross-team collaboration on large systems, that term keeps resurfacing. Many systems that ship with endless bugs have problems with conceptual integrity (and consistency) &mdash; different systems defining the same concept differently; inconsistent rounding rules for monetary amounts; critical concepts missing or misused at design time; unclarified concepts leading to mismatches between implementation and expectations (what exactly is a "user" vs. a "member"?). Project launches need significant time and effort invested in achieving conceptual integrity and consistency (meetings, presentations, design documents). Many projects skip these steps and descend into chaos, with everyone seeing only the trees, not the forest.</p>
+
+    <p>So if you can extract one lifelong insight from a book, what more could you ask for?</p>
+
+    <h2>3. Read Source Code</h2>
+
+    <p>The number of projects one person can do is limited, and many projects are the same type. Worse, for various reasons (like joining a company with only CRUD requirements), you might never get a chance to work on anything challenging. What then?</p>
+
+    <p>If you can't work on your own projects, study other people's.</p>
+
+    <p>There are many high-quality open-source projects that are fascinating to study. Often, reading through a high-quality open-source project (it doesn't have to be enormous) teaches you more than building a project yourself.</p>
+
+    <p>Many questions lingering from your reading will find answers in source code. I'm sure when you first learned design patterns, like me, you thought you understood, yet also felt you didn't &mdash; everything seemed abstract. Read some source code and you'll discover design patterns used everywhere. You'll exclaim, "Oh, so <em>that's</em> how you use it!"</p>
+
+    <p>Before diving into source code, read the project's documentation and try using it to get an overall picture. You can also search for notes others have written to understand the general technical structure.</p>
+
+    <p><strong>Start with simple projects.</strong> If you jump straight into nginx, you'll get psychologically scarred and quit forever. When I learned Go, I started with a simple cache middleware (a few thousand lines of code). The more I read, the more confident I got.</p>
+
+    <p><strong>Take notes.</strong> I like to fork directly from GitHub and write comments as I go.</p>
+
+    <p>If you really can't bring yourself to read source code, or get lost in the twisted designs, you can watch others do it. Some platforms offer paid courses where experts walk through source code.</p>
+
+    <p>Sometimes a project you study gradually becomes your own &mdash; meaning you can put it on your resume. When talking to interviewers, you can discuss your understanding of the project, or even (wink wink) claim you've developed something similar.</p>
+
+    <h2>4. Lead a Team</h2>
+
+    <p>Programmers often ask: "Do I have to manage a team eventually?"</p>
+
+    <p>I don't know the answer to that (for most questions with "must" in them, I don't know the answer &mdash; how to respond? Say "must"? Someone will disagree. Say "not necessarily"? Sounds like a textbook). So I won't answer that.</p>
+
+    <p>What I will say is: if you have the opportunity to lead a team, take it &mdash; especially a reasonably complete team (not a company with one frontend dev and one backend dev). At least try it.</p>
+
+    <p>This doesn't mean you're committed to management forever or will stop coding. Leading a team has many benefits for your own growth. Leaving aside "comprehensive skills," let's talk about <strong>resources</strong>.</p>
+
+    <p>The higher your position, the more resources you command. As a regular developer, you mostly accept tasks assigned by others, even if they don't help you grow. But as a team lead, manager, director, or CTO, you find yourself making more decisions (with greater responsibility), influencing a wider scope, and accessing more resources.</p>
+
+    <p>This doesn't mean you must take this path. But be aware &mdash; in most Chinese companies, resources come through "leading teams."</p>
+
+    <p>"But I'm committed to the technical track &mdash; what use are resources?" Maybe none, if you're a senior engineer at a company that truly rewards technical prowess. But if you want to grow toward architect (generally considered the technical track's destination), you'll find you actually need resources (though becoming an architect doesn't strictly require team leadership).</p>
+
+    <p>Even for a regular programmer position: "resources" means the manpower, budget, and time needed to accomplish something. Say you want to build a system or do a refactoring (which benefits both you and the team from a growth perspective). If you have some influence (or authority), you might convince your boss to let you do it (perhaps taking two months, involving coordination across teams). Or you might even decide for yourself whether to do it.</p>
+
+    <p>At minimum, you can become a technical lead for a team or project &mdash; that's not hard. Standing in the team lead's position also broadens your perspective.</p>
+
+    <p>Of course, if you genuinely dislike leading teams (make sure it's not just your brain refusing to leave the comfort zone), you don't have to. Leading teams is one way to gain resources, but not the only way.</p>
+
+    <h2>5. Write Blogs</h2>
+
+    <p>One thing all great developers share: they love writing blogs.</p>
+
+    <p>In school, the best students usually took notes, and some teachers even required it. Writing strengthens memory and deepens understanding.</p>
+
+    <p>Writing helps build a knowledge system. Say you have a basic understanding of DNS &mdash; you know it resolves domain names to IP addresses, and that's it. But if you plan to write an article about DNS, "that's it" won't cut it. You'll research DNS history, study how real-world DNS resolution works. Along the way, you learn about the global DNS hierarchy: root servers at the top, then TLD servers, then authoritative servers. You learn about IANA and ICANN's history, and how IP addresses are managed globally. You discover how intelligent DNS resolution enables CDN networks. You might even want to build your own authoritative DNS server. Without writing a blog, you'd have little motivation to explore any of this or build a complete knowledge system for IPs and domains.</p>
+
+    <p>For me, writing has another benefit: it stimulates thinking and organizes ideas. Sometimes I stare at a problem for ages without progress. So I try writing the problem as an article title in big letters. First, I write down everything I can think of about the problem &mdash; conceptual clarifications, initial reasoning, new questions that arise, anything at all &mdash; and then I find my thinking has opened like a floodgate, flowing freely from then on. Writing exercises the mind.</p>
+
+    <p>In the long run, writing builds a personal brand. Companies need brands; so do individuals. Three main ways to build a personal brand (or personal IP):</p>
+
+    <ol>
+      <li><strong>Join a top company.</strong> Get into a leading firm and earn a respectable title;</li>
+      <li><strong>Contribute to open source.</strong> Build a high-star project or become a key contributor to a well-known one;</li>
+      <li><strong>Write blogs.</strong></li>
+    </ol>
+
+    <p>Some people manage all three. If you can't, try just one &mdash; like writing blogs.</p>
+
+    <p>Many people claim they're "not good at writing." That's an excuse. No one is born good at writing. Those who seem skilled got that way through long practice. Besides, writing technical blogs doesn't require literary mastery &mdash; just explain things clearly.</p>
+
+    <p>Others feel their skills aren't strong enough yet and don't want to embarrass themselves. They'll write when their foundation is solid. Don't wait &mdash; writing blogs is itself one of the fastest, most effective ways to build your foundation. Don't get the order backwards. If people read your blog, great (an audience is most people's main motivation for continuing). If not, treat it as self-improvement and practice. Write more, accumulate more, quality rises naturally, and readers will come.</p>
+
+    <p>Others still feel that everything they'd want to write about has already been covered extensively. There are already so many novels, yet people still write. So much music, yet people still compose. So many wheels, yet people still build them. In one sense, the Bible got it right: "There is nothing new under the sun." But another saying goes: a thousand audiences see a thousand different Hamlets. Everyone's perspective on the same problem, their understanding of the same knowledge, is different. Yes, HTTP has been explained to death &mdash; but your understanding, your writing style, might offer something fresh. Even if it offers nothing new, people will still read it, because information isn't synchronized &mdash; some people will find your corner of the internet instead of someone else's.</p>
+
+    <p>So don't overthink it. Just write.</p>
+
+    <p>As for platforms, there are plenty: cnblogs, CSDN, Zhihu, Jianshu, Juejin, self-hosted blogs, and more. Some people like GitHub (though it's not very search-engine-friendly, so I don't recommend it for blogs).</p>
+
+    <p>I personally prefer cnblogs &mdash; I think it has the strongest technical atmosphere and is the most straightforward, with the fewest distractions. Of course, if you plan to run your writing operation long-term, consider running your own WeChat public account. It's harder, but if you persist, it will bring greater returns in the long run (growth, brand, and financial).</p>
+
+    <h2>6. Become a Lecturer</h2>
+
+    <p>Most tech companies hold technical sharing sessions, but I've noticed many people are reluctant to seize these opportunities. Some teams can't sustain their sharing sessions and have to assign topics by force. Most people treat it as a burden, and some even complain that the lead gave them extra work forcing them to stay late.</p>
+
+    <p>Regardless of your level, being a lecturer for any sharing session is a tremendous opportunity worth seizing. Great developers are always eager to participate in sharing sessions &mdash; internal ones, industry summits, you name it.</p>
+
+    <p>Being a lecturer yields at least three benefits.</p>
+
+    <p><strong>First, rapid professional growth.</strong> Like writing, you must choose a topic. It might be something you know well, but more often you've only scratched the surface. So you must gather materials and organize them into a coherent system. Say you want to talk about Unicode. You've dabbled in this area and even wrote a UTF-8 implementation demo, so you feel quite expert. But when planning your talk structure, you realize you first need to cover pre-Unicode character encoding to explain Unicode's historical necessity. So you learn about ASCII, ISO-8859, GB 2312, Big5, and the various IBM and Microsoft code pages. Then Unicode appeared &mdash; you need to figure out how Unicode was designed to be compatible with these earlier encodings, forcing you to dig into Unicode's implementation details. Discovering that early Unicode used a fixed two-byte encoding, you must investigate why UTF-8 eventually overtook UTF-16 as the most widely used Unicode encoding. By the time you've prepared your talk, you've built your own complete character encoding knowledge system (not just scattered facts about Unicode and UTF-8).</p>
+
+    <p><strong>Second, develop your public speaking ability.</strong> As you gain experience and advance, you'll need to speak in front of people at some point. You don't need to be eloquent, but you'd better not be incoherent. Programmers rarely get opportunities to speak publicly (and most don't grab them when they appear). Being a lecturer offers a relaxed atmosphere &mdash; unless it's a company-wide talk for hundreds or an industry summit, your audience will be familiar colleagues, so the pressure is manageable (especially after a few talks). Plus, you've prepared thoroughly (slides), so you know your material. Most people can handle this. But sharing is still public speaking &mdash; you need techniques to bring the audience into your world and help them understand easily (many people just read their slides, ignoring the audience, until everyone's on their phones). This is a great chance to experience and hone speaking skills. Most people don't do well the first time, but after a few rounds, you'll naturally start thinking about and improving your technique.</p>
+
+    <p><strong>Third, get known by more people.</strong> You might think, "We all work under the same roof &mdash; who doesn't know me?" Unless you're a widely recognized expert, plenty of people don't know you. And "knowing" isn't just knowing your name. It means knowing what you do, what you're good at, where you excel. This knowledge converts into <strong>recognition</strong>: getting others to acknowledge your competence, and especially getting your lead to recognize you. Later, industry summits let even more professionals know and recognize you &mdash; and that's how you build your personal IP.</p>
+
+    <p>Many people hesitate because they feel they don't have anything they're truly expert in. Remember: most of the time, you don't share because you're already an expert. You decide to share something you're familiar with but haven't mastered, then dive deep into it. Through the sharing process, you truly master the topic.</p>
+
+    <p>If you lack confidence at first, start small. Share within your team, keep it casual and not too deep or professional. Then expand to the department or company level.</p>
+
+    <p>Like writing blogs, sharing benefits everyone &mdash; yourself and your audience. Don't wait. Do it soon.</p>
+
+    <p><strong>You don't do it because you're ready. You become ready by doing it.</strong></p>
+
+    <p><img src="images/growth-02-conclusion.png" alt="Article conclusion summary"></p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>

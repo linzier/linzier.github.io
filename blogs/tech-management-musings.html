@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Musings on Technical Management - Linzer's Blog</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Musings on Technical Management</h1>
+    <div class="meta">2022-07-25 | Management</div>
+
+    <p>After years of working in various technical teams — some well-run, some disastrously mismanaged — I've accumulated a collection of observations about what makes technical teams succeed or fail. These are not grand theories or carefully researched frameworks. They're musings, born from experience, trial and error, and a lot of watching other people do things wrong (and occasionally right).</p>
+
+    <p>I offer them here in the hope that they might be useful to others navigating the tricky territory between writing code and leading people.</p>
+
+    <h2>Proactive Management: People Are Not Machines</h2>
+
+    <p>The first and most important lesson is this: <strong>people are not machines.</strong> You cannot simply assign tasks and expect them to be executed with mechanical precision. People have motivations, emotions, bad days, good days, ambitions, frustrations, and interpersonal dynamics that no project plan can capture.</p>
+
+    <p>A machine needs maintenance. A person needs <em>motivation</em>. And a group of people needs <em>organization</em>.</p>
+
+    <p>What does motivation look like in practice? It means understanding what drives each person on your team. For some, it's money. For others, it's learning new technologies. For some, it's recognition. For others, it's autonomy. A good manager knows what makes each person tick and tries to align those motivations with the team's goals.</p>
+
+    <p>And organization? That means creating structures and processes that help people work together effectively. It means clear roles, clear expectations, regular communication, and mechanisms for resolving conflicts. It's not about bureaucracy — it's about removing friction so that talented people can do their best work.</p>
+
+    <p>The manager who treats their team like a collection of interchangeable code-producing machines will always be surprised when things go wrong. The manager who understands that they're managing <em>people</em> — complex, emotional, motivated people — has a chance of building something great.</p>
+
+    <h2>KPI: The Software Team's Dilemma</h2>
+
+    <p>Key Performance Indicators work well in some contexts. If you're running a factory, you can measure output per worker, defect rates, downtime. If you're running a sales team, you can measure revenue, conversion rates, pipeline size. But software development is different.</p>
+
+    <h3>Why Software KPI Is Hard</h3>
+
+    <p>Software development is creative work. It's problem-solving. It's design. It's communication. It's debugging. It's helping teammates. It's refactoring code that nobody sees but everyone benefits from. How do you measure any of that with a number?</p>
+
+    <p>You can count lines of code, but that rewards verbosity. You can count commits, but that rewards trivial changes. You can count bugs fixed, but that rewards writing buggy code in the first place. You can count story points, but those are inherently subjective and tend to inflate over time.</p>
+
+    <p>Every quantitative metric for software development can be gamed, and when it's tied to compensation or promotion, it <em>will</em> be gamed. This is not a flaw in the metrics — it's a fundamental property of trying to reduce creative work to numbers.</p>
+
+    <h3>Consider OKR Instead</h3>
+
+    <p>Objectives and Key Results (OKR) offer an alternative. Instead of measuring individual output, OKRs focus on team outcomes. The team sets ambitious objectives for the quarter, and defines measurable key results that indicate whether those objectives were achieved.</p>
+
+    <p>For a technical team, OKRs might look like:</p>
+
+    <ul>
+      <li><strong>Objective:</strong> Improve system reliability
+        <ul>
+          <li>KR: Reduce P1 incidents from 5/month to 2/month</li>
+          <li>KR: Achieve 99.95% uptime</li>
+          <li>KR: Reduce mean time to recovery from 45 minutes to 15 minutes</li>
+        </ul>
+      </li>
+      <li><strong>Objective:</strong> Accelerate development velocity
+        <ul>
+          <li>KR: Reduce deployment time from 2 hours to 15 minutes</li>
+          <li>KR: Increase test coverage from 60% to 80%</li>
+          <li>KR: Reduce CI build time from 30 minutes to 10 minutes</li>
+        </ul>
+      </li>
+    </ul>
+
+    <p>The advantage of OKRs is that they focus on outcomes, not output. They encourage the team to work together toward shared goals, rather than optimizing individual metrics. And they allow for the kind of qualitative judgment that pure KPIs lack.</p>
+
+    <h3>Technical Teams Need Technical Goals</h3>
+
+    <p>One mistake I see frequently is technical teams that only have business-oriented goals. "Launch feature X by date Y." "Support Z new customers." These are important, but they're not enough.</p>
+
+    <p>Technical people need technical goals. They need to feel that they're growing as engineers, not just churning out features. Goals like reducing technical debt, improving performance, adopting better tools, or learning new technologies are essential for keeping a technical team engaged and motivated.</p>
+
+    <p>If the only goals are business goals, the team will feel like a feature factory. They'll do the work, but they won't be inspired. And uninspired engineers write uninspired code.</p>
+
+    <h3>The Problem with Subjective KPI</h3>
+
+    <p>Some organizations try to solve the measurement problem by making KPIs subjective. "Manager rates engineer on a scale of 1 to 5." This avoids the gaming problem of quantitative metrics, but introduces a host of new problems: bias, favoritism, recency effect, halo effect, and the fundamental awkwardness of reducing a person's contribution to a number.</p>
+
+    <p>Subjective KPIs also create a power dynamic that's unhealthy. When your career depends on your manager's subjective assessment, you're incentivized to manage up rather than do good work. You spend your energy making your manager happy rather than solving the right problems.</p>
+
+    <h3>Recommendation: Quarterly or Semi-Annual Evaluation</h3>
+
+    <p>If you must evaluate performance, I recommend doing it quarterly or semi-annually, not annually. Annual reviews are too infrequent to catch problems early, and they put too much weight on a single conversation. Quarterly check-ins are more manageable, more timely, and less stressful.</p>
+
+    <p>And whatever you do, make the evaluation a conversation, not a verdict. The goal is to help the person grow, not to judge them.</p>
+
+    <h2>Democracy vs. Autonomy: Finding the Balance</h2>
+
+    <p>How should technical decisions be made? By the team collectively, or by the leader unilaterally? This is one of the oldest questions in management, and the answer, as usual, is: it depends.</p>
+
+    <h3>Some Autocracy Is Needed for Efficiency</h3>
+
+    <p>Pure democracy is too slow for most technical teams. If every decision — from architecture to coding standards to tool selection — has to be debated and voted on by the whole team, nothing gets done. Meetings multiply. Decisions stall. The team grinds to a halt.</p>
+
+    <p>Sometimes, someone needs to make a decision and move on. A leader who is willing to make unpopular decisions, to cut through debate, and to say "this is the way we're going to do it" is providing a real service to the team. Not every decision is worth debating, and not every debate leads to a better outcome.</p>
+
+    <h3>Too Much Democracy = Nothing Gets Done</h3>
+
+    <p>I've seen teams where the leader is so afraid of being autocratic that they refuse to make any decision without consensus. Every meeting ends with "let's think about it more" or "does anyone have any objections?" The result is paralysis. The team drifts. Important decisions are postponed indefinitely. And when they are finally made, they're often compromises that satisfy nobody.</p>
+
+    <p>This is not democracy. It's abdication. The leader has a responsibility to lead, and that sometimes means making decisions that not everyone agrees with.</p>
+
+    <h3>Too Much Autocracy = Team Rigidity</h3>
+
+    <p>On the other hand, I've seen teams where the leader makes every decision unilaterally. The team is treated as a collection of order-takers. Their ideas are not solicited. Their concerns are not heard. The result is a team that is rigid, disengaged, and incapable of independent thought.</p>
+
+    <p>When the leader is always right, the team stops thinking. They wait for instructions. They don't take initiative. They don't challenge bad ideas. And when the leader makes a mistake — as all leaders do — there's nobody to catch it.</p>
+
+    <h3>"People's Democratic Dictatorship" as a Model</h3>
+
+    <p>There's a concept from political theory that I think maps surprisingly well to technical team management: <strong>democracy for the people, dictatorship for the enemies.</strong></p>
+
+    <p>Translated to a team context: within the team, decisions should be made democratically. Team members should have a voice in technical decisions, architecture, processes, and priorities. Their ideas should be heard and considered. They should feel ownership over the team's direction.</p>
+
+    <p>But when it comes to external pressures — unreasonable deadlines from management, scope creep from product, interference from other teams — the leader should be a dictator. They should protect the team, push back when necessary, and make the hard calls that the team as a whole cannot make.</p>
+
+    <p>This model gives the team autonomy where it matters (how they work) while providing strong leadership where it's needed (protecting the team from external chaos). It's not perfect, but it's a good starting point.</p>
+
+    <h2>Virtual Teams: The Cross-Team Challenge</h2>
+
+    <p>Many technical projects involve people from multiple teams. A backend team, a frontend team, a mobile team, a QA team, maybe a data team and a DevOps team. These "virtual teams" — teams that exist for a project but not in the organizational chart — present special challenges.</p>
+
+    <h3>Cross-Team Projects Need Dedicated Project Teams</h3>
+
+    <p>The first mistake is to treat a cross-team project as something that each team will work on "in addition to their regular work." This never works. When people have competing priorities, the project always loses. It gets the leftover time, the leftover energy, the leftover attention.</p>
+
+    <p>For important cross-team projects, you need a dedicated project team. People should be assigned to the project, not just asked to contribute. They should have clear roles, clear responsibilities, and clear time commitments. Ideally, they should be co-located, or at least have dedicated communication channels and regular sync meetings.</p>
+
+    <h3>Role Clarity Is Essential</h3>
+
+    <p>In a virtual team, role ambiguity is the enemy. Who is the technical lead? Who makes architecture decisions? Who is responsible for testing? Who is the point of contact for the product manager? If these questions don't have clear answers, the project will stall in a morass of confusion and turf wars.</p>
+
+    <p>Every virtual team needs a clear structure: a leader, defined roles, and explicit decision-making authority. This doesn't mean the structure has to be rigid — it just has to be clear. Everyone should know who is responsible for what, and how decisions are made.</p>
+
+    <h3>Co-Location Helps</h3>
+
+    <p>If at all possible, co-locate the virtual team. Put them in the same room, or at least the same area of the office. The communication bandwidth of sitting next to someone is orders of magnitude higher than any chat tool or video call. Questions that would require a formal meeting can be resolved with a quick turn of the head. Misunderstandings that would fester in text messages are resolved in face-to-face conversations.</p>
+
+    <p>I know that remote work is more common now, and co-location isn't always possible. But when it is, take advantage of it. The productivity gains are real and substantial.</p>
+
+    <h2>Worker-Bee Leaders: The Busiest Person in the Room</h2>
+
+    <p>There's a type of technical manager that I call the "worker-bee leader." This is the manager who is always the busiest person on the team. They're writing code, fixing bugs, reviewing PRs, attending meetings, answering questions, putting out fires. They work late nights and weekends. They're always "on."</p>
+
+    <p>And their team is a mess.</p>
+
+    <h3>The Trap</h3>
+
+    <p>The worker-bee leader fell into a trap. They were promoted because they were a great individual contributor. They were the best coder on the team, the one who could solve the hardest problems, the one who could deliver the most features. So they were made a manager.</p>
+
+    <p>But they never stopped being an individual contributor. They still write code. They still fix bugs. They still solve the hard problems. They're just doing it on top of all the management work. And because they're spending all their time on urgent tasks — code, bugs, fires — they have no time for the important but not urgent tasks that actually make a team effective.</p>
+
+    <h3>What They're Missing</h3>
+
+    <p>What are the important-but-not-urgent tasks that the worker-bee leader is neglecting?</p>
+
+    <ul>
+      <li><strong>Mentoring:</strong> Helping team members grow their skills and advance their careers.</li>
+      <li><strong>Architecture:</strong> Thinking about the long-term technical direction of the system.</li>
+      <li><strong>Process improvement:</strong> Identifying and removing friction in the team's workflow.</li>
+      <li><strong>Hiring:</strong> Building a stronger team by bringing in new talent.</li>
+      <li><strong>Team building:</strong> Creating a culture of trust, collaboration, and psychological safety.</li>
+      <li><strong>Stakeholder management:</strong> Building relationships with product, design, and other teams.</li>
+    </ul>
+
+    <p>None of these tasks have a deadline. None of them produce immediate, visible output. But they are the tasks that determine whether the team will be effective in six months, in a year, in three years. And the worker-bee leader is too busy writing code to do any of them.</p>
+
+    <h3>The Way Out</h3>
+
+    <p>The way out is painful but necessary: the worker-bee leader has to stop coding. They have to delegate the technical work that they love and that they're good at, and focus on the management work that they probably don't love and that they're probably not naturally good at.</p>
+
+    <p>This doesn't mean they have to stop being technical. They should still review architecture, participate in technical discussions, and stay current with technology. But they should not be on the critical path for feature delivery. They should not be the one fixing bugs at 11 PM. They should not be the one writing the code that ships next sprint.</p>
+
+    <p>Their job is now to make the <em>team</em> effective, not to be effective themselves. That's a hard transition, but it's the only way to grow as a leader.</p>
+
+    <h2>Spark of Fire: Building Technical Atmosphere</h2>
+
+    <p>A technical team without a technical atmosphere is just a group of people who happen to write code for the same company. The spark of fire — the enthusiasm for technology, the curiosity about how things work, the desire to do better — is what separates a great team from a mediocre one.</p>
+
+    <h3>Technical Atmosphere Is the Soul</h3>
+
+    <p>The technical atmosphere of a team is its soul. It's what makes people want to come to work, to learn, to grow, to push themselves. It's what makes the difference between a team that just delivers features and a team that innovates, improves, and takes pride in their craft.</p>
+
+    <p>A team with a strong technical atmosphere has engineers who:</p>
+
+    <ul>
+      <li>Read about new technologies and share what they learn</li>
+      <li>Question design decisions and propose improvements</li>
+      <li>Take pride in clean code and good architecture</li>
+      <li>Help each other grow through code reviews and pair programming</li>
+      <li>Are curious about how things work under the hood</li>
+    </ul>
+
+    <p>A team without it has engineers who:</p>
+
+    <ul>
+      <li>Do the minimum required to get the job done</li>
+      <li>Don't question bad design because "that's how it's always been"</li>
+      <li>Don't care about code quality because "nobody has time for that"</li>
+      <li>Work in silos and don't help each other</li>
+      <li>Have no curiosity about anything beyond their immediate task</li>
+    </ul>
+
+    <p>The difference is palpable. And it's the manager's responsibility to cultivate it.</p>
+
+    <h3>How to Build Technical Atmosphere</h3>
+
+    <p>There are several practical things you can do:</p>
+
+    <p><strong>Tech sharing sessions.</strong> Regular (weekly or bi-weekly) sessions where team members present on a technical topic. It could be a new technology they explored, a deep dive into a system they built, a post-mortem of an incident, or a book they read. The content matters less than the habit. The point is to create a culture where learning and sharing are expected and valued.</p>
+
+    <p><strong>Code reviews.</strong> Not just as a quality gate, but as a learning opportunity. Good code reviews are conversations about design, readability, performance, and maintainability. They're a chance for senior engineers to mentor junior engineers, and for everyone to learn from each other. If your code reviews are just "LGTM," you're missing a huge opportunity.</p>
+
+    <p><strong>Technical tasks.</strong> Allocate time for technical improvement in every sprint. Refactoring, performance optimization, tooling improvements, tech debt reduction. If the team never has time for technical work, they'll feel like they're on a treadmill — always running, never getting anywhere better.</p>
+
+    <h3>The Hierarchy of Atmosphere</h3>
+
+    <p>I believe there's a hierarchy of team atmosphere, and you should build it from the bottom up:</p>
+
+    <ol>
+      <li><strong>Technical atmosphere</strong> comes first. This is the foundation. A team that doesn't care about technology won't care about anything else related to their craft.</li>
+      <li><strong>Business atmosphere</strong> comes second. Once the team cares about technology, help them understand the business context. Why are we building this? What problem does it solve? How does it create value? A team that understands the business can make better technical decisions.</li>
+      <li><strong>Service atmosphere</strong> comes third. Once the team cares about technology and understands the business, help them think about service. How do we support our users? How do we respond to incidents? How do we ensure reliability? A team that cares about service takes ownership of their systems end-to-end.</li>
+    </ol>
+
+    <p>You can't skip levels. A team that doesn't care about technology won't genuinely care about the business. A team that doesn't understand the business won't genuinely care about service. Build the foundation first, then build on it.</p>
+
+    <h2>Conclusion</h2>
+
+    <p>Technical management is hard. It's not just about writing good code or making good technical decisions. It's about motivating people, organizing teams, navigating politics, building culture, and doing it all while the product keeps shipping and the systems keep running.</p>
+
+    <p>There's no formula. There's no playbook. There are only principles, observations, and hard-won lessons. I've shared some of mine here. They may not work for every team or every situation. But they've worked for me, more often than not, and I hope they might be useful to others.</p>
+
+    <p>The bottom line is this: manage people as people, not as machines. Set goals that inspire, not just metrics that measure. Balance democracy and autocracy. Build dedicated teams for cross-team work. Don't be the busiest person on your team. And above all, keep the spark of fire alive. Because a team that loves technology, understands the business, and cares about service will always outperform a team that's just going through the motions.</p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda" style="color:#3498db;">林子er's blog</a> on cnblogs.com</p>
+  </div>
+</footer>
+</body>
+</html>

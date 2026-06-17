@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PHP Development Reflections: Thoughts on Backend Development</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>PHP Development Reflections: Thoughts on Backend Development</h1>
+    <div class="meta">2020-04-20 | Software Engineering</div>
+
+    <h2>Introduction</h2>
+
+    <p>After years of working with PHP and other backend technologies, I have accumulated a set of observations about what goes wrong in large-scale backend systems and how to think about building them better. This article is a collection of those reflections &mdash; the problems I have seen repeatedly, the design patterns that help, and the conceptual clarifications that I wish someone had told me earlier.</p>
+
+    <h2>Current Problems in Backend Development</h2>
+
+    <h3>Business Logic Leaking to the Wrong Layers</h3>
+
+    <p>One of the most pervasive issues in backend codebases is business logic appearing in layers where it does not belong. Controllers become bloated with conditional logic that should be in domain services. Views contain calculations that should be in models. Database queries embed business rules that should be encapsulated in repositories. When logic leaks across layers, the system becomes a tangled web where changing one requirement means modifying files in five different places.</p>
+
+    <h3>God Services</h3>
+
+    <p>A "god service" is a class or module that knows too much and does too much. It handles user authentication, payment processing, email notifications, and report generation, all in the same 3,000-line file. God services emerge organically as developers add "just one more thing" to an existing class. They are difficult to test, difficult to understand, and difficult to modify without breaking something else.</p>
+
+    <h3>Duplicate Functionality</h3>
+
+    <p>In large codebases, it is common to find two or three implementations of the same functionality, written by different developers at different times. One module calculates shipping costs one way; another module calculates it a slightly different way. Neither is wrong, but the inconsistency leads to bugs and confusion. Duplicate functionality is a symptom of poor modularity and inadequate communication between teams.</p>
+
+    <h3>Anemic Models</h3>
+
+    <p>An anemic model is a domain object that contains only data (getters and setters) but no behavior. All the business logic lives in external services that manipulate the model's data. The model becomes a passive data bag, and the services become all-powerful. This is the opposite of object-oriented design, where objects should encapsulate both data and the behavior that operates on that data.</p>
+
+    <h3>Tech-oriented Module Division</h3>
+
+    <p>Many systems are organized by technical layer rather than by business domain. You have a <code>controllers/</code> directory, a <code>services/</code> directory, a <code>repositories/</code> directory, and a <code>models/</code> directory. To understand a single business feature, you have to jump between four different directories. This structure makes sense from a technical perspective but is hostile to understanding the business logic.</p>
+
+    <h3>Front-Back Separation Causing Duplication</h3>
+
+    <p>When the frontend and backend are developed as separate projects, there is a temptation to duplicate validation logic, data transformation, and business rules in both codebases. The frontend validates input one way; the backend validates it another way. When a rule changes, both codebases must be updated. This duplication is a maintenance nightmare and a source of subtle inconsistencies.</p>
+
+    <h3>Framework Impedance Mismatch (Conway's Law)</h3>
+
+    <p>Conway's Law states that the structure of a system reflects the structure of the organization that built it. When you adopt a monolithic framework, your code tends to become monolithic. When your team is organized into frontend and backend silos, your system architecture reflects that division. The framework you choose shapes the way you think about the problem, and not always in a good way.</p>
+
+    <h3>OO Skepticism</h3>
+
+    <p>After years of seeing object-oriented principles misapplied &mdash; god classes, deep inheritance hierarchies, gratuitous abstractions &mdash; many developers become skeptical of OO itself. They conclude that OOP is overrated and turn to functional programming or procedural styles. But the problem is not OO itself; it is the superficial application of OO ideas without understanding the underlying principles of cohesion, coupling, and abstraction.</p>
+
+    <h2>Design Patterns That Help</h2>
+
+    <h3>IoC / DI: Dependency Inversion</h3>
+
+    <p>The Dependency Inversion Principle (the "D" in SOLID) states that high-level modules should not depend on low-level modules; both should depend on abstractions. In practice, this means that a service should not create its own dependencies; instead, dependencies should be injected into it.</p>
+
+    <p>Consider a service that sends email notifications. In a naive implementation, the service creates an <code>EmailSender</code> object directly. This couples the service to a specific email implementation. With dependency injection, the service receives an <code>EmailSenderInterface</code> in its constructor. The actual implementation (SMTP, SendGrid, mock for testing) is provided externally.</p>
+
+    <p>The key insight is the separation of <strong>use</strong> from <strong>creation</strong>. The service uses the dependency but does not create it. This makes the service easier to test (you can inject a mock), easier to configure (you can swap implementations), and easier to understand (the dependencies are explicit).</p>
+
+    <h3>Hexagonal Architecture (Ports and Adapters)</h3>
+
+    <p>Hexagonal Architecture, also known as Ports and Adapters, is a design pattern that isolates the business logic from the infrastructure. The core of the system (the hexagon) contains the domain model and the business rules. It communicates with the outside world through ports (interfaces) and adapters (implementations).</p>
+
+    <p>There are two types of adapters:</p>
+
+    <ul>
+      <li><strong>Driving adapters</strong> (left side) &mdash; the things that invoke the application: controllers, CLI commands, message consumers.</li>
+      <li><strong>Driven adapters</strong> (right side) &mdash; the things the application invokes: databases, external APIs, file systems.</li>
+    </ul>
+
+    <p>The business logic never depends on the adapters. It depends only on the ports (interfaces). The adapters depend on the ports. This inversion of dependencies ensures that the business logic is isolated and testable. You can replace the database, the web framework, or the message queue without touching a single line of business logic.</p>
+
+    <h3>GRASP: Information Expert and Creator Patterns</h3>
+
+    <p>GRASP (General Responsibility Assignment Software Patterns) provides guidelines for assigning responsibilities to classes:</p>
+
+    <ul>
+      <li><strong>Information Expert</strong> &mdash; assign a responsibility to the class that has the information needed to fulfill it. If you need to calculate the total price of an order, the <code>Order</code> class is the expert because it has access to the line items.</li>
+      <li><strong>Creator</strong> &mdash; assign the responsibility of creating an object to the class that has the information needed to create it, or the class that closely uses it. This is a more nuanced alternative to putting all object creation in factories.</li>
+    </ul>
+
+    <p>GRASP helps you make decisions about where behavior belongs, reducing the tendency to dump everything into a god service.</p>
+
+    <h3>SOLID Principles</h3>
+
+    <h4>Single Responsibility Principle (SRP)</h4>
+
+    <p>A class should have one, and only one, reason to change. This does not mean a class should do only one thing; it means a class should be responsible to one stakeholder. A class that handles both business logic and persistence has two reasons to change: when the business rules change, and when the database schema changes.</p>
+
+    <h4>Open/Closed Principle (OCP)</h4>
+
+    <p>Software entities should be open for extension but closed for modification. You should be able to add new behavior without changing existing code. This is typically achieved through abstractions: new behavior is added by creating new implementations of an interface, not by modifying existing classes.</p>
+
+    <h4>Liskov Substitution Principle (LSP)</h4>
+
+    <p>Subtypes must be substitutable for their base types. If class <code>B</code> extends class <code>A</code>, you should be able to replace <code>A</code> with <code>B</code> without breaking the program. This means subclasses should not strengthen preconditions or weaken postconditions. A classic violation is a <code>Square</code> class that extends <code>Rectangle</code>: setting the width of a square also changes its height, which violates the expectation that width and height are independent.</p>
+
+    <h4>Interface Segregation Principle (ISP)</h4>
+
+    <p>Clients should not be forced to depend on interfaces they do not use. A fat interface with many methods should be split into smaller, more specific interfaces. A class that only needs one method should not be forced to implement ten.</p>
+
+    <h4>Dependency Inversion Principle (DIP)</h4>
+
+    <p>Already discussed above under IoC/DI. High-level modules depend on abstractions, not on concrete implementations.</p>
+
+    <h2>Other Important Patterns</h2>
+
+    <h3>DDD: Domain-Driven Design</h3>
+
+    <p>Domain-Driven Design (DDD) is an approach to software design that centers on the business domain. Its key ideas are:</p>
+
+    <ul>
+      <li><strong>Ubiquitous Language</strong> &mdash; the same language (terms, phrases, concepts) should be used from requirements documentation to code. If the business calls it a "booking," the code should have a <code>Booking</code> class, not a <code>ResEntity</code> or <code>TblReservation</code>.</li>
+      <li><strong>Code = Model</strong> &mdash; the code is not just an implementation of the model; it <em>is</em> the model. If the model is wrong, the code is wrong. If the code compiles but the business says "that's not how it works," the model is wrong.</li>
+      <li><strong>Bounded Contexts</strong> &mdash; a large system is divided into bounded contexts, each with its own model and ubiquitous language. The "Order" concept in the sales context may be different from the "Order" concept in the shipping context.</li>
+    </ul>
+
+    <h3>CQRS: Command Query Responsibility Segregation</h3>
+
+    <p>CQRS separates the read model from the write model. Commands (writes) and queries (reads) are handled by different objects, and may even use different data stores.</p>
+
+    <ul>
+      <li><strong>Command side</strong> &mdash; responsible for validating input, enforcing business rules, and persisting changes. It is optimized for correctness.</li>
+      <li><strong>Query side</strong> &mdash; responsible for retrieving data for display. It is optimized for performance and can use denormalized views, caching, or even a separate read database.</li>
+    </ul>
+
+    <p>CQRS is particularly useful when the read and write workloads have very different characteristics (e.g., many more reads than writes), or when the business logic for writes is complex but the queries are simple.</p>
+
+    <h2>Concept Analysis and Clarifications</h2>
+
+    <h3>Service: Coordinator, Not Implementer</h3>
+
+    <p>A service should be a thin coordinator that delegates work to domain objects. It orchestrates the flow: load the entity, call its method, save it, send a notification. It should not contain the business logic itself. A common mistake is to model the system around services, with passive data objects. Instead, model the system around rich domain objects, and let services coordinate them.</p>
+
+    <blockquote>Do not ask "what service handles this?" Ask "which object knows how to do this?"</blockquote>
+
+    <h3>Database-Oriented Programming: The Root of Many Evils</h3>
+
+    <p>Many backend systems are designed around the database schema rather than the business domain. Tables become entities, columns become properties, and foreign keys become relationships. This is database-oriented programming, and it is the root of many evils: anemic models, logic in stored procedures, and a codebase that mirrors the schema rather than the business.</p>
+
+    <p>The database is an implementation detail. It is where you persist the domain model, not the source of the domain model. Design your domain first, then figure out how to persist it.</p>
+
+    <h3>Repository: Collection-Like, Not DAO</h3>
+
+    <p>A repository should feel like a collection of domain objects. You ask it to find an order by ID, and it returns an <code>Order</code> object, not a row from the database. A DAO (Data Access Object), on the other hand, is a thin wrapper around SQL queries that returns data transfer objects.</p>
+
+    <p>The repository pattern abstracts the persistence layer completely. The domain layer should not know or care whether the data comes from a relational database, a document store, or an in-memory map.</p>
+
+    <p><strong>Transactions belong in the application service, not in the repository.</strong> A repository method should not begin and commit a transaction. The application service, which coordinates multiple operations, should define the transaction boundary. This ensures that a single business operation is atomic, even if it involves multiple repository calls.</p>
+
+    <h3>Controller: Adapter Between User and Domain</h3>
+
+    <p>A controller is an adapter that translates user input (HTTP requests, CLI arguments) into domain operations. It is not a place for business logic. It is, however, the right place for <strong>permission control</strong>. Deciding whether a user is allowed to perform an action is a cross-cutting concern that belongs at the edge of the system, not deep in the domain.</p>
+
+    <h3>Entity: Identity, Lifecycle</h3>
+
+    <p>An entity is an object defined by its identity, not by its attributes. Two orders with the same total amount but different IDs are different entities. Entities have a lifecycle: they are created, modified, and eventually deleted or archived. This distinguishes them from <strong>value objects</strong>, which are defined by their attributes and are immutable. A <code>Money</code> object with amount 100 and currency USD is the same as any other <code>Money</code> object with the same values; it is a value object. An <code>Order</code> with ID 123 is unique; it is an entity.</p>
+
+    <h3>Modeling: An Iterative Process</h3>
+
+    <p>Domain modeling is not a one-time activity where you draw a class diagram and then implement it. It is an iterative process that evolves as you learn more about the business. Start from requirements analysis: what does the business need? What are the key concepts? What are the rules? Then refine the model as you implement and test. Do not start from a class diagram; start from the business language.</p>
+
+    <h3>Framework / SDK / Vendor: Conway's Law in Action</h3>
+
+    <p>The choice of framework shapes your architecture. A monolithic framework (like Laravel or Spring) encourages a monolithic structure. A collection of small, focused libraries (the Unix philosophy) encourages modularity.</p>
+
+    <p>When possible, prefer <strong>composer packages</strong> (or their equivalent) over monolithic frameworks. Small, focused libraries that you can mix and match give you more control over your architecture and reduce the impedance mismatch between your code and the framework.</p>
+
+    <p>That said, frameworks provide value: they handle boilerplate, enforce conventions, and reduce decision fatigue. The key is to use the framework as a tool, not to let the framework use you. When the framework's conventions conflict with your domain model, the domain model should win.</p>
+
+    <h2>Conclusion</h2>
+
+    <p>Backend development is hard not because the technology is complex, but because the domain is complex. The biggest challenges are not about choosing the right database or the right framework; they are about understanding the business, modeling it correctly, and organizing the code so that it can evolve as the business evolves.</p>
+
+    <p>The patterns and principles described in this article &mdash; DDD, hexagonal architecture, SOLID, CQRS &mdash; are not silver bullets. They are tools for managing complexity. Use them where they help, and ignore them where they don't. The goal is not to follow the patterns; the goal is to build software that is easy to understand, easy to modify, and easy to test.</p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>&copy; 2020 Linzer's Blog</p>
+  </div>
+</footer>
+</body>
+</html>

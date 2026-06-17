@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Branch Management in Practice</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Git Branch Management in Practice</h1>
+    <div class="meta">2020-04-23 | Process</div>
+
+    <h2>Overview</h2>
+
+    <p>Effective branch management is the backbone of a smooth development workflow. After years of trial and error, our team settled on a branching model with four distinct branch types, each serving a specific purpose. This article describes the model and the reasoning behind it.</p>
+
+    <h2>The Four Branch Types</h2>
+
+    <ul>
+      <li><strong>feature/fix branches</strong> &mdash; temporary branches for developing individual features or bug fixes.</li>
+      <li><strong>test branch</strong> &mdash; a permanent integration branch where all features are combined for testing.</li>
+      <li><strong>release branches</strong> &mdash; snapshots prepared for pre-production verification and deployment.</li>
+      <li><strong>master branch</strong> &mdash; mirrors production code at all times.</li>
+    </ul>
+
+    <h2>Feature/Fix Branches</h2>
+
+    <h3>Purpose</h3>
+
+    <p>Feature branches are where the actual development happens. Each requirement or bug fix gets its own branch, isolated from all other work.</p>
+
+    <h3>Naming Convention</h3>
+
+    <pre><code>feature-&lt;developer&gt;-&lt;description&gt;</code></pre>
+
+    <p>For example: <code>feature-zhangsan-user-auth</code> or <code>fix-lisi-payment-bug</code>.</p>
+
+    <h3>Lifecycle</h3>
+
+    <ol>
+      <li>Branch from the latest <code>master</code>.</li>
+      <li>Develop and commit locally.</li>
+      <li>Regularly merge the latest <code>master</code> into the feature branch to stay current.</li>
+      <li>When development is complete, merge into the <code>test</code> branch for integration testing.</li>
+      <li>After testing passes, the feature branch is merged into the <code>release</code> branch (or directly into <code>master</code> for small teams).</li>
+      <li>The feature branch is deleted after its content has been merged and deployed.</li>
+    </ol>
+
+    <blockquote>Feature branches are temporary. They exist only for the duration of development and should be cleaned up promptly after merging.</blockquote>
+
+    <h2>Test Branch</h2>
+
+    <h3>Purpose</h3>
+
+    <p>The <code>test</code> branch is a <strong>permanent</strong> integration branch. It serves as the staging area where all features being tested in the current cycle are combined. QA deploys from this branch to the test environment.</p>
+
+    <h3>Characteristics</h3>
+
+    <ul>
+      <li>It is long-lived, unlike feature branches.</li>
+      <li>Multiple feature branches are merged into it as they complete development.</li>
+      <li>It may contain features that are at different stages of testing.</li>
+      <li>It is reset (rebuilt) at the start of each release cycle.</li>
+    </ul>
+
+    <h3>The Pollution Problem</h3>
+
+    <p>Because the <code>test</code> branch accumulates features from multiple developers, it can become "polluted" &mdash; a state where conflicts, broken builds, or unstable code make it unreliable for testing. When this happens, the only solution is to <strong>rebuild the test branch from scratch</strong>:</p>
+
+    <ol>
+      <li>Delete the current <code>test</code> branch.</li>
+      <li>Create a new <code>test</code> branch from the latest <code>master</code>.</li>
+      <li>Re-merge only the feature branches that are still valid and ready for testing.</li>
+    </ol>
+
+    <p>This is a painful but necessary operation. It underscores the importance of keeping feature branches clean and well-tested before merging into <code>test</code>.</p>
+
+    <h2>Release Branches</h2>
+
+    <h3>Purpose</h3>
+
+    <p>Release branches are created from <code>master</code> to prepare a specific deployment. They represent a frozen snapshot of the code that will go to production, allowing final verification in a pre-production environment that closely mirrors production.</p>
+
+    <h3>Naming Convention</h3>
+
+    <pre><code>release-YYYYMMDD.NN</code></pre>
+
+    <p>For example: <code>release-20200423.01</code>. The <code>NN</code> suffix allows multiple releases on the same day if needed.</p>
+
+    <h3>Lifecycle</h3>
+
+    <ol>
+      <li>Create the release branch from the latest <code>master</code>.</li>
+      <li>Merge the feature branches that have passed testing into the release branch.</li>
+      <li>Deploy the release branch to the pre-production (staging) environment.</li>
+      <li>Conduct final verification (smoke tests, regression tests, performance tests).</li>
+      <li>Fix any last-minute bugs directly on the release branch (these fixes must also be merged back to <code>master</code>).</li>
+      <li>Once approved, deploy the release branch to production.</li>
+      <li>After successful deployment, merge the release branch back into <code>master</code> and tag it.</li>
+    </ol>
+
+    <h2>Master Branch</h2>
+
+    <h3>Purpose</h3>
+
+    <p>The <code>master</code> branch is the single source of truth for what is running in production. At all times, the state of <code>master</code> should match the production environment.</p>
+
+    <h3>Rules</h3>
+
+    <ul>
+      <li><strong>Never develop directly on master.</strong> All changes must come through feature branches, test integration, and release branches.</li>
+      <li>Only merged release branches and hotfixes should modify <code>master</code>.</li>
+      <li>Every commit on <code>master</code> should be tagged with a version number.</li>
+      <li><code>master</code> is protected: direct pushes are disabled, and all changes must go through pull requests with required reviews.</li>
+    </ul>
+
+    <h2>Why Release Branches Instead of Deploying Master Directly?</h2>
+
+    <p>A common question is: why bother with release branches at all? Why not just merge everything into <code>master</code> and deploy from there?</p>
+
+    <p>There are two key reasons:</p>
+
+    <h3>1. Isolation</h3>
+
+    <p>A release branch isolates the code that is about to be deployed from ongoing development. While the release branch is being verified and deployed, developers can continue working on new features that merge into <code>test</code> without affecting the release. If you deployed directly from <code>master</code>, you would have to freeze development during the release process, which is inefficient.</p>
+
+    <h3>2. Parallel Deployments</h3>
+
+    <p>Sometimes you need to prepare multiple releases in parallel. For example, one release might be a routine sprint deployment, while another is an urgent hotfix. With release branches, you can prepare and deploy them independently. Without release branches, managing parallel deployments from a single <code>master</code> branch becomes chaotic and error-prone.</p>
+
+    <h2>Handling Release Coverage Issues</h2>
+
+    <p>One challenge with the release branch model is the "coverage problem": when a release branch is being prepared, new features that are not part of this release may already be merged into <code>test</code>. If the release branch is created from <code>test</code> instead of <code>master</code>, it will inadvertently include untested or unapproved features.</p>
+
+    <p>The solution is a <strong>management process</strong>, not a technical one:</p>
+
+    <ol>
+      <li>Release branches are always created from <code>master</code>, never from <code>test</code>.</li>
+      <li>Feature branches are merged into the release branch <strong>selectively</strong> &mdash; only features that have passed QA testing are included.</li>
+      <li>The release manager maintains a checklist of which features are included in each release.</li>
+      <li>Any feature not on the checklist is excluded, even if it has been merged into <code>test</code>.</li>
+    </ol>
+
+    <p>This requires discipline and communication, but it is far better than the alternative of accidentally deploying untested code to production.</p>
+
+    <h2>Summary</h2>
+
+    <p>The four-branch model &mdash; feature, test, release, master &mdash; provides a clear separation of concerns:</p>
+
+    <ul>
+      <li><strong>Feature branches</strong> isolate development work.</li>
+      <li><strong>The test branch</strong> provides a shared integration environment for QA.</li>
+      <li><strong>Release branches</strong> create safe, isolated snapshots for deployment.</li>
+      <li><strong>Master</strong> remains a pristine mirror of production.</li>
+    </ul>
+
+    <p>No branching model is perfect, and this one requires discipline to maintain. But after years of practice, we have found that it strikes a good balance between flexibility and control, allowing teams to move fast without sacrificing stability.</p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>&copy; 2020 Linzer's Blog</p>
+  </div>
+</footer>
+</body>
+</html>

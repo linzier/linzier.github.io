@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Design Matters</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda/p/16053236.html" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>API Design Matters</h1>
+    <div class="meta">2022-03-25 | Software Engineering | <a href="https://www.cnblogs.com/linvanda/p/16053236.html">Original</a></div>
+
+    <h2>The Non-Functional Dimensions of API Quality</h2>
+
+    <p><img src="images/api-07.png" alt="API concept image"></p>
+
+    <p>Many programmers focus solely on functional correctness when building APIs. But what truly determines API quality is the non-functional aspects &mdash; and unfortunately, this is underappreciated across many organizations, from project management to product to development to testing.</p>
+
+    <p>The non-functional dimensions of API design boil down to three pillars:</p>
+
+    <ol>
+      <li><strong>Idempotency</strong></li>
+      <li><strong>Robustness</strong></li>
+      <li><strong>Security</strong></li>
+    </ol>
+
+    <h2>1. Idempotency</h2>
+
+    <p>Imagine you spent 1,000 yuan at the supermarket, and your bank card was charged 2,000. How would you feel?</p>
+
+    <p>(Of course, you and I will almost certainly never encounter this &mdash; because financial software making such a basic error wouldn't last long in the market.)</p>
+
+    <p>Double-charging involves the idempotency of an API.</p>
+
+    <p>Idempotency means that write-type APIs must guarantee data correctness under repeated calls. This typically arises in data creation scenarios and certain non-idempotent modification scenarios (like deducting a balance). Deletion scenarios are generally idempotent by nature.</p>
+
+    <p>We can't predict how callers will invoke our APIs. Calls might timeout, or the caller might have implementation issues (like a frontend user rapidly clicking a button). API design must treat repeated calls as the norm &mdash; if duplicate calls cause data problems, the responsibility lies with the API implementer, not the caller.</p>
+
+    <p>Handling idempotency generally involves two layers: business logic and database.</p>
+
+    <h3>Business Logic Layer: Select + Insert</h3>
+
+    <p>This approach is widely used. Before adding or modifying data, you first query by request parameters (like user ID, order ID) to check whether the request has already been processed, preventing duplicate handling (like double-crediting points or double-charging).</p>
+
+    <p>The advantage is that this is naturally part of the business logic. When product managers and developers draw flowcharts, they'll naturally include these checks &mdash; making it the most obvious implementation. "Most obvious" means most systems in production already have this basic idempotency handling.</p>
+
+    <p>But select + insert can't solve concurrency problems. When duplicate requests arrive in extremely rapid succession &mdash; like a user frantically clicking a button (if there's no rate limiting) or a bot farming rewards &mdash; two requests from the same user arrive nearly simultaneously. Both execute the select at almost the same time, both find no existing record, and both proceed with the business logic.</p>
+
+    <p>So for critical scenarios (issuing coupons, crediting points, etc.), requests must be exclusive at the user level: only one request per user can be processed at a time. Duplicate requests must be serialized.</p>
+
+    <p>We can use Redis to implement a distributed request lock. Generate a Redis key from the relevant request parameters &mdash; for example, in a points-crediting scenario, use "userId + scenarioId" as the lock key. When a request arrives, check if the lock exists. If it does, reject immediately. If not, proceed. This ensures exclusivity.</p>
+
+    <p><img src="images/api-02.png" alt="Redis distributed lock flowchart"></p>
+
+    <p>However, when your database uses read-write separation, you'll find the lock approach still lets some duplicates through. After the business logic completes, the lock is released. A duplicate request can then enter, but the new data might not have synced to the read replica yet, so the select still finds nothing, and the business logic runs again (crediting points twice). You might think this delay is only milliseconds and no big deal &mdash; but if the attacker is running a script, it becomes a real problem.</p>
+
+    <p>This must be combined with database-level constraints.</p>
+
+    <h3>Redis Distributed Lock</h3>
+
+    <p>Redis's high performance, high concurrency, and single-threaded command execution (atomicity) make it well-suited for distributed locks. Some details are worth noting.</p>
+
+    <p>We typically use Redis's <code>SET</code> with the <code>NX</code> option:</p>
+
+    <pre><code>SET lock_key private_val EX 20 NX</code></pre>
+
+    <p>This sets the lock <code>lock_key</code> with a 20-second expiry. The key is the <code>NX</code> option &mdash; it means "only set if the key does not already exist." This command is an enhanced version of <code>SETNX</code>, adding TTL support.</p>
+
+    <p>How do we release the lock? Just <code>DEL lock_key</code>? No &mdash; a process should only release locks it created. If we just delete, we might delete another process's lock (imagine our process timed out, the original lock expired, another process grabbed the same lock, and then we delete it).</p>
+
+    <p>So we must verify ownership before deleting:</p>
+
+    <pre><code>GET lock_key
+DEL lock_key</code></pre>
+
+    <p>Is this implementation correct? There's a subtle issue: these are two separate Redis commands, lacking atomicity. The first might succeed while the second fails (unlikely but possible), and it requires two network round trips. The optimization is to use Redis's <code>EVAL</code> command to execute a Lua script, ensuring atomicity (all language SDKs support this):</p>
+
+    <pre><code>EVAL "if (redis.call('get', KEYS[1]) == ARGV[1]) then redis.call('del', KEYS[1]); end; return 1;" lock_key private_val</code></pre>
+
+    <h3>Database Layer: Unique Key Constraints</h3>
+
+    <p>We can leverage the database's unique key constraints to enforce idempotency.</p>
+
+    <p>Consider a stored-value card payment scenario. When a customer pays with a stored-value card in an e-commerce system, at least two operations occur:</p>
+
+    <ol>
+      <li>Create a transaction record (containing at least the order number and payment amount);</li>
+      <li>Deduct the corresponding amount from the card account.</li>
+    </ol>
+
+    <p>Without idempotency handling, the same order could generate two payment records and charge the card twice, causing customer complaints.</p>
+
+    <p>Beyond the "lock + select + insert" approach, we can add a unique key constraint at the database level. If an order can only be paid once, use the order number as a unique key. When the same order attempts payment again (inserting another transaction record), the unique key conflict causes the insert to fail. (Since the balance change and transaction record are in the same database transaction, the balance change naturally fails too.)</p>
+
+    <p>Some scenarios require composite unique keys. For daily check-ins, a user can only check in once per day, so use "userId + date" as a composite unique key.</p>
+
+    <p>Some scenarios have no natural unique field &mdash; like adding/subtracting points or issuing coupons. Here, you must create a dedicated constraint field. Add a <code>uniqid</code> column with a unique index. The question becomes: where does <code>uniqid</code> come from?</p>
+
+    <p>In such cases, the API provider can't generate a unique identifier from the request parameters alone &mdash; the caller must provide it. When the provider writes data (like issuing a coupon to a user), it stores this <code>uniqid</code>. If it was already written, a unique key conflict occurs and the write fails.</p>
+
+    <p>How do we guarantee the caller's identifier is unique? If it collides with another request's identifier, that request will fail permanently.</p>
+
+    <p>Two common approaches:</p>
+
+    <ol>
+      <li>The caller generates the identifier using some rule;</li>
+      <li>The API provider offers a separate identifier-generation endpoint.</li>
+    </ol>
+
+    <p>For self-generation, callers can use UUID algorithms (most languages have libraries). UUIDs guarantee uniqueness well, but they're long (at least 16 bytes) and unordered &mdash; not friendly for B+ tree indexes in MySQL. An alternative is Twitter's Snowflake algorithm, generating 64-bit integer identifiers.</p>
+
+    <p>If system concurrency isn't extremely high and you don't want clients generating identifiers, the business system or a dedicated ID generator service can provide unique IDs.</p>
+
+    <p>The ID generator can use standard UUID or Snowflake, or implement a custom scheme. Here's one approach:</p>
+
+    <p>Generate identifiers in the format <code>xxxxxxxxyyyyyyyyyyyyzzzz</code>, where <code>x</code> is the current date, <code>y</code> is a 12-digit decimal number (hundreds of billions) that auto-increments from 1 each day, and <code>z</code> is a 4-digit random number (to reduce collision probability in case of <code>y</code> anomalies). Without considering the random <code>z</code>, this scheme can generate roughly 900 billion identifiers per day.</p>
+
+    <p>Since ID generators typically run on multiple servers, we must ensure the <code>y</code> portion doesn't collide across servers. We use a central Redis instance to allocate the <code>y</code> portion.</p>
+
+    <p>Requesting Redis for every identifier would overload it. So we use batch allocation: the ID generator requests a range from Redis at once (say, 10,000 values), records the range boundaries in local memory, and only requests a new range when the current one is exhausted.</p>
+
+    <p>The local range is stored in memory (process global variables). When the service restarts, it requests a fresh range from Redis. So the range shouldn't be too large &mdash; otherwise, frequent restarts could exhaust the <code>y</code> range.</p>
+
+    <p><img src="images/api-01.png" alt="ID generator flowchart"></p>
+
+    <p><strong>Summary of database unique key idempotency:</strong></p>
+
+    <ul>
+      <li>Best for insert scenarios, typically "transaction + ledger" patterns (stored value, points, likes, etc.);</li>
+      <li>Prefer using business fields for uniqueness (like order numbers in payment records) or composite keys (2&ndash;3 fields);</li>
+      <li>When no business field works, create a dedicated identifier field with a unique constraint, supplied by the caller;</li>
+      <li>Ensure caller identifier uniqueness via UUID, Snowflake, or custom implementation. Callers can self-generate or use a centralized ID generator;</li>
+      <li>ID generators must be scalable and guarantee uniqueness across the cluster;</li>
+      <li>Database unique constraints are often used alongside request locks and "select + insert."</li>
+    </ul>
+
+    <h3>What to Return for Duplicate Requests</h3>
+
+    <p>When the service provider detects a call has already been processed (the caller may have retried after a timeout, or some other anomaly occurred), what should it return?</p>
+
+    <p>Some developers reflexively treat duplicates as errors and return an error code. This causes problems for the caller and may lead to data integrity issues.</p>
+
+    <p>The simplest approach: return OK. If your team uses a single status code for "success" (like <code>code=200</code>), just return that.</p>
+
+    <p>Some teams, inspired by HTTP status codes, define a range of 2xx codes for success. In this case, you can differentiate "operation succeeded" and "operation was already processed" with different codes (e.g., 200 for success, 201 for already processed). This doesn't interfere with the caller's business logic while letting them know the actual processing outcome.</p>
+
+    <h3>Frontend-Backend Idempotency</h3>
+
+    <p>Consider this scenario:</p>
+
+    <p>Zhang San clicks "Create" in the admin panel to create a coupon. Nothing happens for a while (slow network). He clicks again several times. Checking the list, he finds three or four coupons were created.</p>
+
+    <p>Our first instinct is frontend optimization: gray out the button after clicking, show "Creating...", and only re-enable it after the backend responds.</p>
+
+    <p>This does solve most duplicate creation problems. But consider:</p>
+
+    <p>The user clicks "Create." The backend is slow (high server load). The button is grayed out. After a while (say 5 seconds), the frontend's timeout threshold is exceeded. The frontend JavaScript throws a timeout error: "Service processing timed out, please retry." The user clicks "Create" again. Checking the coupon list, they find two coupons were created.</p>
+
+    <p>The problem: when the frontend detects a backend timeout, it assumes the transaction failed and prompts the user to retry. But the backend transaction is actually still executing (or may have completed long ago, with the response lost to a network issue). The user's second click triggers a second transaction.</p>
+
+    <p>So in frontend-backend interactions (especially for creation transactions), we need unique identifiers (like UUIDs) to ensure idempotency.</p>
+
+    <p>Our first idea might be a variant of the "request lock" approach:</p>
+
+    <ol>
+      <li>When rendering the creation page, the backend generates a unique identifier X, stores it in Redis (with a reasonable TTL), and returns it to the frontend;</li>
+      <li>The frontend includes this identifier when calling the "create coupon" API;</li>
+      <li>The backend checks if the identifier matches the one in Redis. Only if valid does it proceed with the transaction;</li>
+      <li>After successful transaction processing, the backend deletes the identifier from Redis;</li>
+      <li>If the frontend reuses the identifier, the backend can't find it in Redis and returns an error.</li>
+    </ol>
+
+    <p><img src="images/api-03.png" alt="Frontend flag verification sequence diagram"></p>
+
+    <p>Does this work? It prevents some duplicates, but not all.</p>
+
+    <p>Consider: the frontend calls the backend, and the backend times out (but the transaction is still running). The frontend lets the user retry. The second request still carries the same flag. Will the flag check pass? It depends on whether the first transaction has completed by the time the second request arrives (and deleted the flag). If the first transaction hasn't finished, the flag is still valid, and the second request will also be processed.</p>
+
+    <p><img src="images/api-06.png" alt="Frontend-backend timeout retry sequence diagram"></p>
+
+    <p>We also can't delete the flag before the transaction completes, because if the transaction fails, we need the frontend to resubmit.</p>
+
+    <p>To truly achieve frontend-backend idempotency, we must use <strong>database unique key constraints</strong>. As before, we add a dedicated field (let's call it <code>flag</code>) with a unique constraint. Using coupons as an example, the table looks roughly like:</p>
+
+    <pre><code>id | coupon_name | ... | flag (UNIQUE)</code></pre>
+
+    <p>The <code>flag</code> is the unique identifier we generated and stored in Redis. When inserting the coupon data, we write the flag too. Since <code>flag</code> has a unique constraint, if it was already written, the second write fails with a unique key conflict, ensuring idempotency. Even if the flag check passes for both requests, only one will actually succeed at the database level (we can't guarantee which one succeeds &mdash; network calls have no ordering guarantee).</p>
+
+    <p><img src="images/api-05.png" alt="Database constraint idempotency sequence diagram"></p>
+
+    <p>Some might think that with database-level uniqueness, we can drop the Redis check. This is wrong. Without Redis validation, we can't guarantee the frontend's flag was generated by us &mdash; the frontend could send any arbitrary flag and write to the database.</p>
+
+    <p><strong>Summary of frontend-backend idempotency:</strong></p>
+
+    <ol>
+      <li>Use frontend JavaScript to prevent rapid duplicate clicks &mdash; lowest cost, fastest results;</li>
+      <li>Use Redis identifier validation combined with frontend controls &mdash; satisfies most idempotency requirements;</li>
+      <li>Add database unique key constraints &mdash; truly guarantees frontend-backend idempotency.</li>
+    </ol>
+
+    <h2>2. Robustness</h2>
+
+    <p>The word "robustness" (鲁棒性) is an interesting transliteration. When I first heard it, I pictured a burly man wielding a club doing... something.</p>
+
+    <p>"Robust" is a phonetic translation of the English word <strong>Robustness</strong>, meaning "solidity, sturdiness." So API robustness refers to how sturdy an API is.</p>
+
+    <p>An API's robustness depends on its ability to handle abnormal scenarios.</p>
+
+    <p>What does a non-robust API look like? If an API heavily depends on the validity of external inputs and the correctness of third-party services &mdash; and when external inputs contain unexpected content (like SQL injection strings) or a depended-upon third-party service crashes (like timing out), the API exhibits all sorts of unknown problems (most typically data consistency issues, like a card being charged but the order still showing unpaid) &mdash; then that API is fragile.</p>
+
+    <p>Nearly every programmer can write a functional API (handling the happy path). But at least half (actually more) can't write a robust one.</p>
+
+    <p>The main categories of exceptions are:</p>
+
+    <ul>
+      <li>Input exceptions</li>
+      <li>Flow exceptions</li>
+      <li>Performance exceptions</li>
+    </ul>
+
+    <h3>Input Exceptions</h3>
+
+    <p>"Don't trust external input" is common knowledge, but not everyone handles it correctly. Key areas:</p>
+
+    <ul>
+      <li>Parameter type restrictions</li>
+      <li>Default parameter handling</li>
+      <li>Blocking malicious input</li>
+    </ul>
+
+    <p>API parameters should follow the "minimal input" principle: the caller only provides what they care about; the API handles defaults correctly. I've seen APIs with twenty or thirty parameters, all required &mdash; callers must pass defaults (0 or empty string) for parameters they don't need. The integration developer has a breakdown, and errors from wrong default values are common.</p>
+
+    <p>The focus for abnormal input is on <strong>string types</strong>.</p>
+
+    <p><strong>Threat #1: XSS attacks.</strong> Expecting every developer to sanitize every input parameter is unrealistic, so this must be handled at the framework level. Parameters received by controllers should already be sanitized. Although this is basic (too basic to even mention), I guarantee half the systems on the market don't do strict parameter sanitization &mdash; because the only way to ensure it is including penetration testing in the testing workflow, and most small-to-medium companies don't do penetration testing. A more practical fallback is incorporating parameter handling into the framework layer (some frameworks support this natively; others need custom development).</p>
+
+    <p>XSS (Cross-Site Scripting &mdash; abbreviated XSS to avoid confusion with Cascading Style Sheets) means attackers inject JavaScript into websites. For example, a user enters <code>&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code> in an input field. If the backend stores this without sanitization, the script executes when the text is rendered on a frontend page, stealing cookie information.</p>
+
+    <p>Is it enough to just strip <code>&lt;script&gt;</code> tags? Not at all &mdash; <code>&lt;img onerror="alert(document.cookie)" src="http://aaa"&gt;</code> works just as well. Use established open-source XSS filtering libraries for your language.</p>
+
+    <p>XSS is dangerous because the generated JavaScript executes in a trusted environment (under the trusted domain, in a valid login session). It can access cookies (without HttpOnly protection), localStorage, and call backend APIs &mdash; even more dangerous than CSRF.</p>
+
+    <p><strong>Threat #2: SQL injection.</strong> Another ancient problem, so old that nearly every framework provides direct support. As long as you don't write raw SQL in your code, SQL injection is nearly impossible &mdash; the problem is that many developers love writing raw SQL with string concatenation. One penetration test reveals a flood of issues &mdash; they might even delete your tables. Developers write raw SQL for various reasons: unfamiliarity with the framework's database module, laziness to read docs, complex SQL that's awkward to express via the framework's API, or mere personal preference.</p>
+
+    <p>The most direct way to eliminate raw SQL is code review. Dedicate a review step to checking SQL conventions in the Model (or Repository) layer. A more automated approach: build a review tool that checks for string concatenation in the Model layer.</p>
+
+    <p><strong>Threat #3: Format.</strong> Enforcing length limits on every input string is a good habit &mdash; it prevents unnecessary trouble, since your data will be consumed elsewhere and you can't guarantee those consumers handle oversized data correctly. Format validation for specific fields is necessary: email, phone number, ID number, gender &mdash; preventing users from entering garbage.</p>
+
+    <p>Like the others, expecting developers to handle input formats correctly in code is unrealistic &mdash; just check how many invalid phone numbers, ID numbers, and license plates are in your company's database. Parameter formats should be defined during product planning and included in test cases. The framework should provide common format validation capabilities (email, URL, ID number, etc.) so developers only need simple configuration.</p>
+
+    <p><strong>Threat #4: Whitespace.</strong> Yes, tiny spaces have caused countless problems for operations and development teams. I've personally witnessed multiple incidents caused by a stray space. For developers, trimming whitespace feels too trivial to bother with. For operations staff, checking for spaces is both menial and boring. The danger of whitespace is its invisibility &mdash; developers don't focus on it, operations can't spot it, but when problems arise, they're hard to diagnose.</p>
+
+    <p>We once had a payment failure. Two teams scoured logs and configs, going cross-eyed, unable to find the problem. By pure chance, someone discovered that operations had accidentally added a trailing space when entering the appid.</p>
+
+    <p>You can't rely on developers to voluntarily trim whitespace from all string parameters. This must be handled uniformly at the framework level.</p>
+
+    <h3>Flow Exceptions</h3>
+
+    <p>By "flow exceptions" I don't mean incorrect business logic implementation &mdash; that's a functional bug, outside robustness scope. I mean uncontrollable anomalies appearing in an otherwise normal execution flow.</p>
+
+    <p>Think about APIs you've built. Have any of these happened?</p>
+
+    <ul>
+      <li>Reading a file from disk &mdash; did you consider what happens if the read fails?</li>
+      <li>Writing a file to disk &mdash; did you consider write failures (like directory doesn't exist)?</li>
+      <li>Reading system time &mdash; what if the system time is wrong?</li>
+      <li>Calculating a ratio (like win rate) &mdash; what if the divisor is 0 (like no one entered the lottery)?</li>
+      <li>Calling an external API &mdash; what if the call fails (like timeout)?</li>
+    </ul>
+
+    <p>More importantly: when one step fails, how should the other steps be handled (and what about data already produced)?</p>
+
+    <p>These exceptions share two characteristics:</p>
+
+    <ol>
+      <li>Most are uncontrollable (the program can't prevent them on its own);</li>
+      <li>Given enough runtime, they <em>will</em> happen (unless the system doesn't involve these operations at all).</li>
+    </ol>
+
+    <p>Robust programs must handle these exceptions correctly, ensuring data consistency. This means:</p>
+
+    <ul>
+      <li>The program must <em>handle</em> (not ignore) these exceptions;</li>
+      <li>The program must handle them <em>correctly</em>, making behavior match expectations.</li>
+    </ul>
+
+    <p>Developers can't adopt a "lucky escape" mentality: "my system won't have these problems." But that doesn't mean the program should always continue after absorbing the exception &mdash; sometimes terminating the flow is the only correct action. But if the program doesn't handle the exception (or handles it poorly) and the flow continues, data consistency problems arise (like in a stored-value card recharge: the payment API call fails, but the program doesn't check for this and continues, crediting the card anyway).</p>
+
+    <p>Strategies for handling these exceptions:</p>
+
+    <ul>
+      <li><strong>Terminate the flow.</strong> If the stored-value card deduction API fails, stop execution to prevent charging the card but marking the order as paid.</li>
+      <li><strong>Pre-processing.</strong> Before writing a file, check if the directory exists; if not, create it first. Before dividing, check if the denominator is 0; if so, set the ratio to 0 directly.</li>
+      <li><strong>Retry.</strong> Common in remote calls. On timeout, retry once after a delay (say 1 second); if still failing, terminate. But be careful: timeouts usually mean the remote system is under high load (or the network is congested). Aggressive retries will worsen the load and eventually crash it. Retries also tie up local resources. If the remote system doesn't recover, your system accumulates retry processes, triggering an avalanche. Set reasonable timeouts (like 2 seconds &mdash; longer means more resource occupation, increasing avalanche risk), limit retry counts, and consider combining with circuit breakers and rate limiters.</li>
+      <li><strong>Async compensation.</strong> For non-critical nodes (mainly remote call failures), log the exception and continue the flow. Then use async tasks to retry. For example, in a "spend and earn coupon" scenario, if the coupon API fails during payment callback processing, besides retrying synchronously, you can write a "failed, pending retry" record to the database (or message queue) for async processing later. Async retry doesn't tie up the current request's resources, and retry intervals can be longer (like every 10 seconds, or increasing with each attempt), putting less pressure on the called system. However, async retry has conditions: the node must be truly async-compatible (subsequent nodes don't depend on its output), and the business must tolerate the delay.</li>
+    </ul>
+
+    <h3>Performance Exceptions</h3>
+
+    <p>Robust APIs should have some performance guarantee &mdash; the ability to handle concurrent load (average processing time per request at a given concurrency level, like 1000 QPS).</p>
+
+    <p>Performance problems come from three sources:</p>
+
+    <ol>
+      <li>Poor code quality in the API itself;</li>
+      <li>Performance issues in depended-upon services causing chain reactions;</li>
+      <li>Abnormal call volumes creating extra pressure (like during promotions).</li>
+    </ol>
+
+    <p>Most performance issues stem from the API's own implementation flaws &mdash; like never using caches or rarely creating indexes. So API performance optimization should always start with caching and indexing &mdash; the lowest-cost, most immediately effective approach.</p>
+
+    <p>Many performance problems come from depended-upon services. Two solutions:</p>
+
+    <ol>
+      <li>Ask the other team to optimize (feasible if they're in the same department);</li>
+      <li>Make the call asynchronous.</li>
+    </ol>
+
+    <p>If the API itself is already optimized to its limit and still can't handle the load, it's time for horizontal scaling &mdash; add more servers to the cluster. But reality is often not so simple, because performance bottlenecks usually appear in storage, not application servers, and storage is the hardest part to scale.</p>
+
+    <p>In today's "high concurrency is everything" era, for most companies, the three highest-ROI performance optimizations remain: <strong>caching, indexing, and async processing</strong>.</p>
+
+    <p>Besides these three exception types, the idempotency discussed earlier also falls under robustness &mdash; it describes the API's ability to guarantee data consistency under abnormal calls.</p>
+
+    <h2>3. Security</h2>
+
+    <p>The XSS attacks and SQL injection discussed earlier also belong to security. Here we focus on preventing unauthorized API calls.</p>
+
+    <p>Two main types of API calls:</p>
+
+    <ol>
+      <li>Frontend-to-backend calls</li>
+      <li>Backend-to-backend calls</li>
+    </ol>
+
+    <p>The difference: the frontend is completely exposed (like being naked), while backend callers are already behind various protections (like wearing a down jacket).</p>
+
+    <h3>Frontend-Backend Calls</h3>
+
+    <p>Frontend-backend trust is based on login (username/password, phone/SMS, WeChat/Alipay OAuth, etc.). After successful login, the backend generates a login identifier for the frontend. All subsequent frontend requests carry this identifier. The login identifier serves two purposes:</p>
+
+    <ol>
+      <li><strong>Validate interaction legitimacy:</strong> Is this frontend allowed to call this API right now?</li>
+      <li><strong>Validate operation legitimacy:</strong> Is this call authorized to access the specified data (only within the logged-in user's permission scope)?</li>
+    </ol>
+
+    <p>Common login identifier schemes: session, token, and JWT.</p>
+
+    <h4>Session Scheme</h4>
+
+    <p>Traditional browser-based web applications mostly use sessions. After login, the backend generates a random string (sessionId), sent to the frontend via Cookie. Subsequent requests automatically include the sessionId through the Cookie mechanism. The backend validates it and proceeds.</p>
+
+    <p><img src="images/api-04.png" alt="Session authentication sequence diagram"></p>
+
+    <p>The browser automatically carries Cookies in HTTP headers, and the framework handles sessionId generation and maintenance &mdash; sessions are essentially plug-and-play. So convenient that many people don't understand how sessions work.</p>
+
+    <p>But convenience comes at a cost:</p>
+
+    <ul>
+      <li><strong>Cross-domain issues.</strong> Cookies don't support cross-domain by default. Solutions include setting the Cookie domain to the first-level domain or using SSO.</li>
+      <li><strong>Distributed access.</strong> Default session storage is local files. In a cluster, a session created on server A isn't available on server B. Solutions include centralized storage (typically Redis, most frameworks support one-click Redis session configuration) or sticky load balancing.</li>
+      <li><strong>CSRF attacks.</strong> Since sessionId travels via Cookie, and browsers automatically include Cookies, CSRF (Cross-Site Request Forgery) can impersonate a legitimate user from another website. CSRF Tokens can mitigate this.</li>
+      <li><strong>State maintenance.</strong> The sessionId itself doesn't carry user information (like userId), so the server must store user data alongside the sessionId. At scale, this is significant storage overhead.</li>
+      <li><strong>Mobile environments.</strong> Some mobile environments don't support Cookies, forcing developers to implement their own Cookie storage and transport.</li>
+    </ul>
+
+    <p>All these problems are solvable &mdash; but the question is whether everyone actually solves them. In reality, many websites lack CSRF protection, don't set Cookies as HttpOnly, and skip XSS and SQL injection filtering.</p>
+
+    <p>Is there a scheme that avoids these Cookie-related issues entirely?</p>
+
+    <h4>Token Scheme</h4>
+
+    <p>Since session problems all stem from Cookies (specifically, Cookie client storage and transport), let's modify the approach to not depend on Cookies.</p>
+
+    <p>After generating the login identifier (we'll call it "token" to distinguish from sessions), the backend returns it via a custom response header (say <code>Login-Token</code>). The frontend stores it appropriately (like localStorage). Subsequent requests include the token in the HTTP request header. The backend validates the token and retrieves user information.</p>
+
+    <p>Like sessions, tokens travel via HTTP headers (Cookies are also in HTTP headers). But token storage and transport are controlled by the application layer, not the browser's automatic mechanisms. CSRF attacks can't automatically include the token.</p>
+
+    <p>No Cookie dependency means no cross-domain issues, and it works well in mobile environments.</p>
+
+    <p>But this token scheme behaves almost identically to sessions on the server side: it generates a random string and must store the token-to-user mapping. If stored locally, the distributed access problem persists. We haven't solved session problems #2 and #4.</p>
+
+    <p>Fine. The server stores state because the token itself doesn't carry state (user) information. What if we make the token carry that information?</p>
+
+    <p>Seems feasible. We could generate the token like:</p>
+
+    <pre><code>token = base64_encode(userInfo) + "." + signature</code></pre>
+
+    <p>Now the server can <code>base64_decode</code> the token to get user information. But wait &mdash; how does the server verify the token is legitimate and not forged by the client?</p>
+
+    <p>The server stores token information for two reasons: to retrieve user data later, and to verify the token was generated by the server (not fabricated by the client). Without server-side storage, how do we validate?</p>
+
+    <p>Don't be discouraged. What if we make it impossible for the client to forge?</p>
+
+    <p>"Forging" means "tampering." The industry's standard anti-tampering technique is <strong>signing</strong>. We add a private key signature to the token:</p>
+
+    <pre><code>token = base64_encode(userInfo) + "." + sign(base64_encode(userInfo), secretKey)</code></pre>
+
+    <p>The resulting token looks like: <code>xxxxxxxxxx.yyyy</code>, where <code>x</code> is the base64-encoded user info and <code>y</code> is the signature of <code>x</code>.</p>
+
+    <p>With the signature, external parties without the secret key cannot modify or forge the user info portion.</p>
+
+    <p>This signed, stateless token has an industry standard: <strong>JWT</strong>.</p>
+
+    <h4>JWT (JSON Web Token)</h4>
+
+    <p>JWT is short for JSON Web Token, defined in RFC 7519 as an authorization and information exchange standard.</p>
+
+    <p>As the name suggests, it uses JSON format to store information, primarily for web API interactions (though not limited to frontend-backend scenarios), implementing authorization and non-sensitive information transfer between systems.</p>
+
+    <p>A JWT token looks like this:</p>
+
+    <pre><code>xxxxx.yyyyy.zzzzz</code></pre>
+
+    <p>Those two dots (<code>.</code>) divide the string into three parts:</p>
+
+    <ul>
+      <li><strong>Part 1 (Header):</strong> base64-encoded JSON containing metadata (type: JWT, signing algorithm: e.g., HMAC_SHA256);</li>
+      <li><strong>Part 2 (Payload):</strong> base64-encoded JSON containing the actual information being transmitted (custom fields like <code>name</code>, and standard fields like <code>sub</code>, <code>iat</code>);</li>
+      <li><strong>Part 3 (Signature):</strong> a signature of parts 1 and 2, preventing tampering.</li>
+    </ul>
+
+    <p>Notice: anyone can view the first two parts' contents. JWT's first two parts are plaintext &mdash; don't put sensitive information in them (you could encrypt them, but that's not the typical use). JWT's real purpose is signing, not encryption.</p>
+
+    <p>Implementing stateless frontend-backend interaction with JWT:</p>
+
+    <ol>
+      <li>After login, the backend generates the JWT token and returns it via an HTTP response header (say <code>Authorization</code>);</li>
+      <li>The frontend includes it in all subsequent requests via the HTTP header: <code>Authorization: Bearer &lt;token&gt;</code>;</li>
+      <li>The backend computes the signature of the first two parts and compares with the third part. If they match, the token is valid, and user info is extracted from the payload.</li>
+    </ol>
+
+    <p>The backend doesn't store the token at all &mdash; it parses user (state) information directly from the token. This avoids storage overhead and solves the cluster access problem. Perfect!</p>
+
+    <p>We add an expiration time (<code>exp</code>) to the payload. The token is only valid before this time.</p>
+
+    <p>But there's a problem. Say the user logs in at 11:00:00 with a 1-hour validity, expiring at 12:00:00. At 11:59:58, the user visits a page &mdash; token is valid, page loads fine. The user stays for 2 seconds, then clicks a button &mdash; now the token has expired. The backend returns "login expired" and the frontend redirects to the login page. Can you imagine the user's frustration?</p>
+
+    <p>So like sessions, JWT needs a <strong>token refresh mechanism</strong> to keep active users logged in.</p>
+
+    <p>JWT refresh is simple: after validating the token, check the remaining validity. If expired, return an error. If not expired, generate a new token with updated expiration and return it to the frontend. The backend adds this to every response header:</p>
+
+    <pre><code>Login-Token: &lt;new-jwt-token&gt;</code></pre>
+
+    <p>The frontend replaces the old token with the new one. Now the user only gets logged out after 1 hour of inactivity.</p>
+
+    <p>Regardless of the scheme, one rule: <strong>always use HTTPS for frontend-backend communication</strong>. Otherwise, it's insecure from the very first login.</p>
+
+    <h3>Backend-to-Backend Calls</h3>
+
+    <p>Compared to frontend, backend-to-backend calls have an advantage: both sides can hold secret keys. Depending on data sensitivity, there are two levels of protection:</p>
+
+    <ul>
+      <li><strong>Anti-tampering:</strong> For general data, just ensure data isn't modified in transit. Use a signing scheme (RSA-based signing, secret-based signing);</li>
+      <li><strong>Anti-eavesdropping:</strong> For sensitive data, not only prevent tampering but also prevent unauthorized parties from reading it. Use encryption (RSA, AES, etc.).</li>
+    </ul>
+
+    <p>Generally, non-sensitive APIs only need signing (preventing tampering and providing caller identity verification), while sensitive data needs signing + encryption.</p>
+
+    <p>Digital signature schemes require pre-shared keys (secrets); asymmetric encryption requires pre-shared public/private key pairs. I won't detail the implementation of these schemes, but I want to highlight a risk many overlook when designing API authentication: <strong>replay attacks</strong>.</p>
+
+    <p>Consider server A calling server B's API. After signing the request parameters, we get the complete request URL. Server B receives it, signs the parameters with the same key and algorithm, and compares with the received signature. If they match, the request is legitimate.</p>
+
+    <p>What's the problem?</p>
+
+    <p>A year later, as long as the secret and signing algorithm haven't changed, this URL is still a valid request &mdash; a signature that never expires.</p>
+
+    <p>For debugging purposes, both sides typically log request details. If logs are leaked, every recorded request can be replayed.</p>
+
+    <p>We must give signatures an expiration time. After a certain period, the original signature becomes invalid.</p>
+
+    <p>Add a request timestamp to the parameters. When B receives the request, it first checks whether the timestamp is within an acceptable range of B's local time (say 5 minutes). Beyond that range, reject the request (this requires both servers' clocks to be roughly synchronized). This gives the signature only a 5-minute validity window, dramatically reducing replay risk.</p>
+
+    <p>Beyond signing and encryption, other measures can further harden API security: external APIs (non-LAN) must use HTTPS, IP whitelisting, and so on.</p>
+
+    <h2>Afterword</h2>
+
+    <p>API design involves much more than idempotency, robustness, and security &mdash; usability, consistent response structures, frontend-backend collaboration patterns, and more.</p>
+
+    <p>Good API design is a team effort, not an individual one:</p>
+
+    <ul>
+      <li><strong>Push safeguards as early as possible</strong> (into the framework, into operations). Minimize what individual developers must remember. No one can guarantee they handle every aspect of every API perfectly &mdash; forgetting to trim whitespace here, forgetting XSS filtering there. And often an API isn't developed and maintained by just one person.</li>
+      <li><strong>Establish quality review processes.</strong> If possible, have the testing team perform penetration testing and performance testing on APIs. Code reviews (and tool-based reviews) catch some issues too.</li>
+      <li><strong>Strengthen team awareness.</strong> Defensive programming, leveraging caching and indexing, async programming &mdash; these are often awareness issues.</li>
+      <li><strong>Choose the right framework.</strong> Evaluate its support for XSS, CSRF, SQL injection prevention, format validation, signing, queues, scheduling, etc. Consider ease of use and team familiarity &mdash; if some team members are unfamiliar, organize training.</li>
+    </ul>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>

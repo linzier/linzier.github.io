@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revisiting PHP's Future Path</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvinda/p/17400505.html" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>Revisiting PHP&rsquo;s Future Path</h1>
+    <div class="meta">2020-05-06 | PHP</div>
+
+    <p>Every few months, someone publishes an article titled &ldquo;PHP is Dead.&rdquo; And every few months, PHP powers another 70%+ of the web. The language that refuses to die, yet never seems to catch a break among the cool kids. What is really going on? Let us have an honest conversation about where PHP stands and where it is headed.</p>
+
+    <h2>When We Talk About a Language, We Are Talking About Its Ecosystem</h2>
+
+    <p>A programming language does not exist in a vacuum. When we evaluate PHP, we are not just evaluating syntax or performance benchmarks. We are evaluating its entire ecosystem: frameworks, libraries, tooling, community, hosting infrastructure, talent pool, and the collective knowledge accumulated over two decades.</p>
+
+    <p>This is PHP&rsquo;s greatest strength and, increasingly, its greatest weakness.</p>
+
+    <h2>The Golden Age: Web 1.0 and 2.0</h2>
+
+    <p>PHP was born for the web, and the web was born for PHP. In the era of Web 1.0 and the early Web 2.0, PHP was the undisputed king. Its strengths at the time were perfectly aligned with what the market needed:</p>
+
+    <ul>
+      <li><strong>Simple.</strong> Drop a <code>.php</code> file on a server, and it runs. No compilation, no complex deployment, no configuration nightmares.</li>
+      <li><strong>Fast to develop.</strong> From idea to working prototype in hours, not weeks. LAMP stack (Linux, Apache, MySQL, PHP) was the default choice for startups and personal projects alike.</li>
+      <li><strong>Cheap hosting.</strong> Every shared hosting provider supported PHP. For a few dollars a month, you had a fully functional web application platform.</li>
+      <li><strong>Massive community.</strong> WordPress, Joomla, Drupal, Magento &mdash; the CMS ecosystem alone powered a significant portion of the web.</li>
+    </ul>
+
+    <p>During this period, PHP was not just successful. It was <em>dominant</em>.</p>
+
+    <h2>The Mobile Internet Changed Everything</h2>
+
+    <p>Then came the smartphone revolution, and with it, a fundamental shift in what backend systems needed to do. The requirements changed dramatically:</p>
+
+    <ul>
+      <li><strong>High concurrency.</strong> Millions of simultaneous connections, not thousands. Each mobile device maintains persistent connections for push notifications, real-time updates, and instant messaging.</li>
+      <li><strong>Microservices architecture.</strong> Large monolithic applications gave way to dozens or hundreds of small, independently deployable services communicating over the network.</li>
+      <li><strong>WebSocket and long-lived connections.</strong> Real-time features became table stakes. Chat, live feeds, collaborative editing &mdash; all require persistent, bidirectional communication channels.</li>
+      <li><strong>Async I/O.</strong> Backend services increasingly needed to call multiple downstream APIs concurrently, aggregate results, and respond quickly.</li>
+    </ul>
+
+    <p>These are not edge cases. These are the baseline requirements of modern backend development. And PHP, in its traditional form, was not built for any of them.</p>
+
+    <h2>PHP&rsquo;s Weaknesses in the New Era</h2>
+
+    <h3>Performance</h3>
+
+    <p>PHP&rsquo;s execution model &mdash; spin up a process per request, interpret the script, tear down the process &mdash; carries inherent overhead. Each request pays the cost of bootstrapping the entire application. For high-traffic services, this means more servers, more resources, higher costs compared to compiled languages or languages with persistent runtime environments.</p>
+
+    <p>PHP 7 brought significant performance improvements (roughly 2x over PHP 5), and PHP 8 with its JIT compiler pushed things further. But the fundamental request-per-process model remains.</p>
+
+    <h3>No Native WebSocket Support</h3>
+
+    <p>PHP has no built-in mechanism for maintaining persistent connections. The traditional PHP execution model is fundamentally incompatible with WebSocket: a PHP process starts, handles a request, and dies. It cannot sit there waiting for events.</p>
+
+    <p>Workarounds exist (Ratchet, Swoole WebSocket server), but they are not part of the core language ecosystem. Compare this to Node.js, where WebSocket is a first-class citizen, or Go, where goroutines and channels make concurrent connections trivial.</p>
+
+    <h3>The CGI Model Does Not Suit Microservices</h3>
+
+    <p>Microservices demand lightweight, long-running processes that can communicate efficiently over the network. PHP&rsquo;s traditional CGI/FPM model is designed for request-response cycles behind a web server. Running PHP as a standalone network service requires additional tooling (Swoole, RoadRunner, or similar) that fights against the language&rsquo;s historical design assumptions.</p>
+
+    <h2>PHP 7 + Swoole: A Glimmer of Hope?</h2>
+
+    <p>Swoole is a PHP extension that brings async I/O, coroutine support, and a persistent runtime to PHP. With Swoole, you can:</p>
+
+    <ul>
+      <li>Run PHP as a persistent process (no more per-request bootstrap costs)</li>
+      <li>Use coroutines for concurrent I/O without the complexity of callbacks or promises</li>
+      <li>Build WebSocket servers, RPC servers, and task workers natively</li>
+      <li>Achieve performance numbers that rival Go and Node.js for I/O-bound workloads</li>
+    </ul>
+
+    <p>This is genuinely impressive technical work. But it does not solve the ecosystem problem.</p>
+
+    <p>Here is why: Swoole changes the execution model, but the PHP ecosystem &mdash; frameworks, libraries, developer habits &mdash; was built for the request-per-process model. Popular frameworks like Laravel and Symfony assume that each request starts with a clean slate. Global state, singletons, connection management &mdash; all of these need to be rethought for a persistent runtime. The ecosystem is not designed for Swoole, and retrofitting it is a monumental task.</p>
+
+    <p>Moreover, Swoole is a C extension, not part of the PHP core. It requires separate installation, has its own learning curve, and is not universally supported by hosting providers. It is a powerful tool, but it exists somewhat outside the mainstream PHP world.</p>
+
+    <h2>The Human Factor: Developer Skill Gap</h2>
+
+    <p>This is the uncomfortable topic that few want to discuss openly. The barrier to entry for PHP has always been low &mdash; and that is a double-edged sword.</p>
+
+    <p>Many PHP developers entered the field through non-traditional paths: self-taught, bootcamps, or on-the-job learning without formal CS education. This is not a criticism &mdash; many excellent engineers came up through these paths. But the ecosystem as a whole skews toward practitioners who are strong in web development but weaker in computer science fundamentals:</p>
+
+    <ul>
+      <li>Data structures and algorithms &mdash; often treated as interview trivia rather than daily tools</li>
+      <li>Design patterns and architectural principles &mdash; MVC is known, but SOLID, DDD, and CQRS are less common</li>
+      <li>Concurrency, distributed systems, and network programming &mdash; areas where the PHP tradition offers little guidance</li>
+      <li>Performance engineering &mdash; profiling, memory management, caching strategies beyond &ldquo;install Redis&rdquo;</li>
+    </ul>
+
+    <p>When the industry shifted toward high-concurrency microservices, the gap between what PHP developers typically knew and what modern backend development demanded became painfully visible.</p>
+
+    <h2>PHP&rsquo;s Future: Where Does It Fit?</h2>
+
+    <p>Given all of this, where does PHP fit in the modern landscape?</p>
+
+    <h3>Rapid Prototyping for SMBs</h3>
+
+    <p>For small and medium businesses that need to get a product running quickly, PHP remains an excellent choice. Laravel is arguably the most developer-friendly framework in any language. The ecosystem of packages, tutorials, and Stack Overflow answers is unmatched. Time-to-market matters, and PHP delivers.</p>
+
+    <h3>Glue Layer for Large Companies</h3>
+
+    <p>Large companies with complex microservice architectures often use PHP as a &ldquo;glue layer&rdquo; &mdash; a Backend-for-Frontend (BFF) that aggregates data from downstream services and shapes it for the frontend. PHP&rsquo;s string manipulation, templating, and rapid development capabilities make it well-suited for this role, even if the heavy lifting happens in Go, Java, or Rust services behind it.</p>
+
+    <h3>Content Management and E-Commerce</h3>
+
+    <p>WordPress powers over 40% of the web. Magento, Shopify (partially), and WooCommerce are all PHP-based. This massive installed base is not going away. The CMS and e-commerce ecosystem remains PHP&rsquo;s stronghold.</p>
+
+    <h2>Will PHP Die?</h2>
+
+    <p>No. PHP will not die. It is too deeply embedded in the web&rsquo;s infrastructure to simply disappear. But it will not regain its dominance either. The world has moved on to a polyglot reality where different languages serve different needs.</p>
+
+    <h3>What About the Competitors?</h3>
+
+    <p><strong>Python</strong> has largely replaced PHP as the go-to language for beginners and for rapid development in the data science / ML space. Django and Flask serve the same &ldquo;get it done fast&rdquo; need that PHP once owned exclusively.</p>
+
+    <p><strong>Ruby</strong> (with Rails) pioneered many of the web development conventions that PHP later adopted. It remains a solid choice for startups, though its community has shrunk relative to Node.js and Python.</p>
+
+    <p><strong>Node.js</strong> brought JavaScript to the backend, enabling full-stack JavaScript development. Its async, event-driven model is naturally suited for the real-time, high-concurrency workloads that PHP struggles with.</p>
+
+    <p><strong>Go</strong> has become the default choice for cloud infrastructure and high-performance microservices. It is what many companies reach for when PHP&rsquo;s performance limitations become unbearable.</p>
+
+    <p>None of these languages will &ldquo;kill&rdquo; PHP. But together, they have eroded PHP&rsquo;s market share and carved out the growth areas where PHP is no longer the default choice.</p>
+
+    <h2>Conclusion</h2>
+
+    <p>PHP&rsquo;s story is not a tragedy. It is a normalization. PHP went from being the default choice for web development to being one option among many. It remains a good tool for specific jobs &mdash; rapid prototyping, CMS development, BFF layers &mdash; but it is no longer the tool for <em>every</em> job.</p>
+
+    <p>The developers who thrive will be those who understand PHP&rsquo;s strengths and limitations, who continue to broaden their skills beyond the language, and who choose tools based on the problem rather than loyalty to a flag.</p>
+
+    <p>PHP is not dead. It just grew up. And sometimes, growing up means accepting that you are not the center of the universe anymore.</p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvinda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>

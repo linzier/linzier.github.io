@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DNS Explained: The Complete Story</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>DNS Explained: The Complete Story</h1>
+    <div class="meta">2022-01-10 | Networking</div>
+
+    <p>Every time you visit a website, send an email, or use a mobile app, a silent hero works behind the scenes to make it happen. It translates the human-friendly name you typed (<code>www.google.com</code>) into the machine-friendly IP address (<code>142.250.80.46</code>) that computers use to find each other. This is <strong>DNS</strong>, the Domain Name System &mdash; the internet's phone book.</p>
+
+    <h2>What DNS Does</h2>
+
+    <p>Computers communicate using IP addresses: numbers like <code>142.250.80.46</code> (IPv4) or <code>2607:f8b0:4004:800::200e</code> (IPv6). But humans are terrible at remembering long strings of numbers. We prefer names: <code>www.google.com</code>, <code>mail.google.com</code>, <code>api.github.com</code>.</p>
+
+    <p>DNS is the system that bridges this gap. It translates <strong>domain names</strong> into <strong>IP addresses</strong> (and vice versa), along with a variety of other useful information about domain names.</p>
+
+    <p>When you type <code>www.google.com</code> into your browser, here is what happens:</p>
+
+    <ol>
+      <li>Your browser asks the DNS system: "What is the IP address of www.google.com?"</li>
+      <li>The DNS system responds: "142.250.80.46."</li>
+      <li>Your browser connects to 142.250.80.46 and loads the page.</li>
+    </ol>
+
+    <p>This translation happens in milliseconds, and you never see it. But without DNS, you would have to memorize the IP address of every website you want to visit. The internet would be unusable.</p>
+
+    <h2>The DNS Hierarchy</h2>
+
+    <p>DNS is not a single database. If it were, it would be a single point of failure and a performance bottleneck. Instead, DNS is a <strong>distributed, hierarchical database</strong>.</p>
+
+    <p>The hierarchy has three main levels:</p>
+
+    <h3>Root Servers</h3>
+
+    <p>At the top of the hierarchy are the <strong>root servers</strong>. There are 13 sets of root servers (labeled A through M), operated by various organizations around the world. (Each "set" is actually a cluster of hundreds of servers using anycast, so there are over 1,300 physical servers worldwide.)</p>
+
+    <p>The root servers do not know the IP address of <code>www.google.com</code>. But they know who is responsible for each <strong>top-level domain</strong> (TLD). When you ask a root server about <code>www.google.com</code>, it responds: "I do not know, but ask the .com servers. Here are their addresses."</p>
+
+    <h3>TLD Servers</h3>
+
+    <p>The next level is the <strong>TLD servers</strong>. There are TLD servers for each top-level domain: <code>.com</code>, <code>.org</code>, <code>.net</code>, <code>.cn</code>, <code>.uk</code>, and so on. There are also TLD servers for country-code TLDs (ccTLDs) like <code>.cn</code> (China), <code>.uk</code> (United Kingdom), and <code>.jp</code> (Japan).</p>
+
+    <p>The <code>.com</code> TLD servers know who is responsible for each domain under <code>.com</code>. When you ask them about <code>www.google.com</code>, they respond: "I do not know, but Google's domain is managed by these name servers. Here are their addresses."</p>
+
+    <h3>Authoritative Servers</h3>
+
+    <p>At the bottom of the hierarchy are the <strong>authoritative name servers</strong>. These are the servers that actually know the IP addresses for specific domains. Google operates its own authoritative servers for <code>google.com</code>. When you ask them about <code>www.google.com</code>, they respond: "The IP address of www.google.com is 142.250.80.46."</p>
+
+    <p>This hierarchical design has several advantages:</p>
+    <ul>
+      <li><strong>Distributed:</strong> No single point of failure. If one root server goes down, the other 12 sets continue to operate.</li>
+      <li><strong>Scalable:</strong> Each level only needs to know about the level below it. The root servers do not need to know about every domain on the internet.</li>
+      <li><strong>Delegated:</strong> Domain owners can manage their own DNS records without involving a central authority.</li>
+    </ul>
+
+    <h2>Recursive vs. Iterative Queries</h2>
+
+    <p>When your computer needs to resolve a domain name, it could theoretically follow the hierarchy itself: ask a root server, then a TLD server, then an authoritative server. But this would be slow and inefficient. Instead, DNS uses two types of queries:</p>
+
+    <h3>Recursive Queries</h3>
+
+    <p>In a <strong>recursive query</strong>, you ask a DNS server to find the answer for you, and it does all the work. You say: "What is the IP address of www.google.com?" and the server responds with the final answer (or an error).</p>
+
+    <p>Your computer sends recursive queries to a <strong>recursive resolver</strong> (also called a recursive name server). This is usually operated by your ISP, or you can use a public resolver like Google Public DNS (<code>8.8.8.8</code>) or Cloudflare (<code>1.1.1.1</code>).</p>
+
+    <h3>Iterative Queries</h3>
+
+    <p>In an <strong>iterative query</strong>, the DNS server does not do all the work for you. Instead, it gives you the best answer it can based on its knowledge. If it does not know the answer, it says: "I do not know, but here is a server that might know."</p>
+
+    <p>The recursive resolver uses iterative queries to work its way down the hierarchy:</p>
+
+    <ol>
+      <li>It asks a root server: "What is the IP address of www.google.com?" The root server responds: "I do not know, but ask the .com TLD servers. Here are their addresses."</li>
+      <li>It asks a .com TLD server: "What is the IP address of www.google.com?" The TLD server responds: "I do not know, but ask Google's authoritative servers. Here are their addresses."</li>
+      <li>It asks Google's authoritative server: "What is the IP address of www.google.com?" The authoritative server responds: "142.250.80.46."</li>
+      <li>The recursive resolver returns the answer to your computer.</li>
+    </ol>
+
+    <p>From your computer's perspective, it was a single recursive query. Behind the scenes, the resolver performed three iterative queries to find the answer.</p>
+
+    <h2>DNS Records</h2>
+
+    <p>DNS does not just map domain names to IP addresses. It supports a variety of <strong>record types</strong>, each serving a different purpose.</p>
+
+    <h3>A Record (Address Record)</h3>
+
+    <p>The most basic record type. An <strong>A record</strong> maps a domain name to an IPv4 address.</p>
+
+    <pre><code>www.example.com.  IN  A  93.184.216.34</code></pre>
+
+    <p>This says: "The IPv4 address of www.example.com is 93.184.216.34."</p>
+
+    <h3>AAAA Record (Quad-A Record)</h3>
+
+    <p>Like an A record, but for IPv6 addresses.</p>
+
+    <pre><code>www.example.com.  IN  AAAA  2606:2800:220:1:248:1893:25c8:1946</code></pre>
+
+    <h3>CNAME Record (Canonical Name Record)</h3>
+
+    <p>A <strong>CNAME record</strong> maps one domain name to another (an alias). This is useful when you want multiple domain names to point to the same server.</p>
+
+    <pre><code>blog.example.com.  IN  CNAME  www.example.com.</code></pre>
+
+    <p>This says: "blog.example.com is an alias for www.example.com. To find blog.example.com, look up www.example.com."</p>
+
+    <p>CNAME records are commonly used with CDNs and cloud services. For example, if you host your site on a platform like Vercel or Netlify, you might have:</p>
+
+    <pre><code>www.mysite.com.  IN  CNAME  cname.vercel-dns.com.</code></pre>
+
+    <h3>MX Record (Mail Exchange Record)</h3>
+
+    <p>An <strong>MX record</strong> specifies the mail server responsible for receiving email on behalf of a domain. It includes a <strong>priority</strong> value: lower numbers indicate higher priority.</p>
+
+    <pre><code>example.com.  IN  MX  10  mail.example.com.
+example.com.  IN  MX  20  mail2.example.com.</code></pre>
+
+    <p>This says: "Email for example.com should be delivered to mail.example.com (priority 10). If that server is unavailable, try mail2.example.com (priority 20)."</p>
+
+    <h3>NS Record (Name Server Record)</h3>
+
+    <p>An <strong>NS record</strong> specifies the authoritative name servers for a domain. It delegates a DNS zone to a set of name servers.</p>
+
+    <pre><code>example.com.  IN  NS  ns1.example.com.
+example.com.  IN  NS  ns2.example.com.</code></pre>
+
+    <p>This says: "The authoritative name servers for example.com are ns1.example.com and ns2.example.com."</p>
+
+    <h3>TXT Record (Text Record)</h3>
+
+    <p>A <strong>TXT record</strong> holds arbitrary text. It is commonly used for domain verification and email security.</p>
+
+    <pre><code>example.com.  IN  TXT  "v=spf1 include:_spf.google.com ~all"</code></pre>
+
+    <p>This is an SPF (Sender Policy Framework) record that specifies which mail servers are authorized to send email on behalf of example.com. TXT records are also used for DKIM (DomainKeys Identified Mail) and DMARC (Domain-based Message Authentication, Reporting, and Conformance).</p>
+
+    <h3>Other Record Types</h3>
+
+    <p>There are many other DNS record types:</p>
+    <ul>
+      <li><strong>SOA (Start of Authority):</strong> Contains administrative information about a DNS zone (primary name server, admin email, serial number, refresh intervals).</li>
+      <li><strong>PTR (Pointer):</strong> Used for reverse DNS lookups (mapping an IP address back to a domain name).</li>
+      <li><strong>SRV (Service):</strong> Specifies the location of servers for specific services (e.g., SIP, XMPP).</li>
+      <li><strong>CAA (Certificate Authority Authorization):</strong> Specifies which certificate authorities are allowed to issue certificates for a domain.</li>
+    </ul>
+
+    <h2>DNS Caching</h2>
+
+    <p>If every DNS query required a full recursive lookup (root &rarr; TLD &rarr; authoritative), the internet would be painfully slow. Fortunately, DNS makes extensive use of <strong>caching</strong>.</p>
+
+    <h3>TTL (Time to Live)</h3>
+
+    <p>Every DNS record has a <strong>TTL</strong> (Time to Live) value, specified in seconds. The TTL tells caches how long they can keep the record before they need to ask again.</p>
+
+    <pre><code>www.example.com.  3600  IN  A  93.184.216.34</code></pre>
+
+    <p>This says: "The IP address of www.example.com is 93.184.216.34, and you can cache this answer for 3600 seconds (1 hour)."</p>
+
+    <p>A short TTL (e.g., 60 seconds) means the record changes frequently and caches should not hold it for long. A long TTL (e.g., 86400 seconds = 1 day) means the record is stable and can be cached aggressively.</p>
+
+    <h3>Levels of Caching</h3>
+
+    <p>DNS caching happens at multiple levels:</p>
+
+    <ol>
+      <li><strong>Browser cache:</strong> Your browser caches DNS responses. The next time you visit the same website, the browser uses the cached IP address without querying DNS.</li>
+      <li><strong>OS cache:</strong> Your operating system also caches DNS responses. On Linux, you can flush the cache with <code>systemd-resolve --flush-caches</code>. On macOS, <code>sudo dscacheutil -flushcache</code>. On Windows, <code>ipconfig /flushdns</code>.</li>
+      <li><strong>ISP resolver cache:</strong> Your ISP's recursive resolver caches responses. When you query the resolver, it checks its cache first. If the answer is cached and not expired, it returns the cached answer without performing a new lookup.</li>
+      <li><strong>Public resolver cache:</strong> Public resolvers like Google DNS (8.8.8.8) and Cloudflare (1.1.1.1) also cache responses. Because they serve millions of users, their caches are very effective.</li>
+    </ol>
+
+    <p>Caching is why DNS queries are usually so fast. Most of the time, the answer is already in a cache somewhere, and no recursive lookup is needed.</p>
+
+    <h2>Smart DNS and CDN</h2>
+
+    <p>DNS is not just about translating names to IP addresses. It is also a powerful tool for <strong>traffic management</strong> and <strong>content delivery</strong>.</p>
+
+    <h3>Smart DNS (GeoDNS)</h3>
+
+    <p><strong>Smart DNS</strong> (also called <strong>GeoDNS</strong>) returns different IP addresses based on the geographic location of the requester. This is useful for serving users from the nearest data center.</p>
+
+    <p>For example, a user in Beijing who queries <code>www.example.com</code> might get the IP address of a server in Beijing, while a user in New York gets the IP address of a server in Virginia.</p>
+
+    <p>Smart DNS works by examining the IP address of the recursive resolver (or the end user, if using EDNS Client Subnet) and returning the appropriate IP address based on geographic rules.</p>
+
+    <h3>DNS and CDN</h3>
+
+    <p><strong>CDNs</strong> (Content Delivery Networks) rely heavily on DNS to route users to the nearest edge server. When you access a CDN-hosted website, the DNS resolution process looks something like this:</p>
+
+    <ol>
+      <li>You query <code>www.example.com</code>.</li>
+      <li>The authoritative server for example.com returns a CNAME pointing to the CDN: <code>www.example.com.cdn.cloudflare.net</code>.</li>
+      <li>Your resolver follows the CNAME and queries <code>www.example.com.cdn.cloudflare.net</code>.</li>
+      <li>Cloudflare's authoritative server examines your location (based on your resolver's IP) and returns the IP address of the nearest Cloudflare edge server.</li>
+    </ol>
+
+    <p>This is why CDNs use CNAME records: they need to intercept the DNS resolution process and return a location-specific IP address. The CNAME allows the CDN to control the DNS response for a customer's domain.</p>
+
+    <h2>Setting Up Your Own Authoritative DNS</h2>
+
+    <p>If you own a domain, you need to configure authoritative DNS so that the world can find your website, receive your email, and use your services.</p>
+
+    <h3>Choosing a DNS Provider</h3>
+
+    <p>You have several options:</p>
+
+    <ul>
+      <li><strong>Your registrar's DNS:</strong> Most domain registrars (GoDaddy, Namecheap, etc.) offer free DNS hosting. This is the simplest option but may lack advanced features.</li>
+      <li><strong>Cloud DNS providers:</strong> Services like Cloudflare DNS, AWS Route 53, Google Cloud DNS, and Azure DNS offer robust, globally distributed DNS hosting with advanced features like GeoDNS, DNSSEC, and DDoS protection.</li>
+      <li><strong>Self-hosted:</strong> You can run your own authoritative DNS servers using software like BIND, PowerDNS, or NSD. This gives you full control but requires expertise and infrastructure.</li>
+    </ul>
+
+    <h3>Configuring DNS Records</h3>
+
+    <p>Once you have chosen a provider, you need to configure your DNS records. A typical setup for a domain might look like this:</p>
+
+    <pre><code>; Name servers
+example.com.  IN  NS  ns1.example.com.
+example.com.  IN  NS  ns2.example.com.
+
+; A records
+example.com.       IN  A      93.184.216.34
+www.example.com.   IN  A      93.184.216.34
+mail.example.com.  IN  A      93.184.216.35
+
+; AAAA records (IPv6)
+example.com.       IN  AAAA  2606:2800:220:1:248:1893:25c8:1946
+
+; MX records
+example.com.  IN  MX  10  mail.example.com.
+
+; TXT records (SPF)
+example.com.  IN  TXT  "v=spf1 mx -all"
+
+; CAA record
+example.com.  IN  CAA  0 issue "letsencrypt.org"</code></pre>
+
+    <h3>Delegating Your Domain</h3>
+
+    <p>After configuring your DNS records, you need to tell the world where to find your authoritative servers. This is done by setting the <strong>name server (NS) records</strong> at your domain registrar.</p>
+
+    <p>For example, if you are using Cloudflare DNS, you would set your domain's name servers to something like:</p>
+
+    <pre><code>ns1.cloudflare.com
+ns2.cloudflare.com</code></pre>
+
+    <p>The registrar then updates the TLD servers (e.g., the .com servers) to point to your authoritative servers. This process is called <strong>delegation</strong>.</p>
+
+    <p>Delegation can take up to 48 hours to propagate across the internet, though it usually happens much faster.</p>
+
+    <h3>Testing Your DNS</h3>
+
+    <p>You can test your DNS configuration using various tools:</p>
+
+    <ul>
+      <li><strong>dig:</strong> A command-line tool for querying DNS. <code>dig www.example.com</code> shows the full DNS response, including all records and the resolution path.</li>
+      <li><strong>nslookup:</strong> A simpler command-line tool. <code>nslookup www.example.com</code> returns the IP address.</li>
+      <li><strong>Online tools:</strong> Websites like DNSViz, IntoDNS, and MXToolbox can check your DNS configuration for errors and provide recommendations.</li>
+    </ul>
+
+    <h2>Summary</h2>
+
+    <ol>
+      <li>DNS translates domain names into IP addresses, making the internet usable for humans.</li>
+      <li>DNS is a distributed, hierarchical database with three levels: root servers, TLD servers, and authoritative servers.</li>
+      <li>Recursive queries ask a resolver to find the answer; iterative queries return the best partial answer. Resolvers use iterative queries to work their way down the hierarchy.</li>
+      <li>DNS supports many record types: A (IPv4), AAAA (IPv6), CNAME (alias), MX (mail), NS (name server), TXT (text), and more.</li>
+      <li>DNS caching at multiple levels (browser, OS, ISP resolver, public resolver) makes DNS fast. TTL controls how long records are cached.</li>
+      <li>Smart DNS and CDN use DNS to route users to the nearest server based on geographic location.</li>
+      <li>Setting up authoritative DNS involves choosing a provider, configuring records, and delegating your domain at the registrar.</li>
+    </ol>
+
+    <p>DNS is one of the most important and most taken-for-granted protocols on the internet. It is the silent hero that makes every web visit, every email, and every app connection possible. The next time you type a URL and a page loads instantly, take a moment to appreciate the incredible machinery of DNS working behind the scenes.</p>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>

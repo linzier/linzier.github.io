@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>On the Factory Pattern</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="https://www.cnblogs.com/linvanda/p/16007085.html" target="_blank">Original (Chinese)</a>
+    </nav>
+  </div>
+</header>
+<div class="container">
+  <article>
+    <h1>On the Factory Pattern</h1>
+    <div class="meta">2022-03-15 | Design Patterns | <a href="https://www.cnblogs.com/linvanda/p/16007085.html">Original</a></div>
+
+    <p>Ask 100 interview candidates which design patterns they know, and at least 99 will mention the factory pattern. This tells us two things: the factory pattern is one of the most commonly encountered design patterns for developers, and it's also one of the most intuitive and easiest to understand &mdash; both conceptually and in implementation.</p>
+
+    <p>But if you probe further &mdash; what problem does the factory pattern solve? How does it solve it? What are its drawbacks? When should you <em>not</em> use it? &mdash; not everyone can answer clearly.</p>
+
+    <h2>The Complexity of Software Design</h2>
+
+    <p>Software is, at its essence, humans instructing machines to handle affairs of the human world. The complexity of the human world inevitably reflects in software.</p>
+
+    <p>High school physics tells us: motion is absolute, rest is relative. "The only constant is change itself." It is the motion (dynamism) of things that creates complexity &mdash; or in more accessible terms, "the uncertainty of the future." Requirements change endlessly; no software remains static.</p>
+
+    <p>The natural consequence of motion is <strong>entropy increase</strong> &mdash; just as your living room inevitably gets messier over time. As software evolves, it inexorably trends toward chaos: old logic changes, new logic is added (and existing bugs are "fixed"), and the system grows increasingly complex and incomprehensible. Bugs multiply. Modifications become harder.</p>
+
+    <p>People have an intuitive but mistaken belief: by fixing bugs, we can gradually reduce the system's bug count to zero. Unless the system never needs iteration after release, no matter how fast you type, you can't outpace bug growth (this is especially evident in upper-layer business systems).</p>
+
+    <p>Programmers combat software entropy primarily through <strong>refactoring</strong> and <strong>design patterns</strong>.</p>
+
+    <p>Refactoring rebuilds the system in the <em>future</em> to eliminate or reduce chaos. It's based on the premise that people will have deeper understanding of the system and business in the future than in the past, and that the previous design has reached its limit for accommodating change. In practice, refactoring (especially large-scale) often happens at the system's breaking point.</p>
+
+    <p>Design patterns pre-build the system in the <em>present</em> to handle future complexity (change). Design patterns distill common elements from past experience, standardize them (forming patterns), and pursue relative stability in system design &mdash; using the unchanging to face the uncertain future.</p>
+
+    <p>Design patterns tackle complexity primarily through <strong>abstraction</strong> and <strong>isolation</strong>.</p>
+
+    <h2>Three Types of Factories</h2>
+
+    <p>Every design pattern addresses software design complexity and pursues stability. The factory pattern belongs to the <em>creational patterns</em> (along with Singleton, Prototype, and Builder), solving the complexity of object creation.</p>
+
+    <p>When does object creation have complexity?</p>
+
+    <ul>
+      <li>When a simple <code>new</code> with a few parameters suffices, there's no creation complexity and no need for a factory;</li>
+      <li>When object creation is <strong>polymorphic</strong>: like creating different subtype objects based on configuration, with multiple <code>if-else</code> branches in the creation code;</li>
+      <li>When the <strong>creation process itself is complex</strong>: even though no different subtypes are needed, creating the object requires reading config files, fetching remote data, etc.</li>
+    </ul>
+
+    <p>Before diving deeper, let's briefly outline the three factory forms (slightly different from GoF's classification):</p>
+
+    <ul>
+      <li><strong>Simple Factory:</strong> Create a static method in the target class for creating instances, or extract that static method into a dedicated factory class;</li>
+      <li><strong>Factory Method:</strong> An upgrade to Simple Factory. Define a factory interface; each factory implementation returns a specific subtype instance of the target class/interface. Factory Method addresses the potential complexity of Simple Factory, making the factory itself more aligned with the Open-Closed Principle and Single Responsibility Principle;</li>
+      <li><strong>Abstract Factory:</strong> An upgrade to Factory Method. It solves multi-dimensional complexity in the target instances, preventing factory classes from exploding alongside the number of target classes. In Factory Method, one factory creates one type of instance. In Abstract Factory, one factory creates multiple types of instances.</li>
+    </ul>
+
+    <p>The theory can be dizzying. The key takeaway: in terms of both the factory's own complexity and the complexity of the problem it solves, Simple Factory &lt; Factory Method &lt; Abstract Factory (each is a special case of the next, each is an upgrade of the previous). Note the two dimensions of complexity here &mdash; this foreshadows the usage principle: <strong>solve problems with the simplest tool possible; only upgrade when the problem truly demands it</strong>.</p>
+
+    <p>Now let's see how the factory pattern uses abstraction and isolation to solve object creation complexity.</p>
+
+    <h2>Simple Factory</h2>
+
+    <p>Suppose we're building an online transaction system for a gas station. Customers can purchase fuel, convenience store items, and virtual goods (like coupons). The ordering process involves three classes (simplified; assuming one order purchases one type of good): <code>Transaction</code>, <code>Order</code>, and <code>Goods</code>. <code>Transaction</code> creates <code>Order</code>, and <code>Order</code> depends on <code>Goods</code>.</p>
+
+    <p><img src="images/factory-02.png" alt="Transaction Order Goods class diagram"></p>
+
+    <p>Suppose <code>Goods</code> creation is complex &mdash; it requires combining multiple related objects and fetching external information (product details, inventory, etc.).</p>
+
+    <p>There are two ways <code>Order</code> can depend on <code>Goods</code>:</p>
+
+    <ol>
+      <li>Create <code>Goods</code> inside <code>Order</code> (passing in <code>goodsId</code> from outside);</li>
+      <li>Inject the <code>Goods</code> object through the constructor.</li>
+    </ol>
+
+    <p>With the first approach, <code>Order</code> creates <code>Goods</code> internally:</p>
+
+    <pre><code>class Order {
+    private $goods;
+
+    public function __construct($goodsId) {
+        // Complex creation logic embedded here
+        $this->goods = new Goods($goodsId);
+        // ... more setup code
+    }
+}</code></pre>
+
+    <p>The constructor contains large blocks of creation code, violating best practices. We'd typically extract a separate method:</p>
+
+    <pre><code>class Order {
+    private $goods;
+
+    public function __construct($goodsId) {
+        $this->goods = $this->createGoods($goodsId);
+    }
+
+    private function createGoods($goodsId) {
+        // Complex creation logic
+        return new Goods($goodsId);
+    }
+}</code></pre>
+
+    <p>Slightly better, but at least three problems remain:</p>
+
+    <ol>
+      <li><code>Order</code> takes on the responsibility of creating <code>Goods</code> (and it's complex work that may need future changes), violating the <strong>Single Responsibility Principle</strong>;</li>
+      <li><code>Order</code> must understand <code>Goods</code>'s construction details, violating the <strong>Law of Demeter</strong> and breaking encapsulation;</li>
+      <li>Other places creating <code>Goods</code> must do the same, reducing maintainability (or we make <code>Order</code>'s <code>createGoods()</code> public for others to call, but this creates unnecessary dependencies and makes code harder to understand).</li>
+    </ol>
+
+    <p><strong>Law of Demeter</strong> (also called the Least Knowledge Principle): a class should know as little as possible about other classes. An object should have minimal knowledge of other objects.</p>
+
+    <p>To solve these problems, we move <code>createGoods()</code> out of <code>Order</code> and into <code>Goods</code> itself, letting <code>Goods</code> be responsible for creating itself. This encapsulates the creation details (complex construction is handled internally by <code>Goods</code>):</p>
+
+    <pre><code>class Goods {
+    public static function create($goodsId) {
+        // Complex creation logic, encapsulated within Goods
+        return new Goods($goodsId);
+    }
+}</code></pre>
+
+    <p>This solves the encapsulation problem. Future changes to <code>Goods</code>'s creation logic only require modifying <code>Goods</code> itself. Many projects implement Simple Factory this way &mdash; it's simple enough and maintains reasonable design stability.</p>
+
+    <p>Now let's look at the second approach: injecting <code>Goods</code> into <code>Order</code> via dependency injection. Now <code>Goods</code> must be created in <code>Transaction</code>. The most direct implementation:</p>
+
+    <pre><code>class Transaction {
+    public function execute() {
+        $goods = new Goods($goodsId); // Complex creation here
+        $order = new Order($goods);
+        // ...
+    }
+}</code></pre>
+
+    <p>Same problems as before: <code>Transaction</code> takes on <code>Goods</code> creation, violating Single Responsibility. Future changes to creation logic require modifying <code>Transaction</code>'s code (and worse, <code>ClassX</code> and <code>ClassY</code> might also be creating <code>Goods</code> in multiple places).</p>
+
+    <p>The fix: move creation logic into <code>Goods</code> itself. But is that always the right answer?</p>
+
+    <p>It depends. If <code>Goods</code> is merely complex to create (manageable complexity that doesn't severely pollute <code>Goods</code>), and creation logic isn't expected to change, then putting it inside <code>Goods</code> is fine (many real projects do this). But if creation involves very complex assembly and is expected to change, this complexity affects <code>Goods</code>'s own stability. Fundamentally, having <code>Goods</code> create itself violates Single Responsibility &mdash; "creation" is the consumer's responsibility, not the provider's.</p>
+
+    <p>So we have a contradiction: we don't want consumers (<code>Transaction</code> and <code>Order</code>) to know about <code>Goods</code>'s details (affecting their stability), but we also don't want the provider (<code>Goods</code>) to create itself (affecting its stability). How do we resolve this?</p>
+
+    <p>The answer: introduce a <strong>third party</strong> &mdash; a factory class &mdash; encapsulating creation complexity in an independent, single-purpose class.</p>
+
+    <pre><code>class GoodsFactory {
+    public static function create($goodsId) {
+        // Complex creation logic isolated here
+        return new Goods($goodsId);
+    }
+}</code></pre>
+
+    <p>Now, changes to <code>Goods</code> creation logic only require modifying <code>GoodsFactory</code> &mdash; no changes to <code>Transaction</code>, <code>Order</code>, or <code>Goods</code>. This is Simple Factory.</p>
+
+    <p>Here we see the factory pattern solving creation complexity through <strong>isolation</strong>: the complexity of creating <code>Goods</code> (its uncertainty, its future changes) is placed in a separate, single-responsibility factory class <code>GoodsFactory</code>, isolating the instability from <code>Transaction</code>, <code>Order</code>, and <code>Goods</code>, ensuring their design stability.</p>
+
+    <h2>Factory Method</h2>
+
+    <p>The previous example didn't showcase <strong>abstraction</strong> well (though broadly, the factory itself provides abstraction of creation logic, we're focused on abstraction in the narrower sense).</p>
+
+    <p>Recall: customers can buy fuel, convenience store items, or virtual goods like coupons. A better design abstracts <code>Goods</code> into an interface with different implementations:</p>
+
+    <pre><code>interface GoodsInterface {
+    // ...
+}
+
+class Fuel implements GoodsInterface { }
+class NonOil implements GoodsInterface { }
+class Coupon implements GoodsInterface { }</code></pre>
+
+    <p><img src="images/factory-01.png" alt="Transaction Order GoodsInterface class diagram"></p>
+
+    <p>We change <code>Order</code>'s dependency from the concrete <code>Goods</code> to the interface <code>GoodsInterface</code>, implemented by <code>Fuel</code>, <code>NonOil</code>, and <code>Coupon</code>. We'd typically inject the implementation via dependency injection:</p>
+
+    <pre><code>class Transaction {
+    public function execute($type, $goodsId) {
+        // Big if-else to create the right GoodsInterface implementation
+        if ($type == 'fuel') {
+            $goods = new Fuel($goodsId);
+        } elseif ($type == 'nonoil') {
+            $goods = new NonOil($goodsId);
+        } elseif ($type == 'coupon') {
+            $goods = new Coupon($goodsId);
+        }
+        $order = new Order($goods);
+        // ...
+    }
+}</code></pre>
+
+    <p>We see a big <code>if-else</code> block in <code>Transaction</code> for creating <code>GoodsInterface</code> instances. Based on our earlier discussion, we should extract this into a factory class:</p>
+
+    <pre><code>class GoodsFactory {
+    public static function create($type, $goodsId) {
+        if ($type == 'fuel') {
+            return new Fuel($goodsId);
+        } elseif ($type == 'nonoil') {
+            return new NonOil($goodsId);
+        } elseif ($type == 'coupon') {
+            return new Coupon($goodsId);
+        }
+    }
+}</code></pre>
+
+    <p>What's wrong with this Simple Factory?</p>
+
+    <p>When we abstract <code>Goods</code> into the interface <code>GoodsInterface</code>, it usually signals significant future variability (many potential product types). We add the abstraction layer (interface) to improve design stability (making other classes depend on the stable interface rather than unstable implementations). But this also means we'll constantly modify the factory class, adding more <code>if-else</code> branches. <code>GoodsFactory</code> becomes unstable. Especially when each implementation's creation is complex, the factory itself becomes complex.</p>
+
+    <p>Using the same approach we used for <code>Goods</code>, we add another abstraction layer (interface) to solve the factory's own problems.</p>
+
+    <p>We extract a <code>FactoryInterface</code> from <code>GoodsFactory</code>:</p>
+
+    <pre><code>interface FactoryInterface {
+    public function create($goodsId);
+}
+
+class FuelFactory implements FactoryInterface {
+    public function create($goodsId) {
+        return new Fuel($goodsId);
+    }
+}
+
+class NonOilFactory implements FactoryInterface {
+    public function create($goodsId) {
+        return new NonOil($goodsId);
+    }
+}
+
+class CouponFactory implements FactoryInterface {
+    public function create($goodsId) {
+        return new Coupon($goodsId);
+    }
+}</code></pre>
+
+    <p>Wait &mdash; now the factories comply with the Open-Closed Principle, but how do we use them? Like this?</p>
+
+    <pre><code>class Transaction {
+    public function execute($type, $goodsId) {
+        if ($type == 'fuel') {
+            $factory = new FuelFactory();
+        } elseif ($type == 'nonoil') {
+            $factory = new NonOilFactory();
+        } elseif ($type == 'coupon') {
+            $factory = new CouponFactory();
+        }
+        $goods = $factory->create($goodsId);
+        $order = new Order($goods);
+        // ...
+    }
+}</code></pre>
+
+    <p>Are you kidding? <code>Transaction</code> hasn't fundamentally changed! We've just moved the <code>if-else</code> from creating goods to creating factories. <code>Transaction</code> still has a bunch of <code>if-else</code> unrelated to ordering (it's object creation logic), violating Single Responsibility. Every time we add a new factory, we must modify <code>Transaction</code> &mdash; even though <code>Transaction</code> should have nothing to do with goods or factory changes.</p>
+
+    <p>So the Factory Method pattern needs one more piece: a <strong>"factory of factories"</strong> that encapsulates the "factory creation" logic:</p>
+
+    <pre><code>class GoodsFactoryContainer {
+    public static function getFactory($type): FactoryInterface {
+        if ($type == 'fuel') {
+            return new FuelFactory();
+        } elseif ($type == 'nonoil') {
+            return new NonOilFactory();
+        } elseif ($type == 'coupon') {
+            return new CouponFactory();
+        }
+    }
+}</code></pre>
+
+    <p>This is the Factory Method pattern.</p>
+
+    <p><img src="images/factory-03.png" alt="Factory method pattern UML diagram"></p>
+
+    <p>Now <code>Transaction</code> and each factory are stable, with sufficiently single responsibilities and good extensibility. The only unstable element is <code>GoodsFactoryContainer</code> &mdash; or rather, we've transferred the instability from <code>Transaction</code> and <code>Order</code> into <code>GoodsFactoryContainer</code>.</p>
+
+    <p>In system design, <strong>instability can only be transferred, never eliminated</strong>. What we truly aim for is minimizing the impact of instability, maximizing overall design stability.</p>
+
+    <p>Since instability can only be transferred, what's the point of moving it?</p>
+
+    <p>In our example, goods creation is the unstable factor (stemming from real-world business uncertainty). The variety of goods causes instability in goods factories. Our job is to extract this instability from the relatively stable ordering logic, abstract it behind stable interfaces, have business logic depend on those interfaces, and then encapsulate the implementation details in a container. This way, changes in goods creation logic don't affect ordering logic code.</p>
+
+    <p>Notice the code in <code>Transaction</code>:</p>
+
+    <pre><code>$factory = GoodsFactoryContainer::getFactory($type);
+$goods = $factory->create($goodsId);</code></pre>
+
+    <p>These two lines embody <strong>programming to interfaces, not implementations</strong>.</p>
+
+    <p><code>Order</code> depends on <code>GoodsInterface</code> &mdash; who provides the implementation? <code>FactoryInterface</code>. Who provides <code>FactoryInterface</code>'s implementation? <code>GoodsFactoryContainer</code>.</p>
+
+    <p>When we need to adjust goods creation logic in the future, no modifications will cross the boundary of <code>GoodsFactoryContainer</code> &mdash; we only modify <code>GoodsFactoryContainer</code> (and its internal dependencies). And <code>GoodsFactoryContainer</code> exists precisely for this purpose. So changes in goods creation logic don't violate Single Responsibility or Open-Closed (if those changes forced modifications to <code>Transaction</code> or <code>Order</code>, <em>that</em> would violate Open-Closed, since goods creation has nothing to do with those classes' responsibilities).</p>
+
+    <p>Through abstraction and isolation, the factory pattern elegantly solves object creation complexity &mdash; with one caveat: if the target class/interface has multi-dimensional variability leading to many implementations (and correspondingly many factory classes), this causes a class explosion that seriously hurts maintainability. For example, if the target interface has 2 dimensions with 3 possibilities each, we get 3&sup2; = 9 classes and 9 factories. This is where Abstract Factory helps &mdash; it reduces 2 dimensions to 1 by having each factory create all instances for one dimension (instead of just one type). If each factory handles 3 types of instances, we only need 3 factories.</p>
+
+    <p>In practice, I've never used such a complex pattern (so I won't provide an Abstract Factory implementation here). If a thing needs inheritance hierarchies along multiple dimensions, it easily causes class explosion (one reason inheritance is criticized). A better approach is often <strong>composition over inheritance</strong> (like using the Decorator pattern).</p>
+
+    <h2>Summary</h2>
+
+    <p>The factory pattern is widely used in practice. I'm sure everyone has encountered a classic example: the IoC container. An IoC container is essentially a super-factory responsible for creating objects across the entire system. It automatically resolves complex dependency relationships, and we can decide at the outermost layer (configuration files) which implementation class to use for a given interface &mdash; exactly what factories excel at.</p>
+
+    <p>When using the factory pattern in practice, follow the <strong>KISS principle</strong> (Keep It Simple and Stupid). Start with Simple Factory. In the first version of a system, our understanding of concepts and structures isn't deep. Jumping straight to a "big knife" often leads to over-engineering. Believe that "there is no silver bullet" in software design &mdash; every design pattern can cost readability, usability, and even maintainability. The factory pattern is no exception (Factory Method introduces a "factory of factories," which itself adds complexity). As the system iterates and we refactor, our understanding deepens. Only when we genuinely identify the problem should we adopt more complex solutions.</p>
+
+    <p>To summarize:</p>
+
+    <ol>
+      <li>Software design complexity originates from the complexity of the real world;</li>
+      <li>Software systems follow the law of entropy increase &mdash; trending toward chaos over time. Design patterns and refactoring combat this &mdash; they are anti-entropy processes;</li>
+      <li>The factory pattern solves object creation complexity;</li>
+      <li>Specifically, it does so through <strong>abstraction</strong> and <strong>isolation</strong>;</li>
+      <li>In complexity: Simple Factory &lt; Factory Method &lt; Abstract Factory. Start simple; avoid over-design;</li>
+      <li>The goal of system design is to pursue <strong>stability</strong>;</li>
+      <li>Instability in a system can only be <strong>transferred, never eliminated</strong>. Isolate it to minimize the impact of change, maximizing overall design stability.</li>
+    </ol>
+
+  </article>
+</div>
+<footer>
+  <div class="container">
+    <p>Translated from <a href="https://www.cnblogs.com/linvanda">林子er's blog</a></p>
+  </div>
+</footer>
+</body>
+</html>
