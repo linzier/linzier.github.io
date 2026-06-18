@@ -9,7 +9,7 @@
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -20,16 +20,16 @@
     <h1>Swoole in Practice: Building a MySQL Query Builder with Coroutine Connection Pool</h1>
     <div class="meta">2020-05-02 | PHP/Swoole</div>
 
-    <p>Swoole brought coroutines to PHP, fundamentally changing how we think about concurrency. But with great power comes great responsibility &mdash; especially when it comes to database connections. A naive MySQL client in a Swoole coroutine environment will quickly run into connection contention, race conditions, and resource leaks. In this article, we will walk through the design and implementation of a MySQL query builder that handles coroutine connection pooling, transaction isolation, health checks, and automatic reconnection.</p>
+    <p>Swoole introduced coroutines to PHP, fundamentally shifting how developers approach concurrency. However, this power demands rigorous design&mdash;particularly when managing database connections. A naive MySQL client integration within a Swoole coroutine environment quickly succumbs to connection contention, race conditions, and resource leaks. In this article, we will walk through the design and implementation of a robust MySQL query builder equipped with coroutine connection pooling, transaction isolation, pro-active health checks, and automatic recovery.</p>
 
     <h2>Requirements</h2>
 
-    <p>Before writing any code, let us be crystal clear about what we need:</p>
+    <p>Before diving into the implementation, let's establish our core design requirements:</p>
 
     <ol>
-      <li><strong>Chain-style SQL building.</strong> The API should feel natural: <code>Query::table('users')-&gt;where('age', '&gt;', 18)-&gt;orderBy('created_at', 'desc')-&gt;get()</code>. Fluent interfaces reduce cognitive load and make queries read like SQL.</li>
+      <li><strong>Chain-style SQL building.</strong> The API should feel natural: <code>Query::table('users')-&gt;where('age', '&gt;', 18)-&gt;orderBy('created_at', 'desc')-&gt;get()</code>. Fluent interfaces significantly reduce cognitive overhead and make queries highly readable.</li>
       <li><strong>Connection pooling.</strong> Creating a new MySQL connection for every query is expensive. We need a pool of pre-established connections that coroutines can borrow and return.</li>
-      <li><strong>Coroutine-safe transactions.</strong> In a coroutine environment, multiple coroutines share the same process. A transaction must be bound to a specific connection and a specific coroutine. Coroutine A&rsquo;s transaction must not leak into Coroutine B.</li>
+      <li><strong>Coroutine-safe transactions.</strong> In a coroutine environment, multiple coroutines share the same process. A transaction must be strictly bound to both a specific connection and a specific coroutine, ensuring Coroutine A&rsquo;s transaction context never leaks into Coroutine B.</li>
       <li><strong>Health checks.</strong> Connections can go stale (MySQL&rsquo;s <code>wait_timeout</code>, network issues). The pool must detect dead connections and remove them before handing them to a caller.</li>
       <li><strong>Automatic reconnection.</strong> When a connection drops, the system should transparently reconnect without the caller needing to handle retry logic.</li>
     </ol>
@@ -141,9 +141,9 @@ Query::table('sessions')
 
     <h2>Transaction Management: CoTransaction and TContext</h2>
 
-    <p>Transactions in a coroutine environment require special care. The key insight is that a transaction must be bound to both a specific connection and a specific coroutine. If Coroutine A begins a transaction on Connection 1, Coroutine B must not be able to use Connection 1 until Coroutine A&rsquo;s transaction completes.</p>
+    <p>Managing transactions in a coroutine-driven architecture requires special care. The fundamental constraint is that a transaction must be tied to both a dedicated connection and a specific coroutine execution flow. If Coroutine A initiates a transaction on Connection 1, Coroutine B must be prevented from utilizing Connection 1 until Coroutine A's transaction is finalized.</p>
 
-    <p>We solve this with two components:</p>
+    <p>To enforce this, we introduce two architectural components:</p>
 
     <p><strong>CoTransaction</strong> manages the transaction lifecycle. When you call <code>CoTransaction::begin()</code>, it borrows a dedicated connection from the write pool, marks it as &ldquo;in transaction,&rdquo; and stores it in the coroutine-local context. All queries within this coroutine automatically use this connection until the transaction commits or rolls back.</p>
 
@@ -236,12 +236,12 @@ $rows = Query::table('users')-&gt;where('id', 42)-&gt;first();</code></pre>
 
     <h2>Lessons Learned</h2>
 
-    <p>Building this system taught us several important lessons about Swoole coroutine programming:</p>
+    <p>Designing and deploying this system highlighted several critical insights regarding Swoole's coroutine model:</p>
 
     <ul>
-      <li><strong>Coroutine safety is not free.</strong> Sharing resources across coroutines requires careful design. Connection pools, transaction contexts, and even global configuration must be coroutine-aware.</li>
+      <li><strong>Coroutine safety requires intentional design.</strong> Sharing resources across asynchronous execution threads demands robust isolation layers. Connection pools, transaction contexts, and even global state must be entirely coroutine-aware.</li>
       <li><strong>Channels are powerful.</strong> Swoole&rsquo;s <code>Chan</code> is the fundamental building block for coroutine-safe data structures. If you understand channels, you can build almost any concurrent primitive.</li>
-      <li><strong>Health checks are non-negotiable.</strong> In a long-running process, connections <em>will</em> go stale. Without health checks, your application will intermittently fail on the first query after an idle period.</li>
+      <li><strong>Health checks are non-negotiable.</strong> In long-running daemon processes, network connections inevitably go stale. Without reliable health checks, your application will suffer from intermittent failures on initial queries following idle periods.</li>
       <li><strong>Separation of concerns pays off.</strong> By splitting the system into Query, Transaction, Pool, and Connector modules, each piece is independently testable and replaceable.</li>
     </ul>
 

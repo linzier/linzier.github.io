@@ -9,7 +9,7 @@
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -75,7 +75,7 @@
 
     <h3>The Pollution Problem</h3>
 
-    <p>Because the <code>test</code> branch accumulates features from multiple developers, it can become "polluted" &mdash; a state where conflicts, broken builds, or unstable code make it unreliable for testing. When this happens, the only solution is to <strong>rebuild the test branch from scratch</strong>:</p>
+    <p>Since the <code>test</code> branch aggregates features from multiple developers working in parallel, it inevitably becomes "polluted" over time&mdash;a state where merge conflicts, broken builds, or half-baked, unstable code render the entire environment unreliable for QA. When pollution sets in, the only clean way out is to <strong>rebuild the test branch from scratch</strong>:</p>
 
     <ol>
       <li>Delete the current <code>test</code> branch.</li>
@@ -140,7 +140,7 @@
 
     <h2>Handling Release Coverage Issues</h2>
 
-    <p>One challenge with the release branch model is the "coverage problem": when a release branch is being prepared, new features that are not part of this release may already be merged into <code>test</code>. If the release branch is created from <code>test</code> instead of <code>master</code>, it will inadvertently include untested or unapproved features.</p>
+    <p>One common challenge with the release branch model is the "coverage" or "leakage" problem: when preparing a release, several newer features that are excluded from this release cycle might already be merged into the <code>test</code> branch. If you mistakenly cut your release branch from <code>test</code> instead of <code>master</code>, those unapproved, half-tested features will leak into your production candidate.</p>
 
     <p>The solution is a <strong>management process</strong>, not a technical one:</p>
 
@@ -170,7 +170,7 @@
 </div>
 <footer>
   <div class="container">
-    <p>&copy; 2020 Linzer's Blog</p>
+    <p>&copy; 2020 Linzier's Blog</p>
   </div>
 </footer>
 </body>

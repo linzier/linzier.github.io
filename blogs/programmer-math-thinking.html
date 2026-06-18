@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A Programmer's Mathematical Thinking: Deriving Rectangle Area - Linzer's Blog</title>
+  <title>A Programmer's Mathematical Thinking: Deriving Rectangle Area - Linzier's Blog</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -20,7 +20,7 @@
     <h1>A Programmer's Mathematical Thinking: Deriving Rectangle Area</h1>
     <div class="meta">2022-07-11 | Thinking</div>
 
-    <p>Most people learn the area of a rectangle in elementary school: area equals length times width. You memorize the formula, you use it on tests, you move on. But have you ever stopped to ask <em>why</em>? Why is the area of a rectangle equal to length times width? Where does this formula come from? Who decided it was true?</p>
+    <p>Most people learn the area of a rectangle in elementary school: area equals length times width. You memorize the formula, use it on tests, and move on. But have you ever stopped to ask <em>why</em>? Why is the area of a rectangle equal to length times width? Where does this formula come from? Who decided it was true?</p>
 
     <p>This question might seem trivial — after all, it's just a rectangle — but the process of answering it reveals something profound about mathematical thinking. And that same process, it turns out, is exactly what programmers do every day when they solve algorithmic problems.</p>
 
@@ -80,25 +80,25 @@
 
     <h3>Step 4: Generalize</h3>
 
-    <p>The farmer notices a pattern. If doubling the length doubles the area, then tripling the length should triple the area. And multiplying the length by any number # should multiply the area by the same number #:</p>
+    <p>The farmer notices a pattern. If doubling the length doubles the area, then tripling the length should triple the area. By extension, multiplying the length by any scale factor <strong>k</strong> should scale the area by that same factor <strong>k</strong>:</p>
 
-    <p><strong>S(#l, w) = # * S(l, w)</strong></p>
+    <p><strong>S(k * l, w) = k * S(l, w)</strong></p>
 
-    <p>This is a generalization from specific cases (doubling) to a general principle (any scaling). It's an inductive leap, and it requires some faith. But it's a faith grounded in observation and intuition. If doubling works, and tripling works, and quadrupling works, then it's reasonable to believe that any scaling works.</p>
+    <p>This generalizes specific observations (like doubling) into a universal principle (any arbitrary scaling). It is an inductive leap—one that requires a bit of intuition, but is firmly grounded in empirical observation. If doubling works, and tripling works, and quadrupling works, then it is reasonable to believe that any scaling factor works.</p>
 
-    <p>Similarly, by the same reasoning applied to the width:</p>
+    <p>Similarly, applying the same reasoning to the width yields:</p>
 
-    <p><strong>S(l, #w) = # * S(l, w)</strong></p>
+    <p><strong>S(l, k * w) = k * S(l, w)</strong></p>
 
     <h3>Step 5: Derive the Formula</h3>
 
-    <p>Now we have everything we need. Let's apply the generalization to derive the formula.</p>
+    <p>Now we have everything we need. Let's apply this generalization to derive our formula.</p>
 
     <p>Start with S(l, w). We can rewrite l as l * 1, so:</p>
 
     <p><strong>S(l, w) = S(l * 1, w) = l * S(1, w)</strong></p>
 
-    <p>Here we used the rule S(#l, w) = # * S(l, w) with # = l and the base length being 1.</p>
+    <p>Here we applied our scaling rule <strong>S(k * l, w) = k * S(l, w)</strong> with <strong>k = l</strong>, using a base length of 1.</p>
 
     <p>Now apply the same rule to the width. We can rewrite w as w * 1:</p>
 
@@ -128,11 +128,11 @@
 
     <h3>Math Is Not Divine Revelation</h3>
 
-    <p>The process we just went through is, I believe, the essence of mathematical thinking. And it's not what most people think it is.</p>
+    <p>The process we just went through captures, I believe, the very essence of mathematical thinking. And it is quite different from what most people imagine.</p>
 
-    <p>Many people imagine that mathematics is a collection of eternal truths, discovered by geniuses through pure intuition or divine inspiration. Euclid just <em>saw</em> the axioms of geometry. Newton just <em>knew</em> the laws of calculus. Gauss just <em>perceived</em> the patterns in number theory.</p>
+    <p>Many people view mathematics as a static collection of eternal truths, discovered by lone geniuses through pure intuition or divine inspiration. The popular myth is that Euclid simply intuited the axioms of geometry, Newton instantly knew the laws of calculus, and Gauss effortlessly perceived patterns in number theory.</p>
 
-    <p>But that's not how it works. Mathematics is built on experience, observation, experimentation, symbolization, generalization, and reasoning. It's a human activity, grounded in the physical world, refined through rigorous logic.</p>
+    <p>But that is not how mathematics actually progresses. Mathematics is built on experience, observation, experimentation, symbolization, generalization, and rigorous reasoning. It is a deeply human activity, grounded in the physical world and refined through logical proof.</p>
 
     <p>Let's trace the steps we took:</p>
 
@@ -165,7 +165,7 @@
       <li><strong>Insert</strong> a character</li>
     </ul>
 
-    <p>For example, the edit distance between "abcd" and "acdb" is 3:</p>
+    <p>For example, one way to transform "abcd" into "acdb" is using three replacements (cost: 3):</p>
 
     <ol>
       <li>Replace 'b' with 'c': "abcd" -> "accd"</li>
@@ -173,27 +173,27 @@
       <li>Replace 'd' with 'b': "acdd" -> "acdb"</li>
     </ol>
 
-    <p>How do we solve this problem? Let's apply the same thinking pattern we used for the rectangle area.</p>
+    <p>How do we solve this problem systematically? Let's apply the exact same thinking pattern we used for the rectangle area.</p>
 
     <h3>Step 1: Start with Concrete Examples</h3>
 
-    <p>Before we try to solve the general problem, let's look at specific examples. What's the edit distance between "abcd" and "acdb"?</p>
+    <p>Before jumping into the general problem, let's play with specific examples. What is the shortest path to transform "abcd" into "acdb"?</p>
 
-    <p>We can try various sequences of operations:</p>
+    <p>We can try different sequences of operations:</p>
 
     <ul>
       <li>"abcd" -> "accd" -> "acdd" -> "acdb" (3 replacements)</li>
-      <li>"abcd" -> "acd" -> "acdb" (1 delete + 1 insert = 2 operations)</li>
+      <li>"abcd" -> "acd" -> "acdb" (1 deletion + 1 insertion = 2 operations)</li>
     </ul>
 
-    <p>Wait, the second one is only 2 operations! Let me verify:</p>
+    <p>The second sequence requires only two operations! Let's verify:</p>
 
     <ul>
       <li>"abcd" -> delete 'b' -> "acd"</li>
       <li>"acd" -> insert 'b' at the end -> "acdb"</li>
     </ul>
 
-    <p>Yes, that's 2 operations. So the edit distance is at most 2. Can we do it in 1? No, because the strings are different in at least 2 positions. So the edit distance is 2.</p>
+    <p>This works in just two steps. Can we do it in one? No, because the strings differ in at least two positions, making an edit distance of 2 optimal.</p>
 
     <p>By working through concrete examples, we build intuition for the problem. We see what operations are useful, and we start to notice patterns.</p>
 

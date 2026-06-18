@@ -9,7 +9,7 @@
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -20,7 +20,7 @@
     <h1>REST as an Architectural Style &mdash; What Exactly Is It?</h1>
     <div class="meta">2021-12-15 | Architecture</div>
 
-    <p>Ask any backend developer what REST is, and you will likely hear something along the lines of &ldquo;pretty URLs&rdquo; or &ldquo;using HTTP verbs instead of always hitting POST.&rdquo; That is not wrong, but it barely scratches the surface. REST is not a protocol, not a library, and certainly not just a URL style guide. It is an <strong>architectural style</strong> &mdash; a coherent set of constraints that, when applied together, produce a particular kind of distributed system with desirable properties.</p>
+    <p>Ask any backend developer to define REST, and you will likely hear some variation of &ldquo;clean URLs&rdquo; or &ldquo;using HTTP verbs instead of routing everything through POST.&rdquo; While not incorrect, this barely scratches the surface. REST is not a protocol, not a library, and certainly not just a URL style guide. It is an <strong>architectural style</strong> &mdash; a coherent set of constraints that, when applied together, produce a particular kind of distributed system with desirable properties.</p>
 
     <p>The term was coined and formally defined by Roy Fielding in his 2000 doctoral dissertation at UC Irvine. Interestingly, Fielding was not just an academic &mdash; he was one of the principal authors of the HTTP specification (RFC 2616) and a co-founder of the Apache HTTP Server project. So when he wrote about how the web <em>should</em> work, he had a pretty good idea of what he was talking about.</p>
 
@@ -30,7 +30,7 @@
 
     <h3>1. Client-Server Separation</h3>
 
-    <p>The client and the server each have distinct concerns. The client cares about the user interface and user experience. The server cares about data storage, business logic, and security. This separation allows each component to evolve independently. The client does not need to know how the server stores data; the server does not need to know how the client renders its UI.</p>
+    <p>The client and the server operate on a separation of concerns. The client manages user interface and presentation, while the server handles data storage, business logic, and security. This decoupled boundary allows each component to evolve independently. The client does not need to know how the server stores data, and the server does not need to know how the client renders its UI.</p>
 
     <p>This is the most basic constraint, and nearly every modern API satisfies it. But it is worth stating explicitly because it establishes the foundation for everything that follows.</p>
 
@@ -38,7 +38,7 @@
 
     <p>Every request from the client to the server must contain <strong>all the information</strong> necessary to understand and process that request. The server must not store any session state between requests. Authentication credentials, pagination tokens, filtering parameters &mdash; everything travels with the request.</p>
 
-    <p>This constraint has profound implications for scalability. If the server does not maintain session state, any server in a cluster can handle any request. You can add or remove servers at will. Load balancing becomes trivial. This is why statelessness is not just a theoretical nicety &mdash; it is an engineering superpower.</p>
+    <p>This constraint has profound implications for scalability. If the server does not maintain session state, any server in a cluster can handle any request. You can add or remove servers at will. Load balancing becomes trivial. Consequently, statelessness is far more than a theoretical preference; it is a critical engineering asset.</p>
 
     <p>Of course, the <em>application</em> still has state. The user is logged in; the shopping cart has three items. That state simply lives on the client side (or in a database), not in the server&rsquo;s memory between requests.</p>
 
@@ -72,7 +72,7 @@
 
     <p>HATEOAS means that the client interacts with the service entirely through hypermedia provided dynamically by the server. The client does not hard-code URI patterns. Instead, the server&rsquo;s responses include links that tell the client what it can do next.</p>
 
-    <p>Think of it this way: when you browse a website, you do not need to know the URL of the next page in advance. You click a link. The server tells you where you can go. REST APIs should work the same way.</p>
+    <p>Consider a real-world analogy: when browsing a website, you do not need to know the URL of your next destination in advance. You simply click a link, and the server guides you on where to go. A truly RESTful API should operate on the exact same premise.</p>
 
     <p>A response from a truly RESTful API might look like this:</p>
 
@@ -103,7 +103,7 @@
 
     <h2>The Reality: Most &ldquo;REST APIs&rdquo; Are Not RESTful</h2>
 
-    <p>Here is the uncomfortable truth: the vast majority of APIs that call themselves REST are not. They violate multiple constraints, often without realizing it.</p>
+    <p>Here lies the uncomfortable truth: the vast majority of APIs that advertise themselves as RESTful are not. They routinely violate multiple core constraints, often without their designers realizing it.</p>
 
     <p>Common violations include:</p>
 
@@ -117,7 +117,7 @@
 
     <h2>Does It Matter?</h2>
 
-    <p>Perhaps. Roy Fielding himself has expressed frustration at the way the term &ldquo;REST&rdquo; has been co-opted to mean &ldquo;HTTP with JSON.&rdquo; If you call your API RESTful when it is not, you are misleading developers who expect the properties that REST guarantees: scalability, generality, independent deployability, reduced latency through caching.</p>
+    <p>Does this distinction actually matter? Roy Fielding himself has expressed frustration over how the term &ldquo;REST&rdquo; has been co-opted to mean little more than &ldquo;HTTP with JSON.&rdquo; When an API is incorrectly branded as RESTful, it misleads developers who make architectural assumptions based on the guarantees REST is supposed to deliver&mdash;such as scalability, generality, independent deployability, and cache-driven latency reduction.</p>
 
     <p>That said, many successful APIs violate REST constraints deliberately and pragmatically. Dropping HATEOAS simplifies client development. RPC-style endpoints can be more intuitive for action-oriented workflows. The question is not &ldquo;Is this RESTful?&rdquo; but &ldquo;Do we understand the trade-offs we are making?&rdquo;</p>
 

@@ -9,7 +9,7 @@
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -22,211 +22,210 @@
 
     <p><img src="images/utf-08.png" alt="Binary tunnel concept image"></p>
 
-    <p>In the previous article, <em>Character Encoding (Part 3): Unicode</em>, we discussed the Unicode standard and mentioned its three implementation forms: UTF-16, UTF-8, and UTF-32. This article dives into the implementation details of each.</p>
+    <p>In the previous article, <em>Character Encoding (Part 3): Unicode</em>, we introduced the Unicode standard and outlined its three primary implementation forms: UTF-16, UTF-8, and UTF-32. This entry explores the technical implementation details of each format.</p>
 
-    <p>UTF stands for <strong>Unicode Translation Format</strong>, corresponding to the third and fourth layers of the character encoding model (Character Encoding Form and Character Encoding Scheme). UTF is responsible for storing Unicode code points in the computer using specific code units.</p>
+    <p>UTF stands for <strong>Unicode Transformation Format</strong>. It operates at the third and fourth layers of the character encoding model (namely, the Character Encoding Form and Character Encoding Scheme). The responsibility of any UTF variant is to serialize abstract Unicode code points into computer memory and storage using concrete, physical code units.</p>
 
-    <p>The <em>X</em> in UTF-X indicates the code unit width in bits. For example, UTF-16 uses 16-bit code units.</p>
+    <p>The numerical suffix *X* in UTF-X indicates the bit-width of its fundamental code unit. For instance, UTF-16 relies on 16-bit code units, whereas UTF-8 operates on 8-bit bytes.</p>
 
     <h2>UTF-16</h2>
 
-    <p>Unicode was originally designed as a fixed-width 16-bit encoding. In this scheme, the Unicode scalar value (code point) and its code unit representation in the computer are identical.</p>
+    <p>When Unicode was initially conceived, it was designed as a fixed-width 16-bit encoding. Under this elegant, original blueprint, a character's abstract scalar value (code point) was mathematically identical to its physical, in-memory representation.</p>
 
-    <p>For example, the Chinese character "&aring;" (ah) has the Unicode code point 554A. Its code unit representation is also 55 4A (binary: <code>01010101 01001010</code>).</p>
+    <p>For example, the Chinese character "啊" (ah) maps to the Unicode code point <code>U+554A</code>. In-memory, it was represented directly by the 16-bit sequence <code>55 4A</code> (binary: <code>01010101 01001010</code>).</p>
 
-    <p>This representation is simple and fast &mdash; no flag bits, no conversion needed. That's why Unicode originally chose fixed two-byte encoding.</p>
+    <p>This implementation was extremely simple and fast. It required no bitwise transformations, no offset adjustments, and no special flag bits. This simplicity is precisely why early operating systems and runtimes immediately adopted 16-bit fixed-width strings.</p>
 
-    <p>However, this can only represent 2&sup1;&#8304; = 65,536 characters. The Unicode Consortium soon realized that two bytes couldn't accommodate all the world's characters. The encoding space was expanded to 0&ndash;10FFFF. The original representation was no longer viable.</p>
+    <p>However, a 16-bit codespace is mathematically capped at $2^{16} = 65,536$ unique entries. The Unicode Consortium soon realized that 65,536 slots were hopelessly inadequate to catalog the vast index of global scripts and historical ideographs. Consequently, they expanded the Unicode codespace to span from 0 to <code>10FFFF</code>. Because of this, the original, simple fixed-width design had to be revised.</p>
 
-    <p>They improved UTF-16.</p>
+    <p>To overcome this limitation, they redesigned UTF-16.</p>
 
-    <p>The improved UTF-16 uses <strong>variable-length encoding</strong>: one or two code units per character. Specifically, characters in the Basic Multilingual Plane (BMP, range 0000&ndash;FFFF) use one code unit; characters in supplementary planes use two code units.</p>
+    <p>The modern, revised UTF-16 specification relies on a <strong>variable-width encoding scheme</strong>, mapping characters to either one or two 16-bit code units. Specifically, code points residing in the Basic Multilingual Plane (BMP, range U+0000 to U+FFFF) continue to occupy a single 16-bit code unit, while characters in the supplementary planes are encoded using a pair of 16-bit code units.</p>
 
-    <p>But here's a problem: when parsing a text, how does the program know whether a given code unit (16 bits) represents a single character, or whether it's paired with another code unit to represent one character?</p>
+    <p>For example, given the byte sequence <code>01001110 00101101 01010110 11111101</code>, should a parser interpret this as two independent BMP characters (each occupying one 16-bit code unit) or as some other structure?</p>
 
-    <p>For example, given the byte sequence <code>01001110 00101101 01010110 11111101</code>, should the program parse this as two characters (one code unit each) or something else?</p>
+    <p>We encountered an identical design problem in GB 2312. To remain backward-compatible with single-byte ASCII, GB 2312 uses one byte for English characters and two bytes for Chinese characters. To distinguish whether a byte represents a standalone ASCII character or acts as the lead byte of a Chinese character, GB 2312 reserves the highest bit of the byte as a flag: if the highest bit is 0, it is a standalone ASCII character; if it is 1, it pairs with the following byte.</p>
 
-    <p>We encountered a similar problem with GB 2312. To be compatible with ASCII, GB 2312 uses one byte for ASCII characters and two bytes for others. To distinguish whether a byte stands alone or pairs with an adjacent byte, GB 2312 uses the highest bit as a flag: if the highest bit is 0, it's a standalone ASCII character; otherwise, it pairs with the next byte.</p>
-
-    <p>UTF-16 (and UTF-8, discussed later) solves this similarly: the top <em>n</em> bits of each code unit serve as flag bits, indicating whether the code unit stands alone or pairs with another. The improved UTF-16 code unit looks like: <code>xxxxyyyyyyyyyyyy</code>, where <code>x</code> represents flag bits and <code>y</code> represents actual data. The program uses the <code>x</code> values to decide how to process the code unit.</p>
+    <p>UTF-16 (and UTF-8, as we will discuss later) adopts a similar flag-based approach. The leading *n* bits of each code unit serve as metadata flags indicating whether the unit is standalone or part of a pair. Under this scheme, a UTF-16 code unit can be visualized as <code>xxxxyyyyyyyyyyyy</code>, where the prefix <code>x</code> represents the control flags and <code>y</code> represents the actual payload bits. The parser inspects the value of <code>x</code> to determine how to proceed.</p>
 
     <p><img src="images/utf-06.png" alt="UTF-16 code point range table"></p>
 
-    <p>Unicode's maximum code point is 10FFFF, which in binary is <code>1 0000 1111 1111 1111 1111</code> (21 bits). Values up to FFFF (binary: <code>0000 0111 1111 1111 1111</code> &mdash; note the top 5 bits are all 0, only the lower 16 bits vary) can use a single code unit. Values above FFFF need two code units, shaped like: <code>xxxxyyyyyyyyyyyy xxxxyyyyyyyyyyyy</code>.</p>
+    <p>Unicode's absolute codespace ceiling is <code>10FFFF</code>, which translates to the 21-bit binary value <code>1 0000 1111 1111 1111 1111</code>. Values up to <code>FFFF</code> (binary: <code>0000 1111 1111 1111 1111</code>, where the upper 5 bits are 0 and only the lower 16 bits vary) can be represented by a single code unit. Code points exceeding <code>FFFF</code> require a surrogate pair of two code units, structured conceptually as: <code>xxxxyyyyyyyyyyyy xxxxyyyyyyyyyyyy</code>.</p>
 
-    <p>When using two code units, we need:</p>
+    <p>For this two-unit pairing to work reliably, several conditions must be satisfied:</p>
 
     <ol>
-      <li>The flag bits (<code>x</code>) must have some fixed pattern so the program can identify them;</li>
-      <li>The data bits (<code>y</code>) must hold enough values: 10FFFF - FFFF = 100000 (decimal: 1,114,111 - 65,535 = 1,048,576);</li>
-      <li>The two code units' flags must differ so the program knows which comes first.</li>
+      <li>The control flags (<code>x</code>) must follow a unique, recognizable bit pattern so the parser can identify them instantly;</li>
+      <li>The payload bits (<code>y</code>) must have enough capacity to hold the entire range of supplementary plane values: $10FFFF - FFFF = 100000$ (or decimal: $1,114,111 - 65,535 = 1,048,576$ possible values);</li>
+      <li>The flag patterns of the two code units must differ so the parser can determine which unit is the "lead" and which is the "trail."</li>
     </ol>
 
-    <p>1,048,576 = 1024 &times; 1024, so we need 10 bits for <code>y</code> in each code unit (2&sup1;&#8304; = 1024), giving 1024 &times; 1024 combinations across two code units. That leaves 6 bits (16 - 10) for flag bits.</p>
+    <p>To represent exactly $1,048,576$ values ($1024 \times 1024$), we need exactly 10 payload bits (<code>y</code>) in each of the two code units ($2^{10} = 1024$). This leaves 6 bits ($16 - 10$) in each code unit available for our control flags (<code>x</code>).</p>
 
-    <p>Here's the UTF-16 two-code-unit structure:</p>
+    <p>This math dictates the physical bit structure of UTF-16 surrogate pairs:</p>
 
-    <pre><code>High surrogate:  110110yy yyyyyyyy  (D800-DBFF)
-Low surrogate:   110111yy yyyyyyyy  (DC00-DFFF)</code></pre>
+    <pre><code>Lead (High) Surrogate:  110110yy yyyyyyyy  (spanning D800 to DBFF)
+Trail (Low)  Surrogate:  110111yy yyyyyyyy  (spanning DC00 to DFFF)</code></pre>
 
     <p><img src="images/utf-02.png" alt="UTF-16BE encoding table for Chinese characters"></p>
 
-    <p>Since the flag bits have fixed values, each code unit can express 1024 (2&sup1;&#8304;) values. These necessarily conflict with some BMP values, so 2048 BMP values (1024 per code unit) must be reserved and not assigned as code points.</p>
+    <p>Because these flag headers are fixed values, the code units fall into specific numeric ranges. Since they occupy physical space, these ranges necessarily overlap with the BMP. Consequently, 2,048 positions in the BMP (1,024 for lead units and 1,024 for trail units) had to be permanently reserved and excluded from standard character assignment.</p>
 
-    <p>Unicode reserves D800&ndash;DFFF (2048 values including both endpoints) in the BMP exclusively for UTF-16. These values cannot be assigned as character code points.</p>
+    <p>Unicode officially reserves the block from <code>D800</code> to <code>DFFF</code> in the BMP exclusively for UTF-16. No characters can ever be assigned to these code points.</p>
 
-    <p>Of these 2048 values:</p>
+    <p>This 2,048-word block is split exactly in half:</p>
 
     <ul>
-      <li>The first 1024 (<strong>D800&ndash;DBFF</strong>) are called <strong>high surrogates</strong>, corresponding to the left code unit;</li>
-      <li>The next 1024 (<strong>DC00&ndash;DFFF</strong>) are called <strong>low surrogates</strong>, corresponding to the right code unit.</li>
+      <li>The first 1,024 values (<code>D800</code> to <code>DBFF</code>) represent <strong>high surrogates</strong> (lead code units);</li>
+      <li>The subsequent 1,024 values (<code>DC00</code> to <code>DFFF</code>) represent <strong>low surrogates</strong> (trail code units).</li>
     </ul>
 
-    <p>Together, they form a <strong>surrogate pair</strong>. UTF-16 uses surrogate pairs to encode supplementary plane characters.</p>
+    <p>Together, they form a <strong>surrogate pair</strong>, allowing UTF-16 to access the supplementary planes.</p>
 
-    <p>D800&ndash;DBFF values all begin with <code>110110</code> in binary (the top 6 bits), so the high surrogate code unit uses <code>110110</code> as its flag. DC00&ndash;DFFF values all begin with <code>110111</code>, so the low surrogate uses <code>110111</code> as its flag.</p>
+    <p>In binary, all high surrogates in the <code>D800</code>&ndash;<code>DBFF</code> range begin with the prefix <code>110110</code>, while all low surrogates in the <code>DC00</code>&ndash;<code>DFFF</code> range begin with <code>110111</code>. This makes parsing completely deterministic.</p>
 
-    <p>For example, how should the program parse this code unit sequence?</p>
+    <p>To see this in action, let's look at how a parser processes the following sequence of code units:</p>
 
     <pre><code>01010101 01001010  11011000 01000000  11011100 00000000</code></pre>
 
     <p><img src="images/utf-01.png" alt="Binary and hexadecimal representation of code units"></p>
 
-    <p>As UTF-16, there are three code units total:</p>
+    <p>The parser processes this stream 16 bits at a time:</p>
 
     <ul>
-      <li>First code unit (<code>01010101 01001010</code>): doesn't start with <code>11011</code>, so it's a single-code-unit character &mdash; the Chinese character "&aring;" (ah);</li>
-      <li>Second code unit (<code>11011000 01000000</code>): starts with <code>110110</code>, identifying it as the high surrogate of a two-code-unit character. The program fetches the next code unit;</li>
-      <li>Third code unit (<code>11011100 00000000</code>): starts with <code>110111</code>, confirming it's a valid low surrogate. The program parses these two code units together as one character (an uncommon Chinese character that many editors can't display).</li>
+      <li><strong>Unit 1 (<code>01010101 01001010</code>):</strong> This does not begin with the <code>11011</code> surrogate prefix. The parser immediately decodes it as a standalone BMP character&mdash;specifically, the Chinese character "啊" (ah);</li>
+      <li><strong>Unit 2 (<code>11011000 01000000</code>):</strong> This begins with <code>110110</code>, flagging it as a high surrogate. The parser immediately knows this is the lead unit of a surrogate pair, and fetches the next 16 bits;</li>
+      <li><strong>Unit 3 (<code>11011100 00000000</code>):</strong> This begins with <code>110111</code>, confirming it is a valid low surrogate. The parser combines the payload bits of Unit 2 and Unit 3 to resolve a single, rare supplementary Chinese character.</li>
     </ul>
 
-    <p>So the sequence parses as two characters: "&aring;" plus the supplementary plane character.</p>
+    <p>The parser successfully resolves the stream into two characters: "啊" followed by the supplementary character.</p>
 
     <p>The next question: how does Unicode code point U+20000 (binary: <code>10 00000000 00000000</code>) map to the data bits of the two code units?</p>
 
-    <p>Intuitively, the mapping works like this:</p>
+    <p>At a high level, the mapping works as follows:</p>
 
     <ul>
-      <li>For values &le; FFFF: they fit directly in one code unit (excluding D800&ndash;DFFF, which are reserved);</li>
-      <li>For values &gt; FFFF: split the value into parts and fill them into the data bits of the two code units.</li>
+      <li>For code points $\le \text{U+FFFF}$: The values map directly to a single code unit (except for the reserved <code>D800</code>&ndash;<code>DFFF</code> surrogate range);</li>
+      <li>For code points $> \text{U+FFFF}$: Split the 21-bit binary representation of the value and distribute its bits into the payload slots of a surrogate pair.</li>
     </ul>
 
-    <p>Unicode's maximum code point is 10FFFF, which has 21 bits in binary (<code>1 0000 1111 1111 1111 1111</code>). But the two code units' data bits total only 20 bits &mdash; one bit short.</p>
+    <p>Since the absolute ceiling of the Unicode codespace is <code>10FFFF</code>, its binary representation spans 21 bits (<code>1 0000 1111 1111 1111 1111</code>). However, the combined payload space (<code>y</code> bits) of a surrogate pair is exactly 20 bits&mdash;one bit short.</p>
 
-    <p>However, the maximum value's top 5 bits are <code>10000</code>. Subtracting 1 (the offset) gives <code>01111</code> &mdash; now only 4 bits. Combined with the remaining 16 bits, that's exactly 20 bits.</p>
+    <p>To resolve this, we subtract the offset <code>0x10000</code> (representing the BMP space) from our code point before mapping. The maximum possible value is thus $10FFFF - 10000 = FFFFF$. In binary, <code>FFFFF</code> is exactly 20 bits (<code>1111 1111 1111 1111 1111</code>), fitting perfectly into the surrogate pair payload.</p>
 
-    <p>The formal mathematical formula for UTF-16 encoding:</p>
+    <p>The mathematical formulas for UTF-16 encoding are defined as follows:</p>
 
-    <pre><code>CH = D800 + (U - 10000) / 400    (integer division)
-CL = DC00 + (U - 10000) mod 400</code></pre>
+    <pre><code>CH = D800 + (U - 10000) / 400    (using integer division)
+CL = DC00 + (U - 10000) % 400    (using modulo division)</code></pre>
 
     <p><img src="images/utf-03.png" alt="UTF-16 encoding formula"></p>
 
-    <p>Where <code>CH</code> and <code>CL</code> are the high and low surrogate code unit values, and <code>U</code> is the Unicode code point. All values are in hexadecimal (subscript 16 omitted for clarity).</p>
+    <p>Where <code>CH</code> and <code>CL</code> represent the decimal or hexadecimal values of the High (lead) and Low (trail) surrogate units, and <code>U</code> represents the source Unicode code point (all values in hex, with subscript bases omitted for readability).</p>
 
-    <p>Translated into plain language: given code point X, compute X - 10000. Take the portion above 10000, divide by 400 (hex for 1024), add the quotient to the high surrogate offset D800 to get the high code unit, and add the remainder to the low surrogate offset DC00 to get the low code unit.</p>
+    <p>To put this in plain terms: given an out-of-BMP code point $X$, subtract <code>0x10000</code>. Divide the result by <code>0x400</code> (which is $1,024$ in decimal). Add the quotient to the high surrogate base <code>D800</code> to yield the high code unit, and add the remainder to the low surrogate base <code>DC00</code> to yield the low code unit.</p>
 
-    <p>The reverse formula (deriving the code point from code units):</p>
+    <p>Conversely, decoding a surrogate pair back to an abstract code point follows the inverse formula:</p>
 
     <pre><code>U = (CH - D800) * 400 + (CL - DC00) + 10000</code></pre>
 
     <p><img src="images/utf-04.png" alt="UTF-16 decoding formula"></p>
 
-    <p>Since we subtracted 10000 during encoding, we add it back during decoding.</p>
+    <p>Since we subtracted <code>0x10000</code> during serialization, we simply add it back on retrieval.</p>
 
     <h2>UTF-8</h2>
 
-    <p>Unicode originally chose fixed two-byte encoding but soon realized it couldn't fully兼容 existing ASCII files and software, preventing rapid, widespread adoption. The Unicode Consortium quickly introduced an 8-bit encoding scheme to be compatible with ASCII &mdash; this is UTF-8.</p>
+    <p>While the 16-bit design of UTF-16 was clean, its inability to natively support existing ASCII files and standard Unix filesystems severely hindered its adoption. To bridge this gap, the Unicode Consortium introduced a highly compatible 8-bit variable-width format: UTF-8.</p>
 
-    <p>(Since UTF-8's code unit width is one byte, we'll use "byte" and "code unit" interchangeably below.)</p>
+    <p>(Because UTF-8's fundamental code unit is exactly 8 bits wide, we will use the terms "byte" and "code unit" interchangeably in this section.)</p>
 
-    <p>UTF-8 uses sequences of one to four bytes to represent the entire Unicode encoding space. Like UTF-16, UTF-8 is variable-length, so each code unit (byte) needs both flag bits and data bits, shaped like <code>xxxyyyyy</code>. The flag bits must:</p>
+    <p>UTF-8 represents the entire Unicode codespace using sequences of one to four bytes. Since it is a variable-length format, each byte must carry both data bits and control flags (conceptualized as <code>xxxyyyyy</code>). The control flags must satisfy several architectural goals:</p>
 
     <ol>
-      <li>Have some fixed pattern so the program can identify them;</li>
-      <li>Unlike UTF-16 (one or two code units), UTF-8 involves 1&ndash;4 code units, so the flags must also encode the total byte count;</li>
-      <li>The first byte's flags must differ from subsequent bytes' flags, so the program knows where to start parsing;</li>
-      <li>Fully compatible with ASCII &mdash; ASCII characters use only one byte.</li>
+      <li>They must be instantly identifiable by parser logic;</li>
+      <li>Because a character can span anywhere from one to four bytes, the flags in the leading byte must explicitly declare the total length of the sequence;</li>
+      <li>The bit pattern of a sequence's leading byte must differ from its subsequent continuation bytes, ensuring the parser can determine the start of a character block from any arbitrary point in a file;</li>
+      <li>The format must be completely backward-compatible with ASCII &mdash; meaning any standard ASCII character must map to a single, unmodified byte.</li>
     </ol>
 
-    <p>UTF-8 encoding logic:</p>
+    <p>This is accomplished using the following bit-allocation rules:</p>
 
     <ul>
-      <li>Check the highest bit. If 0, it's a single-byte character &mdash; ASCII. (Here we again see the importance of ASCII's highest bit always being 0.);</li>
-      <li>If the highest bit is 1, it's multi-byte (at least two bytes). Distinguish the first byte from continuation bytes: UTF-8 specifies that the first byte's top two bits are <code>11</code>, and continuation bytes' top two bits are <code>10</code>;</li>
-      <li>The number of consecutive <code>1</code>s at the start of the first byte indicates the total bytes. For example, <code>1110xxxx</code> means three bytes (as used for common Chinese characters).</li>
+      <li><strong>Inspect the Most Significant Bit (MSB):</strong> If the highest bit is <code>0</code>, it is a single-byte ASCII character. This maintains perfect parity with ASCII, where the MSB is always 0.</li>
+      <li><strong>Detect Multi-Byte Sequences:</strong> If the MSB is <code>1</code>, the character spans multiple bytes. To prevent parser synchronization errors, a leading byte always begins with the prefix <code>11</code>, whereas all trailing continuation bytes begin with the prefix <code>10</code>.</li>
+      <li><strong>Declare Sequence Length:</strong> The number of consecutive <code>1</code> bits at the start of a leading byte denotes the total byte count of the character. For example, a lead byte starting with <code>1110xxxx</code> flags a 3-byte sequence (common for CJK ideographs).</li>
     </ul>
 
-    <p>UTF-8 rules summarized: check the highest bit to determine single-byte vs. multi-byte. For multi-byte, use <code>11</code> and <code>10</code> to identify the first byte vs. continuation bytes. Count the consecutive <code>1</code>s at the start of the first byte to determine total byte count.</p>
+    <p>To summarize: the MSB acts as a single-byte vs. multi-byte gate. For multi-byte characters, the prefixes <code>11</code> and <code>10</code> cleanly separate lead bytes from trail bytes, and the count of leading <code>1</code>s defines the sequence boundaries.</p>
 
-    <p>For example, how does the program parse the byte sequence <code>01100001 11100101 10010101 10001010</code>?</p>
+    <p>For example, how does a parser process the raw byte stream <code>01100001 11100101 10010101 10001010</code>?</p>
 
     <ul>
-      <li>First byte (<code>01100001</code>): highest bit is 0 &rarr; single-byte character &rarr; Latin letter "a";</li>
-      <li>Second byte (<code>11100101</code>): starts with 1 &rarr; multi-byte. Top two bits are <code>11</code> &rarr; first byte of a multi-byte character. Count consecutive <code>1</code>s at the top: three <code>1</code>s (<code>1110</code>) &rarr; three bytes total. Check the next two bytes: both start with <code>10</code>, confirming they're continuation bytes. Parse all three bytes together &rarr; the Chinese character "&aring;" (ah).</li>
+      <li><strong>Byte 1 (<code>01100001</code>):</strong> The highest bit (MSB) is <code>0</code> &rarr; standalone ASCII character &rarr; parsed as the Latin letter "a".</li>
+      <li><strong>Byte 2 (<code>11100101</code>):</strong> The highest bit is <code>1</code> &rarr; multi-byte character. The top two bits are <code>11</code> &rarr; lead byte of a multi-byte sequence. Counting the leading <code>1</code>s reveals a three-byte character prefix (<code>1110</code>). The parser immediately scans the next two bytes.</li>
+      <li><strong>Bytes 3 and 4 (<code>10010101</code> and <code>10001010</code>):</strong> Both bytes begin with the <code>10</code> prefix, confirming they are valid continuation bytes. The parser extracts the payload bits from all three bytes to resolve a single character&mdash;the Chinese character "啊" (ah).</li>
     </ul>
 
-    <p>How does the code point for "&aring;" (U+554A) map into the multi-byte code units?</p>
+    <p>How does the abstract code point for "啊" (U+554A) translate physically into these multi-byte code units?</p>
 
-    <p>UTF-8 rules, intuitively:</p>
+    <p>We can map this process intuitively using the standard UTF-8 conversion template:</p>
 
-    <pre><code>Unicode range       | UTF-8 encoding          | Bytes
---------------------|-------------------------|------
-0000-007F           | 0xxxxxxx                | 1
-0080-07FF           | 110xxxxx 10xxxxxx       | 2
-0800-FFFF           | 1110xxxx 10xxxxxx 10xxxxxx | 3
-10000-10FFFF        | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx | 4</code></pre>
+    <pre><code>Unicode Codespace Range | UTF-8 Bit Template                  | Byte Width
+------------------------|-------------------------------------|-----------
+U+0000 to U+007F        | 0xxxxxxx                            | 1 byte
+U+0080 to U+07FF        | 110xxxxx 10xxxxxx                   | 2 bytes
+U+0800 to U+FFFF        | 1110xxxx 10xxxxxx 10xxxxxx          | 3 bytes
+U+10000 to U+10FFFF     | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx | 4 bytes</code></pre>
 
     <p><img src="images/utf-05.png" alt="UTF-8 encoding range table"></p>
 
-    <p>The rule is straightforward: copy the binary scalar value's bits directly into the <code>x</code> positions of the code units.</p>
+    <p>The serialization algorithm is simple: extract the raw binary bits of the abstract code point and map them sequentially into the placeholder <code>x</code> slots of the selected byte template.</p>
 
-    <p>For "&aring;" with code point U+554A, the binary scalar value is <code>00000 01010101 01001010</code>. From the table, it needs three bytes to store the lower 16 bits (bits above 16 are all 0). Three bytes have 24 bits total; minus 8 flag bits, exactly 16 bits remain for data:</p>
+    <p>The code point for "啊" is <code>U+554A</code>, which is represented in binary as the 16-bit value <code>01010101 01001010</code>. Referencing our template table, a 16-bit address falls within the <code>U+0800</code>&ndash;<code>U+FFFF</code> range, selecting the 3-byte template. This template has 24 bits total; subtracting the 8 prefix flag bits (<code>1110</code>, <code>10</code>, <code>10</code>) leaves exactly 16 bits of payload space:</p>
 
-    <pre><code>11100000 00000000 00000000   (template)
+    <pre><code>11100000 10000000 10000000   (3-Byte UTF-8 Template)
   +
-     01010101 01001010        (scalar value bits)
+     0101 010101 001010        (Raw Binary Bits of U+554A)
   =
-11100101 10010101 10001010   (UTF-8 encoding of U+554A)</code></pre>
+11100101 10010101 10001010   (Resulting UTF-8 Bytes: E5 95 8A)</code></pre>
 
     <p><img src="images/utf-07.png" alt="Chinese character ah UTF-8 encoding"></p>
 
-    <p>Beyond this intuitive understanding, UTF-8 rules can also be expressed mathematically (requiring separate formulas for each of the four encoding ranges), but we won't list them here.</p>
+    <p>While the conversion logic can also be expressed through formal algebra (using bitwise shifts and masks), this direct bit-substitution model represents the physical reality of the UTF-8 format.</p>
 
     <h2>UTF-32</h2>
 
-    <p>Unicode has one more encoding &mdash; the most intuitive but most space-wasting (and least used): <strong>UTF-32</strong>. It uses 4-byte (32-bit) code units. Every Unicode code point is represented with exactly 4 bytes. Since 4 bytes can accommodate any Unicode scalar value, it's the most straightforward representation &mdash; no flags or conversion needed.</p>
+    <p>The third major format is <strong>UTF-32</strong>. It represents the purest implementation of a fixed-width character set, mapping every Unicode code point to a single 32-bit (4-byte) code unit. Because a 32-bit integer easily accommodates the maximum Unicode scalar address, no complex flag bits or variable offsets are required.</p>
 
-    <p>For "&aring;" with code point U+554A, the binary scalar value is <code>1010101 01001010</code>. Its UTF-32 representation is <code>00000000 00000000 01010101 01001010</code> (ignoring endianness for now).</p>
+    <p>For the Chinese character "啊" (U+554A, binary: <code>01010101 01001010</code>), its UTF-32 representation is simply a 4-byte padded integer: <code>00000000 00000000 01010101 01001010</code> (ignoring byte order for the moment).</p>
 
-    <p>Like UTF-16, UTF-32 cannot be compatible with the ASCII standard.</p>
+    <p>However, because its fundamental code unit is 32 bits wide, UTF-32 cannot maintain backward compatibility with standard, 8-bit ASCII. Combined with its massive storage overhead, this incompatibility has relegated UTF-32 to a purely internal, in-memory representation inside databases and compilers where $O(1)$ string indexing is required.</p>
 
-    <h2>Big/Little Endian &amp; BOM</h2>
+    <h2>Byte Order (Endianness) and the BOM</h2>
 
-    <p>In our earlier article on the character encoding model, we mentioned that character encoding has endianness issues when stored in a computer. Only multi-byte code units (UTF-16, UTF-32) have endianness concerns; single-byte code units (UTF-8) do not.</p>
+    <p>As we outlined in our article on the character encoding model, physical data serialization must account for CPU endianness. This is exclusively a concern for multi-byte code units (such as UTF-16 and UTF-32); single-byte variable encodings (such as UTF-8) are inherently unaffected by byte order.</p>
 
-    <p>Using "&aring;" as an example, its encoding forms at the Character Encoding Form (CEF) layer are:</p>
+    <p>Using the Chinese character "啊" as an example, its representations at the Character Encoding Form (CEF) layer are structured in memory as:</p>
 
-    <pre><code>UTF-8:    E5 95 8A                  (3 code units, 1 byte each &mdash; no endianness)
-UTF-16:   55 4A                     (1 code unit, 2 bytes &mdash; endianness matters)
-UTF-32:   00 00 55 4A               (1 code unit, 4 bytes &mdash; endianness matters)</code></pre>
+    <pre><code>UTF-8:    E5 95 8A                  (3 code units, 1 byte each &mdash; no endianness concerns)
+UTF-16:   55 4A                     (1 code unit, 2 bytes wide &mdash; byte order matters)
+UTF-32:   00 00 55 4A               (1 code unit, 4 bytes wide &mdash; byte order matters)</code></pre>
 
-    <p>UTF-8's code unit width is 1 byte, so no endianness discussion needed.</p>
+    <p>Because UTF-8 processes data strictly as a sequential stream of single bytes, there is no endianness ambiguity.</p>
 
-    <p>UTF-16 and UTF-32 each use one code unit, but since their code unit width exceeds 1 byte, byte order matters.</p>
+    <p>However, because a single UTF-16 or UTF-32 code unit is wider than a single byte, we must explicitly declare how those bytes are serialized to disk or sent over a network:</p>
 
-    <p><strong>Big-endian</strong> stores the high byte first (high byte at low memory address; we call the left side "high" and the right side "low"). <strong>Little-endian</strong> stores the low byte first. Considering endianness, "&aring;" is encoded as:</p>
+    <p><strong>Big-Endian (BE)</strong> stores the most significant byte first (at the lower memory address). By contrast, <strong>Little-Endian (LE)</strong> writes the least significant byte first. Factoring in endianness, our character "啊" translates to distinct physical byte sequences:</p>
 
     <pre><code>UTF-16 BE:  55 4A
 UTF-16 LE:  4A 55
 UTF-32 BE:  00 00 55 4A
 UTF-32 LE:  4A 55 00 00</code></pre>
 
-    <p>Why do we need to consider endianness? Because text is stored on disk and shared across heterogeneous systems. When a program reads a file, how does it know whether the file uses big-endian or little-endian storage?</p>
+    <p>Why is this distinction so critical? When a text editor reads a file from disk, it has no native way to guess which byte order a foreign processor used to write the file.</p>
 
-    <p>To solve this, Unicode defines a special character: <strong>ZERO WIDTH NO-BREAK SPACE</strong> (a character with no width that doesn't cause line breaks), with code point <strong>U+FEFF</strong>. Multi-byte code unit encoding schemes (UTF-16, UTF-32) place this character's encoded value at the beginning of the file to indicate the encoding.</p>
+    <p>To resolve this, the Unicode standard reserves a special non-character code point: the <strong>ZERO WIDTH NO-BREAK SPACE (U+FEFF)</strong>. Multi-byte serialization schemes (UTF-16 and UTF-32) write the encoded form of this non-breaking space at the absolute beginning of the file as an explicit architectural signature.</p>
 
-    <p>Here's how U+FEFF is represented in different encodings:</p>
+    <p>Let's look at how <code>U+FEFF</code> is serialized across different formats:</p>
 
     <pre><code>UTF-8:     EF BB BF
 UTF-16 BE: FE FF
@@ -234,19 +233,19 @@ UTF-16 LE: FF FE
 UTF-32 BE: 00 00 FE FF
 UTF-32 LE: FF FE 00 00</code></pre>
 
-    <p>How does this character indicate the file's encoding? Simply place the character's encoded value at the file's beginning.</p>
+    <p>By inspecting the first few bytes of an incoming file, a parser can immediately deduce its structure.</p>
 
-    <p>When the program finds <code>FE FF</code> at the start, it knows the file is UTF-16 big-endian. If it finds <code>FF FE</code>, it's UTF-16 little-endian.</p>
+    <p>If the parser encounters <code>FE FF</code> at the offset, it configures itself for UTF-16 Big-Endian. If it encounters <code>FF FE</code>, it configures itself for UTF-16 Little-Endian.</p>
 
-    <p>Wait &mdash; how can we be sure that <code>FF FE</code> means UTF-16 little-endian and not the big-endian encoding of character U+FFFE? Unicode anticipated this: <strong>U+FFFE is designated as a non-character</strong> &mdash; it cannot represent any character and is permanently reserved. This eliminates the conflict.</p>
+    <p>But wait: how does the parser know that <code>FF FE</code> represents Little-Endian and not the Big-Endian serialization of the character <code>U+FFFE</code>? To make this check bulletproof, the standard explicitly designates <code>U+FFFE</code> as a permanent <strong>non-character</strong>. Because <code>U+FFFE</code> can never legally exist in any text file, there is zero risk of collision.</p>
 
-    <p>These byte values that identify the file's endianness have a special name: <strong>BOM (Byte Order Mark)</strong>.</p>
+    <p>This leading signature is known as the <strong>BOM (Byte Order Mark)</strong>.</p>
 
-    <p>UTF-8 doesn't need a byte order mark (since it has no endianness), but some UTF-8 files include a BOM (<code>EF BB BF</code>) to signal that the file is UTF-8 encoded (this is optional).</p>
+    <p>While UTF-8 has no native endianness and never requires a byte order mark, some Windows-centric text editors (most notably Notepad) write a UTF-8 BOM (the byte sequence <code>EF BB BF</code>) at the start of files purely to flag the file as UTF-8 rather than a legacy local code page.</p>
 
-    <p><strong>Warning:</strong> Some software doesn't handle the UTF-8 BOM well. The PHP interpreter, for example, cannot recognize the BOM. If you save a PHP file as "UTF-8 with BOM," the PHP interpreter treats the BOM bytes (<code>EF BB BF</code>) as regular characters. (The UTF-8 BOM is valid UTF-8 and won't cause parsing errors.) In PHP-FPM mode, these bytes are sent to the browser before any other output. Some browsers can't handle this correctly, potentially showing a small blank area on the page. Worse, since these bytes are sent before Cookie headers, they can cause Cookie setting to fail. <strong>Always save PHP files as UTF-8 without BOM.</strong></p>
+    <p><strong>Warning:</strong> A UTF-8 BOM can cause serious compilation and runtime errors in non-Windows environments. For instance, the PHP engine does not strip the BOM; it treats the bytes <code>EF BB BF</code> as standard text characters. In PHP-FPM execution, this causes the BOM to be flushed to the browser immediately on script execution. Because HTTP headers (like cookies and redirects) cannot be sent after output has already begun, this silent emission can break session cookies and redirects entirely. <strong>Always configure your development environment to save files as "UTF-8 without BOM."</strong></p>
 
-    <p>This concludes the character encoding series. You can find the earlier articles through the following links:</p>
+    <p>This concludes our series on character encodings. To review the preceding articles, you can follow the links below:</p>
 
     <ul>
       <li><a href="charset-encoding-1-pre-unicode.html">Character Encoding (Part 1): Before Unicode</a></li>

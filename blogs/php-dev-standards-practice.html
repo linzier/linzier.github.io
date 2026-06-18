@@ -9,7 +9,7 @@
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -20,52 +20,52 @@
     <h1>PHP Development Standards: In Practice</h1>
     <div class="meta">2020-04-26 | PHP</div>
 
-    <p>Coding standards are not about aesthetics. They are about reducing cognitive load. When every file in a codebase follows the same conventions, developers spend less time parsing format and more time understanding logic. Standards are a tax on discipline that pays dividends in maintainability. Here is a practical set of PHP development standards, battle-tested across multiple projects.</p>
+    <p>Coding standards are not about aesthetics; they are about reducing cognitive load. When every file in a codebase adheres to the same conventions, developers spend less time parsing formatting and more time understanding business logic. Standards represent a upfront tax on discipline that pays massive dividends in long-term maintainability. Below is a practical, battle-tested set of PHP development standards designed for modern, high-velocity engineering teams.</p>
 
     <h2>Part 1: Code Format</h2>
 
-    <p>The formatting rules below are based on PSR-1, PSR-2, and PSR-12, with some project-specific adjustments. The goal is consistency: any developer should be able to open any file and immediately feel at home.</p>
+    <p>The formatting guidelines below extend PSR-1, PSR-2, and PSR-12 with pragmatic, project-specific refinements. The primary goal is total consistency: any developer should be able to open any file and immediately feel at home.</p>
 
     <h3>Files</h3>
 
     <ul>
-      <li><strong>Encoding:</strong> UTF-8 without BOM. The BOM (Byte Order Mark) causes subtle issues with headers, session handling, and output buffering. There is no reason to use it.</li>
-      <li><strong>Closing tag:</strong> Omit the closing <code>?&gt;</code> tag for files that contain only PHP code. This prevents accidental whitespace from being sent as output, which can cause &ldquo;headers already sent&rdquo; errors.</li>
-      <li><strong>One file, one class:</strong> Each class should live in its own file. The filename should match the class name. This is not just a convention &mdash; it is required for PSR-4 autoloading to work correctly.</li>
+      <li><strong>Encoding:</strong> UTF-8 without BOM. The BOM (Byte Order Mark) introduces invisible noise that disrupts headers, session initialization, and output buffering. There is no legitimate reason to include it in modern environments.</li>
+      <li><strong>Closing tag:</strong> Strictly omit the closing <code>?&gt;</code> tag for files containing exclusively PHP code. This prevents trailing whitespace from being flushed to the output stream, avoiding frustrating "headers already sent" errors.</li>
+      <li><strong>One file, one class:</strong> Each class must reside in its own dedicated file, named precisely after the class itself. This is not just a stylistic rule &mdash; it is a structural prerequisite for PSR-4 autoloading.</li>
     </ul>
 
     <h3>Lines</h3>
 
     <ul>
-      <li><strong>Maximum line length:</strong> 80 characters. Lines longer than 80 characters should be split into multiple lines. This is not about fitting on an 80-column terminal &mdash; it is about readability during code review, side-by-side diffs, and printing.</li>
-      <li><strong>No trailing whitespace:</strong> Trailing spaces are invisible noise. They cause meaningless diff entries and indicate sloppiness. Configure your editor to strip trailing whitespace on save.</li>
-      <li><strong>Line endings:</strong> Use LF (<code>\n</code>) consistently. Do not mix LF and CRLF.</li>
+      <li><strong>Maximum line length:</strong> 80 characters. Lines exceeding this limit must be wrapped or split across multiple lines. This is not a historical artifact of 80-column terminals; rather, it keeps code readable during code reviews, side-by-side git diffs, and on smaller screens.</li>
+      <li><strong>No trailing whitespace:</strong> Trailing spaces are invisible noise. They pollute git diffs and signal a lack of craftsmanship. Configure your editor to strip trailing whitespace automatically on save.</li>
+      <li><strong>Line endings:</strong> Use Unix-style line feeds (LF, <code>\n</code>) exclusively. Do not commit Windows-style CRLF line endings.</li>
     </ul>
 
     <h3>Indentation</h3>
 
     <ul>
-      <li><strong>4 spaces.</strong> Not tabs. Not 2 spaces. Four spaces. Tabs render differently in different editors, causing visual inconsistency. Spaces are universal.</li>
+      <li><strong>4 spaces.</strong> Do not use tabs or 2-space indentation. Tabs render inconsistently across different editors and code viewers, whereas spaces guarantee visual predictability everywhere.</li>
     </ul>
 
     <h3>Naming Conventions</h3>
 
     <ul>
-      <li><strong>Classes:</strong> <code>CamelCase</code> (upper camel case / Pascal case). Examples: <code>UserController</code>, <code>OrderRepository</code>, <code>PaymentGateway</code>.</li>
+      <li><strong>Classes:</strong> <code>PascalCase</code> (upper camel case). Examples: <code>UserController</code>, <code>OrderRepository</code>, <code>PaymentGateway</code>.</li>
       <li><strong>Methods:</strong> <code>camelCase</code> (lower camel case). Examples: <code>getUserById</code>, <code>calculateTotal</code>, <code>isValid</code>.</li>
       <li><strong>Constants:</strong> <code>UPPER_SNAKE_CASE</code>. Examples: <code>MAX_RETRY_COUNT</code>, <code>DEFAULT_PAGE_SIZE</code>, <code>STATUS_ACTIVE</code>.</li>
-      <li><strong>Variables:</strong> <code>$camelCase</code>. Descriptive names. <code>$user</code> is fine. <code>$u</code> is not. <code>$data</code> is too vague &mdash; use <code>$userData</code>, <code>$orderData</code>, or something specific.</li>
-      <li><strong>Boolean variables and methods:</strong> Prefix with <code>is</code>, <code>has</code>, <code>can</code>, <code>should</code>. Examples: <code>$isActive</code>, <code>hasPermission()</code>, <code>canExecute()</code>. This makes the intent immediately clear at the call site.</li>
+      <li><strong>Variables:</strong> <code>$camelCase</code>. Strive for descriptive variable names. While <code>$user</code> is perfectly acceptable, single-character names like <code>$u</code> are forbidden. Avoid vague terms like <code>$data</code> &mdash; opt for <code>$userData</code> or <code>$orderPayload</code> instead.</li>
+      <li><strong>Boolean variables and methods:</strong> Always prefix with <code>is</code>, <code>has</code>, <code>can</code>, or <code>should</code>. Examples: <code>$isActive</code>, <code>hasPermission()</code>, <code>canExecute()</code>. This makes the variable's intent immediately apparent at the call site.</li>
     </ul>
 
     <h3>Control Structures</h3>
 
     <ul>
-      <li>One space after the control structure keyword (<code>if</code>, <code>for</code>, <code>while</code>), one space before the opening brace.</li>
-      <li>Opening brace on the same line as the control structure keyword.</li>
-      <li>Closing brace on its own line, aligned with the control structure keyword.</li>
-      <li>Always use braces, even for single-line bodies. <code>if ($x) doSomething();</code> is forbidden. It is a maintenance hazard &mdash; someone will add a second line and forget the braces.</li>
-      <li><code>elseif</code> is one word, not <code>else if</code>.</li>
+      <li>Insert exactly one space after control structure keywords (<code>if</code>, <code>for</code>, <code>while</code>) and one space before the opening brace.</li>
+      <li>Place the opening brace on the same line as the control structure keyword.</li>
+      <li>Place the closing brace on its own line, aligned vertically with the control structure keyword.</li>
+      <li>Always use braces, even for single-line blocks. Single-line statements like <code>if ($x) doSomething();</code> are strictly forbidden. This is a prominent maintenance hazard &mdash; a developer will eventually append a second statement and inadvertently bypass the conditional check.</li>
+      <li>Write <code>elseif</code> as a single word, not <code>else if</code>.</li>
     </ul>
 
     <pre><code>// Correct
@@ -85,19 +85,19 @@ if ($condition)
     <h3>Braces and Spacing</h3>
 
     <ul>
-      <li>Function and method declarations: opening brace on the <strong>next line</strong> (following the PSR-2/12 style for class methods).</li>
-      <li>Function calls: no space between the function name and the opening parenthesis.</li>
-      <li>Binary operators: one space on each side (<code>$a + $b</code>, not <code>$a+$b</code>).</li>
-      <li>Unary operators: no space between the operator and the operand (<code>!$flag</code>, not <code>! $flag</code>).</li>
-      <li>Commas: followed by a space (<code>foo($a, $b, $c)</code>).</li>
-      <li>Array declarations: use short syntax <code>[]</code>, not <code>array()</code>.</li>
+      <li>Function and method declarations: place the opening brace on the <strong>next line</strong> (following PSR-2/12 conventions for class methods).</li>
+      <li>Function calls: omit any spaces between the function name and the opening parenthesis.</li>
+      <li>Binary operators: place exactly one space on each side (use <code>$a + $b</code>, not <code>$a+$b</code>).</li>
+      <li>Unary operators: omit spaces between the operator and its operand (use <code>!$flag</code>, not <code>! $flag</code>).</li>
+      <li>Commas: always follow a comma with a single space (e.g., <code>foo($a, $b, $c)</code>).</li>
+      <li>Array declarations: use the short array syntax <code>[]</code> exclusively; never use the legacy <code>array()</code> construct.</li>
     </ul>
 
     <h3>Closures (Anonymous Functions)</h3>
 
     <ul>
-      <li>Add a space after the <code>function</code> keyword and before the <code>use</code> keyword.</li>
-      <li>Opening brace on the same line.</li>
+      <li>Add a single space after the <code>function</code> keyword and before the <code>use</code> keyword.</li>
+      <li>Place the opening brace on the same line.</li>
       <li>The <code>use</code> clause imports variables from the parent scope.</li>
     </ul>
 
@@ -108,30 +108,30 @@ if ($condition)
     <h3>Comments</h3>
 
     <ul>
-      <li><strong>Doc comments:</strong> Use <code>/** ... */</code> for classes, methods, and properties. Include <code>@param</code>, <code>@return</code>, and <code>@throws</code> annotations.</li>
-      <li><strong>Inline comments:</strong> Use <code>//</code> for single-line comments. Place the comment on the line above the code it describes, not on the same line (unless it is a very short note).</li>
-      <li><strong>Comment in English.</strong> Code comments should be written in English, even if the team primarily speaks another language. This ensures that non-native speakers and future tooling can process them.</li>
-      <li><strong>Comment the &ldquo;why,&rdquo; not the &ldquo;what.&rdquo;</strong> The code tells you what it does. The comment should explain why it does it that way. If you find yourself writing a comment that restates the code, rewrite the code to be clearer instead.</li>
+      <li><strong>Doc comments:</strong> Use structured DocBlocks (<code>/** ... */</code>) for all classes, methods, and properties. Ensure accurate <code>@param</code>, <code>@return</code>, and <code>@throws</code> annotations are provided.</li>
+      <li><strong>Inline comments:</strong> Use single-line comments (<code>//</code>). Place the comment on the line immediately preceding the target code block, rather than appending it inline (except for very brief notes).</li>
+      <li><strong>Write comments in English.</strong> Code comments must be written in English. This ensures that the codebase remains globally accessible to all developers and automated analysis tools.</li>
+      <li><strong>Document the "why," not the "what."</strong> Code describes the mechanism; comments must explain the intent. If a comment merely restates what the code does, the code should be rewritten for clarity, and the comment removed.</li>
     </ul>
 
     <h2>Part 2: Program Design</h2>
 
-    <p>Code format is the surface. Program design is the substance. These rules govern how we structure logic, handle errors, manage state, and build APIs.</p>
+    <p>While formatting defines the surface structure, program design dictates system behavior, error resilience, state integrity, and API quality.</p>
 
     <h3>Exceptions</h3>
 
     <ul>
-      <li><strong>Throw exceptions to signal errors.</strong> Do not return error codes, error strings, or <code>false</code> to indicate failure. Exceptions force the caller to acknowledge the error (either catch it or let it propagate). Return values can be silently ignored.</li>
-      <li><strong>Exception: controller layer.</strong> At the controller (or HTTP handler) level, catch exceptions and convert them to appropriate HTTP responses. The controller is the boundary between the application&rsquo;s internal error model and the external HTTP error model.</li>
-      <li><strong>Use specific exception types.</strong> Do not throw generic <code>\Exception</code>. Create domain-specific exceptions: <code>UserNotFoundException</code>, <code>InsufficientBalanceException</code>, <code>PaymentGatewayTimeoutException</code>. This allows callers to catch and handle specific error conditions.</li>
-      <li><strong>Include context in exceptions.</strong> An exception message should include enough information to diagnose the problem without reading the code. Include the relevant entity ID, the operation that failed, and any relevant state.</li>
+      <li><strong>Leverage exceptions to signal exceptional outcomes.</strong> Never return error codes, status strings, or <code>false</code> to indicate a failure. Exceptions force callers to actively handle the failure or allow it to propagate safely; return values, by contrast, are easily ignored.</li>
+      <li><strong>Exception handling in the controller layer:</strong> At the entry point (the HTTP controller or CLI command), catch exceptions and translate them into appropriate HTTP status codes or CLI exit codes. The controller serves as the boundary between the system's internal exceptions and external error models.</li>
+      <li><strong>Throw specific, domain-driven exceptions.</strong> Avoid throwing generic, uninformative instances of <code>\Exception</code>. Instead, create precise, semantic exceptions such as <code>UserNotFoundException</code>, <code>InsufficientBalanceException</code>, or <code>PaymentGatewayTimeoutException</code>.</li>
+      <li><strong>Include rich contextual details.</strong> An exception message must provide sufficient diagnostic detail to isolate the issue without forcing a developer to step through code. Embed key identifiers, the attempted operation, and relevant state boundaries.</li>
     </ul>
 
-    <h3>Status Codes and Error Codes</h3>
+    <h3>Status and Error Codes</h3>
 
     <ul>
-      <li><strong>Define error codes as constants.</strong> Every distinct error condition should have a unique, named constant. Never use magic numbers or strings.</li>
-      <li><strong>One code per error.</strong> Each error condition must have a unique code. Do not reuse the same code for different errors. This makes debugging and monitoring impossible.</li>
+      <li><strong>Define error codes as explicit constants.</strong> Every distinct error state must be mapped to a named, immutable constant. Magic numbers or hardcoded strings are strictly forbidden.</li>
+      <li><strong>Maintain uniqueness.</strong> Each unique error scenario must correspond to a distinct, unique code. Reusing error codes across different failures makes log aggregation and automated monitoring impossible.</li>
     </ul>
 
     <pre><code>class ErrorCode
@@ -146,45 +146,45 @@ if ($condition)
     <h3>Logging</h3>
 
     <ul>
-      <li><strong>Follow PSR-3.</strong> Use the PSR-3 logger interface. This ensures that your logging code is decoupled from the logging implementation (Monolog, etc.).</li>
-      <li><strong>Application layer preferred.</strong> Log at the application/service layer, not at the infrastructure layer. The database layer should not log every query. The service layer should log significant business operations.</li>
-      <li><strong>Log levels matter.</strong> Use <code>ERROR</code> for things that need immediate attention. Use <code>WARNING</code> for things that are unexpected but recoverable. Use <code>INFO</code> for significant business events. Use <code>DEBUG</code> for development-time diagnostics. Do not log everything at <code>INFO</code> level.</li>
-      <li><strong>Structured logging.</strong> Use context arrays, not string interpolation. <code>$logger-&gt;error('Payment failed', ['orderId' =&gt; $id, 'error' =&gt; $e-&gt;getMessage()])</code> is better than <code>$logger-&gt;error("Payment failed for order $id: " . $e-&gt;getMessage())</code>.</li>
+      <li><strong>Adhere to PSR-3.</strong> Always consume the standard PSR-3 logger interface. This keeps your logging infrastructure decoupled from concrete backends like Monolog or Logstash.</li>
+      <li><strong>Prefer application-level logging.</strong> Log operations at the application/service boundary rather than deep within infrastructure layers. Avoid logging every database query; instead, log significant domain lifecycle events and transactional outcomes.</li>
+      <li><strong>Utilize accurate log levels.</strong> Restrict <code>ERROR</code> for incidents requiring immediate intervention. Use <code>WARNING</code> for unexpected, non-fatal anomalies. Reserve <code>INFO</code> for major lifecycle transitions and business milestones, and use <code>DEBUG</code> strictly for diagnostics. Avoid standardizing on generic <code>INFO</code> logs.</li>
+      <li><strong>Ensure structured logging.</strong> Leverage context arrays instead of interpolating variables into log messages. Use <code>$logger-&gt;error('Payment processing failed', ['orderId' =&gt; $id, 'error' =&gt; $e-&gt;getMessage()])</code> instead of <code>$logger-&gt;error("Payment processing failed for order $id: " . $e-&gt;getMessage())</code>.</li>
     </ul>
 
     <h3>Caching</h3>
 
     <ul>
-      <li><strong>Follow PSR-16 (Simple Cache).</strong> Use the PSR-16 interface for cache operations. This decouples your code from the cache backend (Redis, Memcached, file, etc.).</li>
-      <li><strong>Always set a TTL.</strong> Every cache entry must have a time-to-live. Cache entries without TTL accumulate indefinitely, consuming memory and serving stale data. Choose a TTL appropriate to the data&rsquo;s volatility: 5 minutes for frequently changing data, 1 hour for moderately stable data, 24 hours for rarely changing data.</li>
-      <li><strong>Cache invalidation strategy.</strong> Define how cache entries are invalidated when the underlying data changes. Options: TTL-based expiry, event-driven invalidation (delete cache on write), or versioned keys.</li>
+      <li><strong>Adhere to PSR-16 (Simple Cache).</strong> Consume the PSR-16 cache interface to keep your application logic independent of storage backends (such as Redis, Memcached, or in-memory arrays).</li>
+      <li><strong>Always specify a explicit TTL.</strong> Every cached entry must be bound to a definitive Time-to-Live. Caching without a TTL introduces silent memory leaks and stale state issues. Tailor TTL boundaries to data volatility: 5 minutes for dynamic data, 1 hour for moderate stability, and 24 hours for near-static lookup tables.</li>
+      <li><strong>Implement clear invalidation policies.</strong> Standardize on how entries are evicted when underlying entities change &mdash; whether via immediate deletion on write, event-driven listeners, or key versioning.</li>
     </ul>
 
-    <h3>Database</h3>
+    <h3>Database Interactions</h3>
 
     <ul>
-      <li><strong>Field comments.</strong> Every database column must have a comment explaining its purpose, especially for non-obvious fields. This is documentation that lives with the data and is visible in any database client.</li>
-      <li><strong>No multi-meaning fields.</strong> A field should represent exactly one thing. A <code>status</code> field that means different things depending on the value of another field is a design flaw. It makes queries confusing and bugs likely.</li>
-      <li><strong>Proper indexes.</strong> Every query that runs frequently should be analyzed for index usage. Use <code>EXPLAIN</code> to verify. Composite indexes should follow the leftmost prefix rule. Do not add indexes blindly &mdash; each index has a write cost.</li>
-      <li><strong>No <code>SELECT *</code>.</strong> Always specify the columns you need. <code>SELECT *</code> wastes network bandwidth, breaks when columns are added or removed, and prevents covering index optimizations.</li>
-      <li><strong>No remote calls in transactions.</strong> A database transaction should be as short as possible. Never make HTTP calls, send messages to a queue, or call external services while a transaction is open. Remote calls are slow and unreliable &mdash; if they timeout, your transaction holds locks for an extended period, potentially causing cascading failures.</li>
+      <li><strong>Mandate column comments.</strong> Every database table column must feature a clear comment explaining its function, particularly for flags and legacy status fields. This acts as self-updating documentation that is instantly visible to any developer querying the database.</li>
+      <li><strong>Abolish overloaded, multi-meaning columns.</strong> A column must represent exactly one piece of information. Overloading a <code>status</code> column to mean different things depending on the value of a sibling column is a severe architectural flaw that complicates queries and breeds subtle bugs.</li>
+      <li><strong>Optimize index coverage.</strong> Every query path executed regularly must be validated for index efficiency using <code>EXPLAIN</code>. Design composite indexes based on the leftmost prefix rule. Avoid adding indexes blindly, as each index incurs a write-performance penalty.</li>
+      <li><strong>Explicitly define columns in queries; avoid <code>SELECT *</code>.</strong> Only request columns that are strictly necessary for the operation. Using <code>SELECT *</code> wastes network throughput, breaks application code when database schemas change, and prevents query planners from leveraging covering indexes.</li>
+      <li><strong>Strictly forbid remote network calls within database transactions.</strong> Keep your transactions as short and fast as possible. Never make HTTP requests, publish messages to external brokers, or invoke third-party services while a database transaction is active. Network latency is unpredictable; holding a transaction open while waiting on a remote endpoint locks database rows, frequently causing cascading thread pool exhaustion.</li>
     </ul>
 
     <h3>Controllers</h3>
 
     <ul>
-      <li><strong>No static methods.</strong> Controller methods should be instance methods. Static methods make testing difficult, prevent dependency injection, and create hidden coupling.</li>
-      <li><strong>No business logic.</strong> The controller&rsquo;s job is to receive the HTTP request, delegate to a service/handler, and return the HTTP response. Business logic belongs in the service layer. If your controller method is longer than 20 lines, it is doing too much.</li>
+      <li><strong>Forbid static controller methods.</strong> Controller methods must always be instance methods. Static methods inhibit test-double substitution, prevent clean dependency injection, and introduce tight, invisible coupling.</li>
+      <li><strong>Banish business logic from controllers.</strong> A controller's single responsibility is to receive an incoming HTTP request, validate its structure, delegate orchestration to an application service, and return an HTTP response. If a controller method exceeds 20 lines, it is doing too much and must be refactored.</li>
     </ul>
 
-    <pre><code>// Correct: thin controller
+    <pre><code>// Correct: Thin, compliant controller
 class OrderController
 {
     public function store(Request $request, OrderService $orderService): Response
     {
         $data = $request-&gt;validate([
-            'product_id' =&gt; 'required|integer',
-            'quantity'   =&gt; 'required|integer|min:1',
+            'product_id' => 'required|integer',
+            'quantity'   => 'required|integer|min:1',
         ]);
 
         $order = $orderService-&gt;createOrder($data);
@@ -193,23 +193,23 @@ class OrderController
     }
 }</code></pre>
 
-    <h3>Session</h3>
+    <h3>Session Management</h3>
 
     <ul>
-      <li><strong>Only store session context.</strong> The session should contain only the information needed to identify the user and their session state: user ID, authentication token, CSRF token, locale preference. Do not store business data in the session. Do not store large objects. Do not use the session as a convenience cache.</li>
-      <li><strong>Regenerate session ID after authentication.</strong> Prevent session fixation attacks by regenerating the session ID when the user&rsquo;s authentication state changes.</li>
+      <li><strong>Limit session data to context identifiers.</strong> Sessions must only store minimal context required to authenticate and authorize a user: user ID, active session tokens, CSRF tokens, and localization preferences. Never store domain objects, large arrays, or business payloads in sessions; use dedicated cache stores instead.</li>
+      <li><strong>Regenerate session IDs upon authentication transitions.</strong> Protect against session fixation attacks by immediately regenerating the session identifier whenever a user's privilege level changes (such as logging in or out).</li>
     </ul>
 
     <h3>API Design</h3>
 
     <ul>
-      <li><strong>Documentation.</strong> Every API endpoint must have documentation: request parameters, response format, error codes, and example requests/responses. Undocumented APIs are unusable APIs.</li>
-      <li><strong>Backward compatibility.</strong> Once an API is published, do not break it. Do not remove fields from responses. Do not change field types. Do not change the meaning of parameters. If you need to make breaking changes, create a new version (<code>/v2/</code>).</li>
-      <li><strong>Idempotency.</strong> Operations that modify state should be idempotent where possible. PUT and DELETE are naturally idempotent. For POST operations that should not be duplicated (e.g., payment processing), require an idempotency key in the request header.</li>
-      <li><strong>Consistent response structure.</strong> All API responses should follow the same envelope format. Success and error responses should be structurally identical, differing only in the status code and error details.</li>
+      <li><strong>Mandate up-to-date documentation.</strong> Every API endpoint must have clear documentation detailing request payloads, response schemas, and specific error codes. An undocumented API is a non-functional API.</li>
+      <li><strong>Preserve backward compatibility.</strong> Once an API is published, do not introduce breaking changes. Never drop response fields, change data types, or modify parameter constraints. If breaking changes are unavoidable, expose them via a new API version (e.g., <code>/v2/</code>).</li>
+      <li><strong>Enforce idempotency boundaries.</strong> State-modifying operations should be designed to be idempotent where feasible. While PUT and DELETE are naturally idempotent, POST operations must be protected using unique idempotency keys in request headers (e.g., to prevent double-charging on payment endpoints).</li>
+      <li><strong>Standardize response envelopes.</strong> Maintain a uniform payload structure across all endpoints. Success and failure structures should be identical, differing only in the metadata, payload, and HTTP status code.</li>
     </ul>
 
-    <pre><code>// Success response
+    <pre><code>// Success Envelope
 {
     "code": 0,
     "message": "success",
@@ -219,38 +219,38 @@ class OrderController
     }
 }
 
-// Error response
+// Error Envelope
 {
     "code": 20001,
     "message": "Insufficient balance",
     "data": null
 }</code></pre>
 
-    <h3>Other Rules</h3>
+    <h3>Other Core Rules</h3>
 
     <ul>
-      <li><strong>No code duplication.</strong> If you copy-paste code, you have created a maintenance burden. Extract the common logic into a function or method. The DRY principle (Don&rsquo;t Repeat Yourself) is not optional.</li>
-      <li><strong>Maximum 120 lines per method.</strong> If a method exceeds 120 lines, it is doing too much. Break it into smaller methods. Each method should do one thing and do it well. This is not just about readability &mdash; long methods are harder to test, harder to debug, and more likely to contain bugs.</li>
-      <li><strong>No side effects in query methods.</strong> A method whose name suggests it retrieves data (<code>getUser</code>, <code>findOrders</code>, <code>calculateTotal</code>) must not modify state. Query methods should be pure: same input, same output, no side effects. If a method both queries and modifies, its name should reflect both actions, or better yet, it should be split into two methods.</li>
-      <li><strong>Fail fast.</strong> Validate inputs at the beginning of a method. If a parameter is invalid, throw an exception immediately. Do not let invalid data propagate deep into the call stack before failing. Early failure is cheap failure.</li>
+      <li><strong>Abolish duplicate code.</strong> Copy-pasting code is a form of technical debt. Extract shared logic into reusable, testable helper functions or utility classes. Adherence to the DRY (Don't Repeat Yourself) principle is a non-negotiable requirement.</li>
+      <li><strong>Cap method length at 120 lines.</strong> A method exceeding 120 lines is overloaded with multiple responsibilities. Decompose it into smaller, cohesive methods that each do one thing exceptionally well. Shorter methods are significantly easier to inspect, test, and maintain.</li>
+      <li><strong>Strictly separate commands from queries.</strong> Any method whose name implies data retrieval (e.g., <code>getUser</code>, <code>findOrders</code>, <code>calculateTotal</code>) must not introduce side effects or modify state. Keep query methods pure and deterministic. If a method must perform both operations, its name must clearly reflect the mutation, or preferably, be decomposed.</li>
+      <li><strong>Implement Fail-Fast validation.</strong> Assert input preconditions immediately at the start of a method block. If an argument is malformed, throw a specific exception immediately. This prevents invalid data from propagating deep into the call stack, isolating failures early when they are cheapest to handle.</li>
     </ul>
 
-    <h2>Enforcement</h2>
+    <h2>Enforcement Mechanisms</h2>
 
-    <p>Standards without enforcement are just suggestions. Here is how to make them stick:</p>
+    <p>Standards without automated enforcement are nothing more than polite suggestions. To ensure these rules remain unbreakable:</p>
 
     <ul>
-      <li><strong>Automated tools.</strong> Use PHP_CodeSniffer with a PSR-12 ruleset. Integrate it into your CI pipeline. Code that does not pass the linter does not get merged. No exceptions.</li>
-      <li><strong>Static analysis.</strong> Use PHPStan or Psalm at a reasonable level (level 5 or higher). These tools catch type errors, undefined variables, and logic bugs that a linter cannot.</li>
-      <li><strong>Code review.</strong> Every pull request should be reviewed by at least one other developer. Reviewers should check not just for correctness, but for adherence to these standards.</li>
-      <li><strong>Lead by example.</strong> Senior developers must follow the standards themselves. If the team lead writes code that violates the standards, the standards become meaningless.</li>
+      <li><strong>Automate formatting checks:</strong> Integrate PHP_CodeSniffer with strict PSR-12 rule mappings into your continuous integration (CI) pipeline. Block any merge requests that fail formatting checks.</li>
+      <li><strong>Leverage static analysis:</strong> Mandate tools like PHPStan or Psalm at level 5 or higher. Static analysis proactively catches type mismatches, undefined references, and logic bugs long before code reaches production.</li>
+      <li><strong>Standardize code reviews:</strong> Require at least one peer approval before merging. Reviewers must inspect incoming code not only for immediate correctness but also for alignment with these design standards.</li>
+      <li><strong>Lead by example:</strong> Senior engineers must champion these conventions. If leadership cuts corners and bypasses standards, the conventions will quickly be ignored by the rest of the team.</li>
     </ul>
 
     <h2>Summary</h2>
 
-    <p>Development standards are an investment. They cost time to establish, discipline to maintain, and courage to enforce. But the return is substantial: codebases that are readable, maintainable, and debuggable. New team members who can be productive in days, not weeks. Bugs that are caught before they reach production.</p>
+    <p>Adopting engineering standards is a long-term investment. It demands immediate setup time, rigorous daily discipline, and the courage to block substandard code. However, the return on investment is massive: highly readable, uniform, and self-documenting codebases, frictionless onboarding for new developers, and an engineering culture where bugs are isolated and eliminated in staging rather than production.</p>
 
-    <p>The standards described here are not unique to any team. They are distilled from PSR-1, PSR-2, PSR-3, PSR-12, and decades of collective industry experience. Adopt them, adapt them to your context, and enforce them consistently. Your future self &mdash; and your future teammates &mdash; will thank you.</p>
+    <p>The rules outlined here represent industry-standard best practices, refined by decades of combined development experience. Adapt them to your team's specific requirements, automate their enforcement, and hold your codebase to a higher standard. Your future self &mdash; and your production stability &mdash; will thank you.</p>
 
   </article>
 </div>

@@ -9,7 +9,7 @@
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -20,21 +20,21 @@
     <h1>IP: The Network's Drum-Passing Game</h1>
     <div class="meta">2022-01-20 | Networking</div>
 
-    <p>Imagine a children's game: you pass a drum from person to person, each person handing it to the next until it reaches the performer. The internet works in a remarkably similar way. Your data &mdash; an email, a web page, a video &mdash; is broken into small chunks called <strong>packets</strong>, and these packets hop from router to router across the globe until they reach their destination.</p>
+    <p>Imagine a classic children's game: you pass an object from person to person, each handing it off to the next as quickly as possible until it reaches its target. The internet operates in a remarkably similar way. Your data &mdash; an email, a web page, a video &mdash; is broken down into small chunks called <strong>packets</strong>, and these packets hop from router to router across the globe until they reach their destination.</p>
 
     <p>This is the world of <strong>IP</strong> (Internet Protocol), the fundamental protocol that makes the internet possible.</p>
 
     <h2>IP as a Relay Race</h2>
 
-    <p>When you send data over the internet, it does not travel in one continuous stream from your computer to the destination server. Instead, it is chopped into small pieces called <strong>packets</strong>. Each packet is an independent unit that makes its own way across the network.</p>
+    <p>When you send data over the internet, it does not travel in one continuous stream from your computer to the destination server. Instead, it is segmented into small, self-contained units called <strong>packets</strong>, each charting its own path across the network.</p>
 
-    <p>Think of it like a relay race. A packet starts at your computer and is handed to your local router. The router looks at the packet's destination address and passes it to the next router. That router passes it to the next, and so on, until the packet reaches its destination.</p>
+    <p>Think of it as a global relay race. A packet starts at your computer and is handed off to your local router. The router inspects the packet's destination address and forwards it to the next hop. That router passes it to the next, and so on, until the packet arrives at its final destination.</p>
 
-    <p>Each "handoff" is called a <strong>hop</strong>. A typical packet might make 10 to 20 hops on its journey from your computer to a server on the other side of the world. Each hop takes a small amount of time (usually a few milliseconds), and the total journey might take anywhere from a few milliseconds to a few seconds.</p>
+    <p>Each "handoff" is called a <strong>hop</strong>. A typical packet might make 10 to 20 hops on its journey from your computer to a server on the other side of the world. Each hop takes a fraction of a second (usually a few milliseconds), and the entire journey is completed in the blink of an eye.</p>
 
-    <p>Here is the remarkable part: different packets from the same message might take different routes. Packet 1 might go through New York, while Packet 2 goes through London. The network is dynamic &mdash; routers go down, links get congested, and the routing system adapts in real time.</p>
+    <p>Here is the ingenious part: different packets from the same message don't have to take the same route. Packet 1 might route through New York, while Packet 2 transits through London. The network is highly dynamic &mdash; routers go down, links get congested, and the routing system adapts in real time.</p>
 
-    <p>This is called <strong>packet switching</strong>, and it is the fundamental design principle of the internet. It is what makes the internet robust, scalable, and efficient.</p>
+    <p>This is called <strong>packet switching</strong>, and it is the foundational design principle of the internet. It is what makes the internet incredibly robust, scalable, and efficient.</p>
 
     <h2>IP Addresses: The Network's Phone Book</h2>
 
@@ -46,7 +46,7 @@
 
     <p>For example: <code>192.168.1.100</code></p>
 
-    <p>This is actually the number 192&times;256&sup3; + 168&times;256&sup2; + 1&times;256 + 100 = 3,232,235,876. But nobody writes it that way.</p>
+    <p>This is actually the number 192&times;256&sup3; + 168&times;256&sup2; + 1&times;256 + 100 = 3,232,235,876. But thankfully, nobody writes it that way.</p>
 
     <p>An IPv4 address has two parts:</p>
 
@@ -75,7 +75,7 @@
 
     <h3>IPv6: The Next Generation</h3>
 
-    <p>IPv4 provides about 4.3 billion addresses (2&sup3;2;). That sounds like a lot, but with the explosion of internet-connected devices, we ran out. IPv6 was designed to solve this problem by using 128-bit addresses, providing 3.4&times;10&sup3;&sup8; addresses &mdash; enough to give every grain of sand on Earth its own IP address.</p>
+    <p>While IPv4 provides about 4.3 billion addresses (2&sup3;&sup2;), the explosion of internet-connected devices has exhausted this pool. IPv6 was designed to solve this crisis by using 128-bit addresses, providing 3.4&times;10&sup3;&sup8; addresses &mdash; enough to assign a unique IP address to every single grain of sand on Earth.</p>
 
     <p>IPv6 addresses are written in hexadecimal, with eight groups of four hex digits separated by colons:</p>
 
@@ -89,15 +89,15 @@
 
     <h2>Routing: How Routers Decide Where to Forward Packets</h2>
 
-    <p>When a router receives a packet, it needs to decide where to send it next. This process is called <strong>routing</strong>.</p>
+    <p>When a router receives a packet, it must determine where to send it next. This process is known as <strong>routing</strong>.</p>
 
-    <p>Every router maintains a <strong>routing table</strong>, which is essentially a map of the network. The routing table tells the router: "To reach network X, send the packet to router Y" (where router Y is called the <strong>next hop</strong>).</p>
+    <p>Every router maintains a <strong>routing table</strong>, which acts as a map of the network. The routing table tells the router: "To reach network X, forward the packet to router Y" (where router Y is called the <strong>next hop</strong>).</p>
 
-    <p>When a packet arrives, the router examines the destination IP address, looks it up in the routing table, and forwards the packet to the appropriate next hop. If no matching route is found, the packet is dropped and an error message (ICMP Destination Unreachable) is sent back to the sender.</p>
+    <p>When a packet arrives, the router inspects its destination IP address, looks it up in the routing table, and dispatches it to the correct next hop. If no route matches, the packet is discarded, and an ICMP "Destination Unreachable" error is sent back to the sender.</p>
 
     <h3>How Routing Tables Are Built</h3>
 
-    <p>Routing tables are not manually configured (except for small networks). Instead, routers use <strong>routing protocols</strong> to exchange information and build their tables automatically.</p>
+    <p>Except in small networks, routing tables are rarely configured manually. Instead, routers use <strong>routing protocols</strong> to dynamically exchange information and build their tables automatically.</p>
 
     <p>There are two main types of routing protocols:</p>
 
@@ -106,18 +106,18 @@
       <li><strong>Exterior Gateway Protocols (EGPs):</strong> Used between different autonomous systems. The protocol used on the public internet is <strong>BGP</strong> (Border Gateway Protocol). BGP is the glue that holds the internet together &mdash; it allows different networks (ISPs, companies, universities) to exchange routing information and reach each other.</li>
     </ul>
 
-    <p>BGP is a complex, policy-driven protocol. Unlike IGPs, which focus on finding the shortest path, BGP allows network administrators to express preferences and policies. For example, a company might prefer to send traffic through one ISP over another, even if the other path is technically shorter.</p>
+    <p>BGP is a sophisticated, policy-driven protocol. Unlike IGPs, which focus purely on finding the shortest path, BGP allows network administrators to enforce business preferences and routing policies. For example, a company might choose to route traffic through one ISP over another to save costs, even if that path is technically longer.</p>
 
     <h3>The Journey of a Packet</h3>
 
-    <p>Let's trace the journey of a packet from your computer to a web server at <code>93.184.216.34</code> (the IP address of example.com):</p>
+    <p>Let's trace the path of a packet traveling from your computer to a web server at <code>93.184.216.34</code> (the IP address of <code>example.com</code>):</p>
 
     <ol>
-      <li>Your computer checks the destination IP. It is not on your local network (based on the subnet mask), so the packet is sent to your <strong>default gateway</strong> (your home router).</li>
-      <li>Your home router performs NAT (see below) and forwards the packet to your ISP's router.</li>
-      <li>Your ISP's router looks up <code>93.184.216.34</code> in its routing table and forwards the packet to the next ISP or transit provider.</li>
-      <li>The packet hops through several more routers, each one getting closer to the destination network.</li>
-      <li>Finally, the packet reaches the router at the destination network (e.g., the data center hosting example.com), which delivers it to the server.</li>
+      <li>Your computer checks the destination IP. Recognizing that it is not on your local network (based on the subnet mask), it dispatches the packet to your <strong>default gateway</strong> (your home router).</li>
+      <li>Your home router performs NAT (see below) and forwards the packet to your ISP's edge router.</li>
+      <li>Your ISP's router looks up <code>93.184.216.34</code> in its routing table and forwards it to the next ISP or transit provider.</li>
+      <li>The packet hops through several transit routers, drawing closer to the destination network with each step.</li>
+      <li>Finally, the packet arrives at the destination network's edge router (e.g., the data center hosting <code>example.com</code>), which delivers it to the target server.</li>
     </ol>
 
     <p>You can see this journey yourself using the <code>traceroute</code> command (or <code>tracert</code> on Windows):</p>
@@ -133,13 +133,13 @@
 
     <h2>NAT: Network Address Translation</h2>
 
-    <p>If you check your computer's IP address, you might see something like <code>192.168.1.100</code>. But when you visit a website, the server sees a completely different IP address &mdash; your ISP's public IP address. How does this work?</p>
+    <p>If you check your computer's IP address, you might see a private address like <code>192.168.1.100</code>. Yet when you visit a website, the server sees a completely different IP &mdash; your ISP's public IP address. How does this happen?</p>
 
-    <p>The answer is <strong>NAT</strong> (Network Address Translation).</p>
+    <p>The magic that makes this possible is <strong>NAT</strong> (Network Address Translation).</p>
 
     <h3>Private vs. Public IPs</h3>
 
-    <p>Not every device on the internet needs a globally unique IP address. Many devices are on private networks (home networks, office networks) and use <strong>private IP addresses</strong> that are not routable on the public internet.</p>
+    <p>Not every device on the internet requires a globally unique IP address. Most devices reside on private networks (home or office networks) and use <strong>private IP addresses</strong> that are non-routable on the public internet.</p>
 
     <p>The private IP address ranges are:</p>
     <ul>
@@ -152,55 +152,55 @@
 
     <h3>How NAT Works</h3>
 
-    <p>Your home router sits between your private network and the public internet. It has two IP addresses:</p>
+    <p>Your home router sits between your private network and the public internet. It holds two IP addresses:</p>
     <ul>
       <li>A private IP address on your local network (e.g., <code>192.168.1.1</code>).</li>
-      <li>A public IP address assigned by your ISP (e.g., <code>73.45.123.89</code>).</li>
+      <li>A public IP address leased by your ISP (e.g., <code>73.45.123.89</code>).</li>
     </ul>
 
-    <p>When your computer (<code>192.168.1.100</code>) sends a packet to the internet, the packet goes to your router. The router performs NAT:</p>
+    <p>When your computer (<code>192.168.1.100</code>) sends a packet to the internet, it transits through your router. The router performs NAT:</p>
 
     <ol>
-      <li>It replaces the source IP address in the packet header (your private IP, <code>192.168.1.100</code>) with its own public IP (<code>73.45.123.89</code>).</li>
-      <li>It records the translation in a NAT table: "Connection from 192.168.1.100:12345 is now 73.45.123.89:54321."</li>
-      <li>It forwards the packet to the internet.</li>
+      <li>It replaces the source IP in the packet header (your private IP, <code>192.168.1.100</code>) with its public IP (<code>73.45.123.89</code>).</li>
+      <li>It logs this translation in a NAT table: "Connection from 192.168.1.100:12345 is mapped to 73.45.123.89:54321."</li>
+      <li>It forwards the packet to the destination.</li>
     </ol>
 
-    <p>When the response comes back from the server to <code>73.45.123.89:54321</code>, the router looks up the NAT table, finds that this corresponds to <code>192.168.1.100:12345</code>, replaces the destination address, and forwards the packet to your computer.</p>
+    <p>When the response returns from the server to <code>73.45.123.89:54321</code>, the router consults its NAT table, matches it to <code>192.168.1.100:12345</code>, replaces the destination address with your private IP, and forwards the packet back to your computer.</p>
 
-    <p>This is called <strong>NAPT</strong> (Network Address Port Translation) or <strong>masquerading</strong>. It allows hundreds of devices on a private network to share a single public IP address, each distinguished by a different port number.</p>
+    <p>This is technically called <strong>NAPT</strong> (Network Address Port Translation) or <strong>masquerading</strong>. It allows hundreds of devices on a private network to share a single public IP address, using unique port numbers to keep their connections distinct.</p>
 
-    <p>NAT is why the internet did not run out of IPv4 addresses sooner. It is a pragmatic hack that extended the life of IPv4 by decades.</p>
+    <p>NAT is the primary reason the internet did not run out of IPv4 addresses decades ago. It is a highly practical, enduring workaround that has extended the lifespan of IPv4 by decades.</p>
 
     <h2>The Journey of a Packet: From Your Computer to a Server</h2>
 
     <p>Let's put it all together. You type <code>http://example.com</code> into your browser. What happens?</p>
 
     <ol>
-      <li><strong>DNS resolution:</strong> Your browser needs to find the IP address of example.com. It queries a DNS server (we will cover DNS in detail in the next article) and gets back <code>93.184.216.34</code>.</li>
-      <li><strong>Packet creation:</strong> Your browser creates an HTTP request and hands it to the operating system's network stack. The OS breaks the data into packets, each with an IP header containing the source IP (your private IP) and destination IP (<code>93.184.216.34</code>).</li>
-      <li><strong>NAT:</strong> The packets go to your home router, which performs NAT, replacing your private IP with its public IP.</li>
-      <li><strong>Routing:</strong> The packets hop from router to router across the internet, each router consulting its routing table to decide the next hop.</li>
-      <li><strong>Arrival:</strong> The packets reach the server at <code>93.184.216.34</code>. The server's network stack reassembles the packets into the complete HTTP request.</li>
-      <li><strong>Response:</strong> The server processes the request and sends back an HTTP response, which is also broken into packets. These packets make the reverse journey, hopping from router to router back to your router.</li>
-      <li><strong>Reverse NAT:</strong> Your router receives the response packets, performs reverse NAT (replacing the destination public IP with your private IP), and forwards them to your computer.</li>
+      <li><strong>DNS Resolution:</strong> Your browser must first resolve the IP address of <code>example.com</code>. It queries a DNS server (which we will cover in detail in a future article) and receives <code>93.184.216.34</code>.</li>
+      <li><strong>Packet Creation:</strong> Your browser constructs an HTTP request and hands it to the operating system's network stack. The OS segments the data into packets, stamping each with an IP header containing your source IP (private) and the destination IP (<code>93.184.216.34</code>).</li>
+      <li><strong>NAT:</strong> The packets go to your home router, which replaces your private IP with its public IP.</li>
+      <li><strong>Routing:</strong> The packets hop from router to router across the internet, each router consulting its routing table to determine the optimal next hop.</li>
+      <li><strong>Arrival:</strong> The packets reach the server at <code>93.184.216.34</code>. The server's network stack reassembles them into the original, complete HTTP request.</li>
+      <li><strong>Response:</strong> The server processes the request and sends back an HTTP response, which is also segmented into packets. These packets make the reverse journey, hopping back to your router.</li>
+      <li><strong>Reverse NAT:</strong> Your router receives the response packets, performs reverse NAT (restoring your private IP as the destination), and forwards them to your computer.</li>
       <li><strong>Rendering:</strong> Your browser receives the HTTP response and renders the web page.</li>
     </ol>
 
-    <p>All of this happens in a fraction of a second. The next time you load a web page, take a moment to appreciate the incredible journey those packets make &mdash; hopping from router to router, crossing oceans and continents, all to bring you a cat photo or a news article.</p>
+    <p>All of this unfolds in a fraction of a second. The next time you load a web page, appreciate the incredible journey those packets take &mdash; leaping across routers, bridging oceans and continents, all to deliver a simple webpage or image.</p>
 
     <h2>Summary</h2>
 
     <ol>
-      <li>IP is a packet-switched protocol: data is broken into packets that hop from router to router.</li>
-      <li>IP addresses identify devices. IPv4 uses 32-bit addresses (dotted-decimal), IPv6 uses 128-bit addresses (hexadecimal).</li>
-      <li>An IP address has a network part and a host part, determined by the subnet mask.</li>
-      <li>Routers use routing tables to decide where to forward packets. Routing tables are built by routing protocols (OSPF, BGP).</li>
-      <li>NAT allows multiple devices on a private network to share a single public IP address, extending the life of IPv4.</li>
-      <li>The journey of a packet involves DNS resolution, NAT, routing across multiple hops, and reassembly at the destination.</li>
+      <li>IP is a packet-switched protocol: data is partitioned into packets that hop dynamically from router to router.</li>
+      <li>IP addresses identify network endpoints. IPv4 uses 32-bit addresses (dotted-decimal), while IPv6 uses 128-bit addresses (hexadecimal).</li>
+      <li>An IP address is split into a network part and a host part, defined by the subnet mask.</li>
+      <li>Routers use routing tables to direct packets. These tables are built dynamically using routing protocols (like OSPF and BGP).</li>
+      <li>NAT allows multiple devices on a private network to share a single public IP address, prolonging the utility of IPv4.</li>
+      <li>The lifecycle of a packet involves DNS resolution, NAT, multi-hop routing, and destination reassembly.</li>
     </ol>
 
-    <p>IP is the foundation of the internet. It is simple, robust, and scalable. It does not guarantee delivery (that is TCP's job), but it gets packets from here to there, one hop at a time, like a global game of drum pass.</p>
+    <p>IP is the elegant, resilient foundation of the internet. It makes no guarantees of delivery (that is TCP's job), but it reliably delivers packets from point A to point B, one hop at a time &mdash; a global game of pass-the-parcel.</p>
 
   </article>
 </div>

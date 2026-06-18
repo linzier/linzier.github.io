@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A Progressive Guide to Redis Distributed Locks - Linzer's Blog</title>
+  <title>A Progressive Guide to Redis Distributed Locks - Linzier's Blog</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -24,7 +24,7 @@
 
     <h2>The Scenario</h2>
     <p>Imagine you're running a batch processing service. You have multiple instances of the service running in production, and every minute a scheduler pushes a batch of tasks into a message queue. Each instance picks up tasks and processes them.</p>
-    <p>There's just one problem: the scheduler is dumb. It doesn't know which tasks are already in the queue. So it might push the same task multiple times, and multiple instances might pick up the same task, leading to duplicate processing.</p>
+    <p>There is just one catch: the scheduler is naive—it has no knowledge of which tasks are already queued. As a result, it might enqueue duplicate tasks, leading to multiple instances picking up and processing the exact same workload.</p>
     <p>How do you prevent this? You need a way for the instances to coordinate — a way to say "I'm working on task X, don't touch it." In a single-process world, you'd use a local lock. But with multiple processes across multiple machines, you need a <strong>distributed lock</strong>.</p>
 
     <p><img src="images/redis-lock-02.png" alt="Batch processing service flow"></p>
@@ -35,24 +35,24 @@
 
     <p><img src="images/redis-lock-04.png" alt="Redis distributed lock framework: multiple processes competing for the same lock"></p>
 
-    <p>Redis provides a perfect primitive for this: <code>SETNX</code> (SET if Not eXists). The idea is simple:</p>
+    <p>Redis offers an elegant primitive for this use case: <code>SETNX</code> (SET if Not eXists). The core logic is straightforward:</p>
     <pre><code>SETNX lock:task:123 "instance-1"</code></pre>
-    <p>If the key doesn't exist, it gets set and the command returns 1 — you acquired the lock. If the key already exists, the command returns 0 — someone else has the lock. When you're done processing, you delete the key to release the lock.</p>
+    <p>If the key does not exist, Redis sets it and returns 1, indicating that you have successfully acquired the lock. If the key is already present, the command returns 0, meaning another instance holds the lock. Once processing completes, you simply delete the key to release the lock.</p>
     <p>This works... until it doesn't.</p>
 
     <h2>First Failure: The Lock Never Expires</h2>
-    <p>What happens if your instance crashes after acquiring the lock but before releasing it? The key stays in Redis forever. No other instance can ever acquire the lock for this task. The task is stuck in limbo.</p>
-    <p><strong>The fix:</strong> Add a TTL (time-to-live) to the key so it automatically expires after some time.</p>
+    <p>What happens if your instance crashes after acquiring the lock but before releasing it? The key will persist in Redis indefinitely. As a result, no other instance can ever acquire the lock, leaving the task permanently stuck in limbo.</p>
+    <p><strong>The fix:</strong> Associate a TTL (time-to-live) with the key so that it automatically expires after a designated duration.</p>
     <pre><code>SET lock:task:123 "instance-1" EX 30 NX</code></pre>
-    <p>This is an atomic operation: set the key with a 30-second expiry, but only if it doesn't already exist. Now even if the instance crashes, the lock will be released after 30 seconds.</p>
+    <p>This is an atomic operation: set the key with a 30-second expiry, but only if it doesn't already exist. Now, even if the instance crashes, the lock will automatically be released after 30 seconds.</p>
     <p>Problem solved, right? Not quite.</p>
 
     <h2>Second Failure: Unlocking Someone Else's Lock</h2>
     <p>Consider this timeline:</p>
     <ol>
       <li>Instance A acquires the lock with a 30-second TTL.</li>
-      <li>Instance A takes 35 seconds to process the task (maybe there's a GC pause, or the network is slow).</li>
-      <li>At 30 seconds, the lock expires automatically.</li>
+      <li>Instance A takes 35 seconds to process the task (due to a GC pause, slow network, etc.).</li>
+      <li>At the 30-second mark, the lock expires automatically.</li>
     </ol>
 
     <p><img src="images/redis-lock-05.png" alt="Lock timeout scenario: lock expires before task completes"></p>
@@ -62,8 +62,8 @@
       <li>Instance A finishes and deletes the lock — but it just deleted Instance B's lock!</li>
       <li>Instance C can now also acquire the lock. Both B and C are processing the same task.</li>
     </ol>
-    <p>The problem is that Instance A deleted a lock it no longer owned.</p>
-    <p><strong>The fix:</strong> Give each lock a unique owner identifier. Only the owner can delete the lock.</p>
+    <p>The root of the issue is that Instance A inadvertently deleted a lock it no longer owned.</p>
+    <p><strong>The fix:</strong> Associate each lock acquisition with a unique owner identifier (such as a UUID), and ensure only the matching owner can release it.</p>
     <pre><code>// Acquire: use a random value as the owner ID
 SET lock:task:123 "owner-uuid-abc" EX 30 NX
 
@@ -93,7 +93,7 @@ end</code></pre>
     }
     return false
 }</code></pre>
-    <p>You try to acquire the lock. If you fail, you wait a bit and try again, up to <code>retryCount</code> times. The retry delay should be randomized (with jitter) to avoid thundering herd problems when multiple instances are all retrying at the same interval.</p>
+    <p>If the acquisition fails, the client waits for a brief duration before retrying, up to a maximum of <code>retryCount</code> times. Crucially, the retry interval should incorporate a randomized backoff (jitter) to mitigate thundering herd problems when multiple instances attempt to acquire the lock simultaneously.</p>
 
     <h2>Optimization 2: Lock Timeout Detection</h2>
     <p>Here's a subtle issue: what if acquiring the lock itself takes longer than the TTL?</p>
@@ -118,10 +118,10 @@ if time.Since(startTime) &gt; ttl {
     <p>This prevents you from proceeding with a lock that's about to expire.</p>
 
     <h2>Optimization 3: Watchdog / TTL Refresh</h2>
-    <p>The TTL creates a dilemma:</p>
+    <p>The TTL constraint introduces a classic engineering trade-off:</p>
     <ul>
-      <li>If the TTL is too short, the lock expires before the task completes.</li>
-      <li>If the TTL is too long, a crashed instance forces others to wait a long time.</li>
+      <li>If the TTL is too aggressive (short), the lock may expire prematurely before the task completes.</li>
+      <li>If the TTL is too conservative (long), a crashed instance will leave the lock orphaned, blocking other instances for an unacceptable duration.</li>
     </ul>
     <p>The ideal solution: set a reasonable initial TTL, but periodically extend it while you're still working. This is the <strong>watchdog</strong> pattern.</p>
     <pre><code>// After acquiring the lock, start a goroutine to refresh the TTL
@@ -145,12 +145,12 @@ go func() {
     <p>This is exactly how Redisson (the popular Java Redis client) implements its lock watchdog. The default TTL is 30 seconds, and the watchdog renews it every 10 seconds.</p>
 
     <h2>What About Reentrancy?</h2>
-    <p>A reentrant lock is one that can be acquired multiple times by the same owner without blocking. Java's <code>ReentrantLock</code> works this way. Do you need this for distributed locks?</p>
-    <p>In practice, <strong>you probably don't need reentrancy</strong>. If your code structure requires the same lock to be acquired twice in the same call chain, it's usually a sign that:</p>
+    <p>A reentrant lock allows the same thread or owner to acquire the lock multiple times without deadlocking. Java's <code>ReentrantLock</code> is a classic example of this. Do you actually need reentrancy for distributed locks?</p>
+    <p>In practice, <strong>you rarely need reentrancy in a distributed context</strong>. If your architecture demands acquiring the same lock twice in a single execution flow, it is often a symptom of design smells:</p>
     <ul>
-      <li>The lock scope is too broad. Narrow it down.</li>
-      <li>The function design is tangled. Separate the locked and unlocked code paths.</li>
-      <li>You're using a lock when you should be using a different synchronization mechanism.</li>
+      <li>The lock's scope is too coarse-grained and should be narrowed down.</li>
+      <li>The code path is tangled. It is better to refactor and decouple the locked operations from unlocked helper routines.</li>
+      <li>You are using a lock as a workaround for what should be managed by a more suitable synchronization paradigm.</li>
     </ul>
     <p>If you really need it, you can implement it with a Redis hash that tracks the owner and a count:</p>
     <pre><code>HSET lock:task:123 owner "uuid" count 1  // first acquisition

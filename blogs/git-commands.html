@@ -9,7 +9,7 @@
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -22,12 +22,12 @@
 
     <h2>Three Versions of Branches</h2>
 
-    <p>When working with Git, it is important to understand that there are effectively three "versions" of a branch at any given time:</p>
+    <p>When working with Git, it is crucial to recognize that there are effectively three "versions" of any given branch at any moment:</p>
 
     <ol>
-      <li><strong>Remote branch</strong> &mdash; the branch as it exists on the remote server (e.g., GitHub, GitLab).</li>
-      <li><strong>Remote snapshot (remote-tracking branch)</strong> &mdash; the local copy of the remote branch, typically named <code>origin/branch-name</code>. This is updated when you run <code>git fetch</code> or <code>git pull</code>, and reflects the state of the remote branch at the time of the last fetch.</li>
-      <li><strong>Local branch</strong> &mdash; your own local working copy of the branch, where you make commits.</li>
+      <li><strong>Remote branch</strong> &mdash; The source-of-truth branch as it exists on the remote server (e.g., GitHub or GitLab).</li>
+      <li><strong>Remote-tracking branch (remote snapshot)</strong> &mdash; A local, read-only reference that acts as a snapshot of the remote branch's state. Typically named <code>origin/branch-name</code>, it is updated only when you run <code>git fetch</code> or <code>git pull</code>, reflecting the remote state at the time of your last fetch.</li>
+      <li><strong>Local branch</strong> &mdash; Your active workspace branch on your local machine, where you edit files and make commits.</li>
     </ol>
 
     <p>Understanding the distinction between these three is crucial for avoiding confusion when pushing, pulling, and merging.</p>
@@ -44,9 +44,9 @@
     <h3>Three Key Areas</h3>
 
     <ul>
-      <li><strong>Working Directory</strong> &mdash; where you edit files.</li>
-      <li><strong>Staging Area (Index)</strong> &mdash; a intermediate area where you prepare changes before committing. You use <code>git add</code> to move changes here.</li>
-      <li><strong>Version Area (Repository)</strong> &mdash; where committed snapshots are permanently stored.</li>
+      <li><strong>Working Directory</strong> &mdash; Your local filesystem where you actively edit files.</li>
+      <li><strong>Staging Area (Index)</strong> &mdash; An intermediate draft area where you prepare changes before committing. You use <code>git add</code> to register changes here.</li>
+      <li><strong>Repository (Git Directory)</strong> &mdash; Where committed, immutable snapshots are permanently stored under version control.</li>
     </ul>
 
     <p>The typical workflow is: edit files in the working directory, stage changes in the staging area, then commit them to the version area.</p>
@@ -100,19 +100,19 @@
 
     <h2>git pull: Rebase vs Merge</h2>
 
-    <p><code>git pull</code> is essentially a combination of <code>git fetch</code> followed by either <code>git merge</code> or <code>git rebase</code>.</p>
+    <p>At its core, <code>git pull</code> is a shorthand command that executes <code>git fetch</code> followed immediately by either <code>git merge</code> or <code>git rebase</code>.</p>
 
     <h3>Merge Mode (Default)</h3>
 
     <pre><code>git pull origin &lt;branch&gt;</code></pre>
 
-    <p>This fetches the remote changes and creates a merge commit to combine them with your local branch. The history is non-linear.</p>
+    <p>This fetches the remote changes and creates a merge commit to combine them with your local branch, resulting in a non-linear history.</p>
 
     <h3>Rebase Mode</h3>
 
     <pre><code>git pull --rebase origin &lt;branch&gt;</code></pre>
 
-    <p>This fetches the remote changes and replays your local commits on top of the updated remote branch. The result is a clean, linear history.</p>
+    <p>This fetches remote updates and replays your local, unpushed commits on top of the updated remote branch, yielding a clean, linear commit history.</p>
 
     <blockquote>You can set rebase as the default behavior for a branch: <code>git config branch.&lt;name&gt;.rebase true</code></blockquote>
 
@@ -269,7 +269,7 @@ git merge --no-ff feature-branch</code></pre>
 </div>
 <footer>
   <div class="container">
-    <p>&copy; 2020 Linzer's Blog</p>
+    <p>&copy; 2020 Linzier's Blog</p>
   </div>
 </footer>
 </body>

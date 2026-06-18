@@ -9,7 +9,7 @@
 <body>
 <header>
   <div class="container">
-    <h1><a href="index.html">Linzer's Blog</a></h1>
+    <h1><a href="index.html">Linzier's Blog</a></h1>
     <nav>
       <a href="index.html">Home</a>
     </nav>
@@ -20,69 +20,70 @@
     <h1>Character Encoding (Part 2): The Character Encoding Model</h1>
     <div class="meta">2022-02-20 | Encoding</div>
 
-    <p>In the previous article, we saw the chaos of pre-Unicode encodings: ASCII, ISO 8859, GB 2312, Big5, Shift JIS, and dozens of others, all incompatible with each other. To understand how Unicode solved this problem, we first need a clear mental model of what "character encoding" actually means.</p>
+    <p>In the previous article, we explored the digital Babel of pre-Unicode character sets: ASCII, ISO 8859, GB 2312, Big5, Shift JIS, and dozens of other conflicting standards. To understand how Unicode successfully resolved this fragmentation, we must first establish a clear, modern mental model of what "character encoding" actually represents.</p>
 
-    <p>The Unicode standard defines a <strong>four-layer character encoding model</strong>. Each layer has a specific job, and understanding these layers is the key to truly understanding how text works on a computer.</p>
+    <p>The Unicode standard formalizes this by defining a <strong>four-layer character encoding model</strong>. Each layer has a distinct, isolated responsibility. Grasping these boundaries is the key to mastering how computers process, store, and display written text.</p>
 
-    <h2>Layer 1: Abstract Character Set</h2>
+    <h2>Layer 1: Abstract Character Set (ACS)</h2>
 
-    <p>The first layer answers the question: <strong>what characters do we need?</strong></p>
+    <p>The first layer answers a foundational question: <strong>what repertoire of characters do we need to support?</strong></p>
 
-    <p>An <strong>abstract character</strong> is a conceptual unit of information used for the organization, control, or representation of textual data. In plain terms, it is a "character" in the way a human thinks about it &mdash; not how a computer stores it.</p>
+    <p>An <strong>abstract character</strong> is a conceptual unit of information utilized to organize, control, or represent textual data. In simpler terms, it is a "character" as perceived by humans&mdash;independent of how a computer might represent it in memory.</p>
 
-    <p>For example, the Latin letter "A" is an abstract character. The Chinese character "&#x4E2D;" (middle) is an abstract character. The emoji "&#x1F600;" (grinning face) is an abstract character. They exist as ideas, independent of any encoding.</p>
+    <p>For example, the capital letter "A" is an abstract character. The Chinese character "&#x4E2D;" (middle) is an abstract character. The "grinning face" emoji "&#x1F600;" is also an abstract character. These entities exist purely as linguistic or symbolic concepts, separate from any computer code.</p>
 
-    <p>The <strong>abstract character set</strong> (also called the <strong>repertoire</strong>) is the complete collection of all abstract characters that an encoding system supports. Unicode's repertoire includes over 149,000 characters covering 168 scripts, plus symbols, emoji, and historical scripts.</p>
+    <p>The collection of these units is known as the <strong>abstract character set</strong> (or <strong>repertoire</strong>). Unicode's repertoire contains over 149,000 abstract characters spanning 168 distinct scripts, alongside mathematical symbols, emojis, and historical writing systems.</p>
 
-    <p>Key point: at this layer, characters have <strong>no numbers, no bytes, no binary representation</strong>. They are just an abstract set of conceptual units.</p>
+    <p>Crucially, at this layer, characters have <strong>no numerical associations, no byte values, and no binary forms</strong>. They are simply an un-ordered inventory of human communication elements.</p>
 
     <p><img src="images/encoding-model-01-four-layers.png" alt="Different visual forms of the Chinese character for 'mountain'"><em>Different visual forms (glyphs) of the same abstract character</em></p>
 
     <h2>Layer 2: Coded Character Set (CCS)</h2>
 
-    <p>The second layer answers the question: <strong>what number do we assign to each character?</strong></p>
+    <p>The second layer maps the abstract to the mathematical: <strong>what numeric index do we assign to each character?</strong></p>
 
-    <p>A <strong>Coded Character Set</strong> maps each abstract character to a unique non-negative integer called a <strong>code point</strong>. This is the step that gives characters a numerical identity.</p>
+    <p>A <strong>Coded Character Set</strong> maps every abstract character in a repertoire to a unique, non-negative integer. In the Unicode standard, this assigned integer is called a <strong>code point</strong>. This mapping gives every abstract character a permanent, stable numerical address.</p>
 
-    <p>For example, in Unicode:</p>
+    <p>For instance, in the Unicode coded character set:</p>
     <ul>
       <li>"A" &rarr; code point 65 (written as U+0041)</li>
       <li>"&#x4E2D;" &rarr; code point 20013 (written as U+4E2D)</li>
       <li>"&#x1F600;" &rarr; code point 128512 (written as U+1F600)</li>
     </ul>
 
-    <p>The mapping is arbitrary but fixed. Once assigned, a code point never changes its meaning. U+0041 will always mean "Latin Capital Letter A."</p>
+    <p>This mapping is arbitrary but fixed. Once assigned, a code point never changes its meaning. U+0041 will always represent the "Latin Capital Letter A."</p>
 
-    <p>Important: a code point is an <strong>abstract integer</strong>, not a byte sequence. U+0041 means "the integer 65," not "the byte 0x41" or "the bytes 0x00 0x41." How that integer gets turned into bytes is the job of the next layer.</p>
+    <p>It is important to emphasize that a code point is an <strong>abstract integer</strong>, not a physical sequence of bytes. The expression U+0041 denotes the integer 65; it does not dictate whether that integer should be stored as the single byte 0x41 or the multi-byte sequence 0x00 0x41. Mapping these abstract integers to physical bytes is the job of the subsequent layers.</p>
 
-    <p>Some people confuse "character set" with "encoding." When someone says "ASCII character set," they usually mean the coded character set: the mapping of characters to code points 0&ndash;127. But strictly speaking, a coded character set is only half of an encoding &mdash; it tells you what numbers to use, but not how to store those numbers as bytes.</p>
+    <p>Many developers conflate "character set" with "character encoding." When someone refers to the "ASCII character set," they are typically thinking of its Coded Character Set: the mapping of characters to indices 0 through 127. However, a CCS is only one part of an encoding system &mdash; it defines the numeric identifiers, but does not specify how those integers are formatted as binary data on disk.</p>
 
     <h2>Layer 3: Character Encoding Form (CEF)</h2>
 
-    <p>The third layer answers the question: <strong>how do we turn code points into code units?</strong></p>
+    <p>The third layer translates numbers into memory structures: <strong>how do we map abstract code points to physical code units?</strong></p>
 
-    <p>A <strong>Character Encoding Form</strong> maps each code point to a sequence of <strong>code units</strong>. A code unit is the basic unit of data used by the encoding &mdash; typically 8 bits (a byte), 16 bits, or 32 bits.</p>
+    <p>A <strong>Character Encoding Form</strong> maps abstract code points to sequences of <strong>code units</strong>. A code unit is the fundamental bit-width used by an encoding scheme &mdash; typically 8 bits (a byte), 16 bits, or 32 bits.</p>
 
-    <p>This is where the three famous Unicode encoding forms come in:</p>
+    <p>This layer is where the three primary Unicode encoding forms operate:</p>
 
     <h3>UTF-32</h3>
-    <p>The simplest encoding form. Every code point is represented by exactly one 32-bit code unit. Code point U+0041 becomes the 32-bit value 0x00000041. Code point U+1F600 becomes 0x0001F600.</p>
-    <p>UTF-32 is a <strong>fixed-width</strong> encoding: every character is exactly 4 bytes. This makes it easy to index into a string (the nth character is always at offset n&times;4), but it wastes a lot of space because most characters have code points well below 0x10000.</p>
+    <p>The most straightforward encoding form. Every code point is mapped directly to a single 32-bit code unit. Thus, U+0041 becomes the 32-bit value 0x00000041, and U+1F600 becomes 0x0001F600.</p>
+    <p>Because UTF-32 is a <strong>fixed-width</strong> encoding, every character occupies exactly 4 bytes. This simplifies string manipulation and indexing (the *n*-th character is always located at byte offset *n* &times; 4), but it introduces massive storage overhead, as the vast majority of characters in practical text have code points well below U+10000 and thus waste the leading 3 bytes.</p>
 
     <h3>UTF-16</h3>
-    <p>UTF-16 uses 16-bit code units. Code points in the Basic Multilingual Plane (BMP, U+0000 to U+FFFF) are encoded as a single 16-bit code unit. Code points above U+FFFF (the supplementary planes) are encoded as a <strong>surrogate pair</strong>: two 16-bit code units.</p>
+    <p>UTF-16 bridges the gap by using 16-bit code units. Characters in the Basic Multilingual Plane (BMP, spanning U+0000 to U+FFFF) are represented by a single 16-bit code unit. Code points exceeding U+FFFF (the supplementary planes) are mapped to a pair of 16-bit code units called a <strong>surrogate pair</strong>.</p>
+
     <p>For example:</p>
     <ul>
       <li>U+0041 ("A") &rarr; one code unit: 0x0041</li>
       <li>U+4E2D ("&#x4E2D;") &rarr; one code unit: 0x4E2D</li>
       <li>U+1F600 ("&#x1F600;") &rarr; two code units: 0xD83D 0xDE00 (a surrogate pair)</li>
     </ul>
-    <p>UTF-16 is a <strong>variable-width</strong> encoding: characters are either 2 or 4 bytes.</p>
+    <p>UTF-16 is a <strong>variable-width</strong> encoding: characters are represented by either 2 or 4 bytes.</p>
 
     <h3>UTF-8</h3>
-    <p>UTF-8 uses 8-bit code units (bytes). Code points are encoded using one to four bytes:</p>
+    <p>UTF-8 uses 8-bit code units (bytes) and maps code points using a variable sequence of one to four bytes:</p>
     <ul>
-      <li>U+0000 to U+007F (ASCII) &rarr; 1 byte</li>
+      <li>U+0000 to U+007F (ASCII range) &rarr; 1 byte</li>
       <li>U+0080 to U+07FF &rarr; 2 bytes</li>
       <li>U+0800 to U+FFFF &rarr; 3 bytes</li>
       <li>U+10000 to U+10FFFF &rarr; 4 bytes</li>
@@ -93,75 +94,75 @@
       <li>U+4E2D ("&#x4E2D;") &rarr; 3 bytes: 0xE4 0xB8 0xAD</li>
       <li>U+1F600 ("&#x1F600;") &rarr; 4 bytes: 0xF0 0x9F 0x98 0x80</li>
     </ul>
-    <p>UTF-8 is also <strong>variable-width</strong>, but it has a crucial advantage: ASCII characters (0&ndash;127) are encoded as single bytes identical to ASCII. This means any ASCII text is automatically valid UTF-8, and any UTF-8 parser can safely read ASCII portions without knowing the full encoding.</p>
+    <p>While UTF-8 is also a <strong>variable-width</strong> encoding, it has a massive historical advantage: standard ASCII characters (0&ndash;127) are encoded as single bytes identical to standard ASCII. This means any legacy ASCII text file is already a valid UTF-8 file, and any legacy ASCII parser can safely process the English portions of a UTF-8 file without choking.</p>
 
-    <p>The encoding form is where the actual "encoding" happens. The coded character set (Layer 2) gives each character a number; the encoding form (Layer 3) turns that number into a sequence of code units.</p>
+    <p>To summarize Layer 3: the CEF is where the abstract integer addresses from Layer 2 are converted into binary sequences formatted for CPU memory architectures.</p>
 
     <h2>Layer 4: Character Encoding Scheme (CES)</h2>
 
-    <p>The fourth layer answers the question: <strong>how do we serialize code units into a byte stream?</strong></p>
+    <p>The fourth layer addresses physical serialization: <strong>how do we write those code units as a sequential stream of bytes?</strong></p>
 
-    <p>A <strong>Character Encoding Scheme</strong> defines how code units are mapped to a sequence of bytes for storage or transmission. This might seem redundant &mdash; after all, code units are already measured in bits &mdash; but there is a subtle issue: <strong>byte order</strong>.</p>
+    <p>A <strong>Character Encoding Scheme</strong> defines how code units are serialized into bytes for storage or network transmission. While this step might seem redundant &mdash; since computer memory is already structured in bits &mdash; a critical problem arises whenever a code unit spans multiple bytes: <strong>byte order</strong>.</p>
 
-    <p>When a code unit is larger than one byte (like UTF-16's 16-bit units or UTF-32's 32-bit units), you need to decide which byte comes first in the byte stream:</p>
+    <p>When a code unit is larger than a single byte (such as UTF-16's 16-bit units or UTF-32's 32-bit units), we must define which byte is written first into the stream:</p>
 
     <ul>
-      <li><strong>Big-endian (BE):</strong> the most significant byte comes first. Code unit 0x4E2D is stored as bytes 0x4E 0x2D.</li>
-      <li><strong>Little-endian (LE):</strong> the least significant byte comes first. Code unit 0x4E2D is stored as bytes 0x2D 0x4E.</li>
+      <li><strong>Big-Endian (BE):</strong> The most significant byte is written first. For example, the UTF-16 code unit 0x4E2D is serialized as the byte sequence <code>0x4E 0x2D</code>.</li>
+      <li><strong>Little-Endian (LE):</strong> The least significant byte is written first. The code unit 0x4E2D is serialized as <code>0x2D 0x4E</code>.</li>
     </ul>
 
-    <p>Different CPU architectures prefer different byte orders. x86 processors are little-endian; many network protocols are big-endian. Without a way to distinguish, a reader cannot know which byte order was used.</p>
+    <p>Different hardware architectures have different native byte orders. Intel x86 and ARM processors are natively little-endian, while standard network protocols default to big-endian. Without an explicit scheme, an application reading a file cannot determine the intended byte ordering.</p>
 
     <p><img src="images/encoding-model-02-big-endian.png" alt="Big-endian vs little-endian storage order"><em>Big-endian storage order matches human reading order</em></p>
 
-    <p>The solution is the <strong>Byte Order Mark (BOM)</strong>: a special code point U+FEFF placed at the beginning of the text. If the reader sees 0xFE 0xFF, they know the text is big-endian. If they see 0xFF 0xFE, it is little-endian. (The code point U+FFFE is guaranteed not to be a valid character, so there is no ambiguity.)</p>
+    <p>To resolve this ambiguity, the standard introduces the <strong>Byte Order Mark (BOM)</strong>: a special, non-breaking zero-width space code point (U+FEFF) prefixed to the start of a text stream. If a reader parses the leading bytes as <code>0xFE 0xFF</code>, it deduces the stream is Big-Endian. If it encounters <code>0xFF 0xFE</code>, it interprets the stream as Little-Endian. (Because the inverse value U+FFFE is guaranteed to be a non-character, there is no chance of collision.)</p>
 
-    <p>For UTF-8, byte order is not an issue because each code unit is a single byte. However, a UTF-8 BOM (the byte sequence 0xEF 0xBB 0xBF) is sometimes used to signal that the text is UTF-8 rather than some other 8-bit encoding.</p>
+    <p>For UTF-8, byte ordering is never an issue because its code units are exactly one byte wide. However, a UTF-8 BOM sequence (the bytes <code>0xEF 0xBB 0xBF</code>) is sometimes written by Windows-based text editors purely as a signature to flag that the file contains UTF-8 text rather than a legacy local code page.</p>
 
-    <p>The encoding scheme layer also handles other serialization concerns, such as:</p>
+    <p>The encoding scheme layer also manages other serialization realities, such as:</p>
     <ul>
-      <li>How to handle byte streams that are truncated in the middle of a multi-byte character.</li>
-      <li>How to encode the text for transmission over protocols that expect certain byte patterns (e.g., MIME encoding for email).</li>
+      <li>Detecting and recovering from truncated byte streams.</li>
+      <li>Encoding binary text to comply with legacy, 7-bit mail transmission systems (e.g., Base64 or Quoted-Printable).</li>
     </ul>
 
     <h2>Putting It All Together</h2>
 
-    <p>Let's trace the full journey of the Chinese character "&#x4E2D;" (middle) through all four layers:</p>
+    <p>Let's map out how a single Chinese character, "&#x4E2D;" (middle), traverses all four layers of the character encoding model:</p>
 
     <ol>
-      <li><strong>Abstract Character Set:</strong> "&#x4E2D;" is an abstract character representing the concept of "middle" or "center" in Chinese.</li>
-      <li><strong>Coded Character Set (CCS):</strong> Unicode assigns it code point U+4E2D (decimal 20013).</li>
-      <li><strong>Character Encoding Form (CEF):</strong>
+      <li><strong>Abstract Character Set:</strong> "&#x4E2D;" exists as an abstract unit of human language, representing the concept of "center" or "middle."</li>
+      <li><strong>Coded Character Set (CCS):</strong> Unicode assigns this abstract character to the unique, permanent code point U+4E2D (decimal 20013).</li>
+      <li><strong>Character Encoding Form (CEF):</strong> This code point is formatted into memory:
         <ul>
-          <li>In UTF-8: code point 0x4E2D becomes three bytes: 0xE4 0xB8 0xAD.</li>
-          <li>In UTF-16: code point 0x4E2D becomes one 16-bit code unit: 0x4E2D.</li>
-          <li>In UTF-32: code point 0x4E2D becomes one 32-bit code unit: 0x00004E2D.</li>
+          <li>In UTF-8, it is represented as a sequence of three 8-bit code units: <code>0xE4 0xB8 0xAD</code>.</li>
+          <li>In UTF-16, it is represented as a single 16-bit code unit: <code>0x4E2D</code>.</li>
+          <li>In UTF-32, it is represented as a single 32-bit code unit: <code>0x00004E2D</code>.</li>
         </ul>
       </li>
-      <li><strong>Character Encoding Scheme (CES):</strong>
+      <li><strong>Character Encoding Scheme (CES):</strong> These units are written to disk:
         <ul>
-          <li>In UTF-8: the bytes are 0xE4 0xB8 0xAD (no byte order issue).</li>
-          <li>In UTF-16 BE: the bytes are 0x4E 0x2D.</li>
-          <li>In UTF-16 LE: the bytes are 0x2D 0x4E.</li>
-          <li>In UTF-32 BE: the bytes are 0x00 0x00 0x4E 0x2D.</li>
+          <li>In UTF-8, they are serialized sequentially as bytes: <code>0xE4 0xB8 0xAD</code> (no byte order concerns).</li>
+          <li>In UTF-16 BE, the bytes are written as: <code>0x4E 0x2D</code>.</li>
+          <li>In UTF-16 LE, the bytes are written as: <code>0x2D 0x4E</code>.</li>
+          <li>In UTF-32 BE, the bytes are written as: <code>0x00 0x00 0x4E 0x2D</code>.</li>
         </ul>
       </li>
     </ol>
 
-    <p>Each layer has a clear, well-defined responsibility. The abstract character set defines <em>what</em> we encode. The coded character set assigns <em>numbers</em>. The encoding form turns numbers into <em>code units</em>. The encoding scheme turns code units into <em>bytes</em>.</p>
+    <p>Each layer operates independently. The Abstract Character Set answers *what* we represent. The Coded Character Set assigns *addresses*. The Encoding Form structures those addresses in *memory*. The Encoding Scheme writes those structures as *bytes*.</p>
 
     <h2>Why This Model Matters</h2>
 
-    <p>Understanding this four-layer model helps you reason about encoding problems:</p>
+    <p>Understanding this division of labor makes it easy to diagnose common encoding bugs:</p>
 
     <ul>
-      <li><strong>Mojibake</strong> (garbled text) usually happens when the reader uses the wrong encoding form or scheme. The bytes are correct, but the interpretation is wrong.</li>
-      <li><strong>"UTF-8 vs. UTF-16"</strong> is a question about Layer 3 (encoding form), not Layer 2 (coded character set). Both use the same Unicode code points; they just serialize them differently.</li>
-      <li><strong>"Does UTF-8 have a BOM?"</strong> is a question about Layer 4 (encoding scheme). UTF-8 does not need a BOM for byte order, but a BOM can be used to signal the encoding.</li>
-      <li><strong>"Why is my emoji broken?"</strong> might be a Layer 3 issue (the encoding form does not support supplementary planes) or a Layer 2 issue (the code point was assigned in a later version of Unicode).</li>
+      <li><strong>Mojibake (Garbled Text)</strong> occurs when a system reads raw bytes (Layer 4) but applies the wrong decoding form (Layer 3). The physical data is perfect, but the software's translation lens is wrong.</li>
+      <li><strong>"UTF-8 vs. UTF-16"</strong> is not a debate about the character set (Layer 2). Both formats use the exact same Unicode code points; they simply organize those addresses differently in memory (Layer 3).</li>
+      <li><strong>"Should I include a BOM in UTF-8?"</strong> is a Layer 4 serialization concern. UTF-8 never needs a BOM to establish byte order, but legacy editors use it as a file-type marker.</li>
+      <li><strong>"Why is my emoji displaying as a blank box?"</strong> can be a Layer 3 issue (where a legacy library fails to parse surrogate pairs or 4-byte UTF-8 sequences) or a Layer 2 issue (where the emoji was minted in a newer version of Unicode than the host operating system supports).</li>
     </ul>
 
-    <p>In the next article, we will dive into Unicode itself: its history, its design, and the encoding forms that made it the universal standard we rely on today.</p>
+    <p>In the next article, we will take a deep dive into Unicode itself: its design goals, the architecture of its planes, and how it unified the digital world.</p>
 
   </article>
 </div>
