@@ -206,9 +206,6 @@ end</code></pre>
     </ul>
     <p>In our batch processing example, the distributed lock prevents two instances from processing the same task simultaneously. But if Instance A processes the task, crashes, and Instance B retries the task, the lock won't help — you need idempotency for that (e.g., a unique constraint in the database, or an idempotency key).</p>
     <p>Often, you need both. The lock handles the concurrent case; idempotency handles the sequential-duplicate case. Understanding the difference is key to designing robust distributed systems.</p>
-
-    <p><img src="images/redis-lock-06.png" alt="Summary"></p>
-
   </article>
 </div>
 <footer>
