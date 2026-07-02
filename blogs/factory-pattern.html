@@ -20,7 +20,7 @@
     <h1>On the Factory Pattern</h1>
     <div class="meta">2022-03-15 | Design Patterns</div>
 
-    <p>Ask a hundred interview candidates which design patterns they know, and at least ninety-nine will name-drop the Factory Pattern. This tells us two things: the Factory Pattern is one of the most ubiquitous design patterns in a developer's daily life, and it is also one of the most intuitive and easiest to grasp&mdash;both conceptually and implementation-wise.</p>
+    <p>Ask a hundred interview candidates which design patterns they know, and at least ninety-nine will name the Factory Pattern. This tells us two things: the Factory Pattern is ubiquitous in a developer's daily work, and it is among the most intuitive to grasp&mdash;both conceptually and in implementation.</p>
 
     <p>But if you probe deeper&mdash;What problem does the factory pattern actually solve? How does it solve it? What are its drawbacks? When should you <em>avoid</em> using it?&mdash;many candidates begin to stumble.</p>
 
@@ -28,17 +28,17 @@
 
     <p>At its core, software is the medium through which humans instruct machines to manage real-world affairs. Consequently, the inherent complexity of the human world is inevitably mirrored in software.</p>
 
-    <p>As high school physics teaches us: motion is absolute, while rest is relative. Or as the ancient adage goes, "The only constant is change itself." It is the constant evolution (or dynamism) of real-world needs that creates software complexity&mdash;or, in more practical terms, "the uncertainty of the future." Requirements shift endlessly; no software remains static.</p>
+    <p>As high school physics teaches us: motion is absolute, rest is relative. Or as the adage goes, "The only constant is change itself." It is the constant evolution of real-world needs that creates software complexity&mdash;or, in practical terms, "the uncertainty of the future." Requirements shift endlessly; no software remains static.</p>
 
-    <p>The natural consequence of this constant movement is <strong>an increase in entropy</strong>&mdash;just as an unattended living room inevitably becomes messy over time. As software evolves, it inexorably drifts toward chaos. Existing logic is modified, new features are bolted on, quick hotfixes are applied, and the system grows increasingly complex, opaque, and brittle. Bugs multiply, and further modifications become progressively harder.</p>
+    <p>The natural consequence of this constant movement is <strong>an increase in entropy</strong>&mdash;just as an unattended room inevitably becomes messy. As software evolves, it drifts toward chaos. Existing logic is modified, new features are bolted on, quick hotfixes are applied, and the system grows increasingly complex, opaque, and brittle. Bugs multiply, and further modifications become harder.</p>
 
-    <p>Developers often harbor an intuitive but mistaken belief: that by systematically fixing bugs, they can eventually reduce the system's bug count to zero. However, unless a system is completely frozen after release, no matter how fast you write code, you cannot outpace bug growth. This is particularly evident in high-level business systems.</p>
+    <p>Developers often hold an intuitive but mistaken belief: that by systematically fixing bugs, they can eventually reduce the bug count to zero. Unless a system is completely frozen after release, no matter how fast you write code, you cannot outpace bug growth. This is particularly evident in complex business systems.</p>
 
     <p>To combat software entropy, developers rely on two primary weapons: <strong>refactoring</strong> and <strong>design patterns</strong>.</p>
 
-    <p>Refactoring is a <em>retroactive</em> defense&mdash;rebuilding the system in the future to eliminate or reduce accumulated chaos. It is based on the premise that we will inevitably understand the business domain and system architecture much better in the future than we do today, or that the current design has simply reached its limit for accommodating change. In practice, however, major refactoring often only occurs when the system is on the verge of breaking.</p>
+    <p>Refactoring is a <em>retroactive</em> defense&mdash;rebuilding the system later to reduce accumulated chaos. It is based on the premise that we will understand the business domain and architecture better in the future, or that the current design has reached its limit for accommodating change. In practice, however, major refactoring often occurs only when the system is on the verge of breaking.</p>
 
-    <p>Design patterns, on the other hand, are a <em>proactive</em> defense&mdash;building the system in the present to withstand future complexity and change. They distill proven architectural solutions from past experience into standardized templates, aiming for relative stability. In essence, design patterns leverage what is stable today to shield the system from the uncertainties of tomorrow.</p>
+    <p>Design patterns are a <em>proactive</em> defense&mdash;building the system today to withstand future complexity. They distill proven architectural solutions into standardized templates. In essence, design patterns leverage what is stable today to shield the system from the uncertainties of tomorrow.</p>
 
     <p>Design patterns tackle complexity primarily through two mechanisms: <strong>abstraction</strong> and <strong>isolation</strong>.</p>
 
@@ -62,7 +62,7 @@
       <li><strong>Abstract Factory:</strong> An upgrade to the Factory Method designed to handle multi-dimensional complexity. Rather than letting the number of factory classes explode alongside the number of concrete products, the Abstract Factory groups related objects together. While a Factory Method creates a single type of product, an Abstract Factory provides an interface for creating families of related or dependent objects.</li>
     </ul>
 
-    <p>This theoretical taxonomy can feel overwhelming. The essential takeaway is that in terms of both structural overhead and problem-solving capacity: Simple Factory &lt; Factory Method &lt; Abstract Factory. Each is an evolution of the previous. Keep these two dimensions of complexity in mind; they guide our primary design principle: <strong>solve problems with the simplest tool possible, and only upgrade when the complexity of the problem demands it.</strong></p>
+    <p>This taxonomy can feel overwhelming. The key takeaway: in both structural overhead and problem-solving capacity, Simple Factory &lt; Factory Method &lt; Abstract Factory. Each is an evolution of the previous. Keep these two dimensions in mind; they guide our primary design principle: <strong>solve problems with the simplest tool possible, and only upgrade when the problem demands it.</strong></p>
 
     <p>Let's explore how the Factory Pattern leverages abstraction and isolation to tame object creation complexity.</p>
 
@@ -108,12 +108,12 @@
     }
 }</code></pre>
 
-    <p>Slightly better, but at least three problems remain:</p>
+    <p>Slightly better, but three problems remain:</p>
 
     <ol>
       <li><code>Order</code> takes on the extraneous responsibility of instantiating <code>Goods</code> (which is complex and subject to change), violating the <strong>Single Responsibility Principle</strong>;</li>
-      <li><code>Order</code> must intimately understand how <code>Goods</code> is constructed, violating the <strong>Law of Demeter</strong> and breaking encapsulation;</li>
-      <li>Any other area of the codebase that needs to create a <code>Goods</code> object would have to duplicate this setup code, severely hurting maintainability. (While we could expose <code>Order::createGoods()</code> publicly, doing so would introduce bizarre, unnatural dependencies and make the codebase harder to reason about).</li>
+      <li><code>Order</code> must understand how <code>Goods</code> is constructed, violating the <strong>Law of Demeter</strong> and breaking encapsulation;</li>
+      <li>Any other area of the codebase that needs to create a <code>Goods</code> object would have to duplicate this setup code, severely hurting maintainability. (While we could expose <code>Order::createGoods()</code> publicly, doing so would introduce unnatural dependencies and make the codebase harder to reason about).</li>
     </ol>
 
     <p>The <strong>Law of Demeter</strong> (also known as the <em>Principle of Least Knowledge</em>) states that a unit should have limited knowledge about other units, only interacting with its immediate "friends."</p>
@@ -127,7 +127,7 @@
     }
 }</code></pre>
 
-    <p>This perfectly restores encapsulation. Future modifications to <code>Goods</code>'s instantiation logic are confined to the <code>Goods</code> class. A vast number of production systems implement Simple Factory this way&mdash;it keeps the code clean while preserving structural flexibility.</p>
+    <p>This restores encapsulation. Future modifications to <code>Goods</code>'s instantiation logic are confined to the <code>Goods</code> class. Many production systems implement Simple Factory this way&mdash;it keeps the code clean while preserving structural flexibility.</p>
 
     <p>Now let's examine our second approach: injecting the <code>Goods</code> object into <code>Order</code> via dependency injection. In this scenario, the responsibility of creating <code>Goods</code> is pushed back to the <code>Transaction</code>. Let's look at a direct, naive implementation:</p>
 
@@ -139,11 +139,11 @@
     }
 }</code></pre>
 
-    <p>This suffers from the exact same issues: <code>Transaction</code> takes on the burden of creating <code>Goods</code>, violating the Single Responsibility Principle. Future modifications to the creation logic would force changes to <code>Transaction</code> (and worse, if other classes like <code>ClassX</code> or <code>ClassY</code> also instantiate <code>Goods</code>, the duplication spreads).</p>
+    <p>This suffers from the same issues: <code>Transaction</code> takes on the burden of creating <code>Goods</code>, violating the Single Responsibility Principle. Future modifications to the creation logic would force changes to <code>Transaction</code>&mdash;and if other classes like <code>ClassX</code> or <code>ClassY</code> also instantiate <code>Goods</code>, the duplication spreads.</p>
 
     <p>A potential fix is to move the creation logic into <code>Goods</code> itself. But is that always the right architectural choice?</p>
 
-    <p>It depends. If creating <code>Goods</code> is merely a matter of manageable complexity that doesn't pollute the class, and the logic is highly stable, then putting a static <code>create</code> method inside <code>Goods</code> is perfectly fine (and common in practice). However, if the creation process involves complex assembly of multiple dependencies and is subject to frequent change, this instability will bleed into <code>Goods</code> itself. Fundamentally, forcing <code>Goods</code> to construct itself violates Single Responsibility&mdash;creation is a consumer's or coordinator's responsibility, not the provider's.</p>
+    <p>It depends. If creating <code>Goods</code> is manageable and the logic is stable, a static <code>create</code> method inside <code>Goods</code> is perfectly fine (and common in practice). If the creation process involves complex assembly of multiple dependencies and is subject to frequent change, this instability will bleed into <code>Goods</code> itself. Fundamentally, forcing <code>Goods</code> to construct itself violates Single Responsibility&mdash;creation is a consumer's or coordinator's responsibility, not the provider's.</p>
 
     <p>We are left with a classic design contradiction: we don't want consumers (like <code>Transaction</code> and <code>Order</code>) to know the construction details of <code>Goods</code> (which would compromise their stability), yet we also don't want the provider (<code>Goods</code>) to construct itself (which would compromise its own stability). How do we resolve this deadlock?</p>
 
@@ -158,11 +158,11 @@
 
     <p>Now, any change to the creation logic of <code>Goods</code> is isolated to the <code>GoodsFactory</code>&mdash;leaving <code>Transaction</code>, <code>Order</code>, and <code>Goods</code> completely untouched. This is the essence of the <strong>Simple Factory</strong>.</p>
 
-    <p>Here we see the Factory Pattern solving creation complexity through <strong>isolation</strong>: the unstable, volatile process of instantiating <code>Goods</code> is confined to a separate, single-responsibility <code>GoodsFactory</code>. This isolates the rest of our system from instability, ensuring overall design robustness.</p>
+    <p>This is the Factory Pattern solving creation complexity through <strong>isolation</strong>: the volatile process of instantiating <code>Goods</code> is confined to a separate, single-responsibility <code>GoodsFactory</code>, shielding the rest of the system from instability.</p>
 
     <h2>Factory Method</h2>
 
-    <p>While our previous example illustrated isolation beautifully, it did not showcase <strong>abstraction</strong> to its full potential (beyond the basic concept of encapsulating creation logic).</p>
+    <p>Our previous example illustrated isolation, but did not showcase <strong>abstraction</strong> to its full potential.</p>
 
     <p>Recall our gas station scenario: customers can buy fuel, convenience store items, or virtual goods like digital coupons. A robust design abstracts these variants under a single <code>GoodsInterface</code>, implemented by distinct classes:</p>
 
@@ -209,9 +209,9 @@ class Coupon implements GoodsInterface { }</code></pre>
 
     <p>What are the limitations of this Simple Factory approach?</p>
 
-    <p>Abstracting <code>Goods</code> into <code>GoodsInterface</code> signals that we expect high variability in product types in the future. We introduced the interface to improve overall design stability, ensuring other system components depend on a stable abstraction rather than volatile, concrete implementations. However, this also means we must constantly modify our simple factory, tacking on more conditional branches. <code>GoodsFactory</code> itself becomes highly unstable. Furthermore, if the creation logic for each product type is complex, the factory class quickly becomes a bloated, unmaintainable mess.</p>
+    <p>Abstracting <code>Goods</code> into <code>GoodsInterface</code> signals that we expect high variability in product types. We introduced the interface to improve design stability, ensuring other components depend on a stable abstraction rather than volatile concrete implementations. However, we must constantly modify our simple factory, tacking on more conditional branches. <code>GoodsFactory</code> itself becomes unstable. If the creation logic for each product type is complex, the factory class quickly becomes bloated and unmaintainable.</p>
 
-    <p>Applying the exact same logic we used for <code>Goods</code>, we can introduce another abstraction layer&mdash;an interface&mdash;to solve the factory's own instability.</p>
+    <p>Applying the same logic we used for <code>Goods</code>, we can introduce another abstraction layer&mdash;an interface&mdash;to solve the factory's own instability.</p>
 
     <p>We extract a <code>FactoryInterface</code>:</p>
 
@@ -254,7 +254,7 @@ class CouponFactory implements FactoryInterface {
     }
 }</code></pre>
 
-    <p>You must be joking! <code>Transaction</code> has not fundamentally improved. We have merely shifted the conditional branching from "creating goods" to "creating factories." <code>Transaction</code> remains cluttered with object-instantiation logic that is entirely unrelated to its core responsibility of executing a transaction. Every time we introduce a new product type, we are forced to modify <code>Transaction</code>&mdash;even though it should remain entirely decoupled from product and factory variations.</p>
+    <p>This solves nothing. <code>Transaction</code> has not fundamentally improved&mdash;we have merely shifted the conditional branching from "creating goods" to "creating factories." <code>Transaction</code> remains cluttered with object-instantiation logic entirely unrelated to its core responsibility. Every time we introduce a new product type, we must modify <code>Transaction</code>&mdash;even though it should remain decoupled from product and factory variations.</p>
 
     <p>To tie it all together, the Factory Method pattern introduces one final piece: a <strong>"factory of factories"</strong> (often implemented as a container) that encapsulates the selection and instantiation of the factories themselves:</p>
 
@@ -274,15 +274,15 @@ class CouponFactory implements FactoryInterface {
 
     <p><img src="images/factory-03.png" alt="Factory method pattern UML diagram"></p>
 
-    <p>Now, <code>Transaction</code> and our specialized factories are perfectly stable, with razor-sharp single responsibilities and excellent extensibility. The only remaining point of instability is the <code>GoodsFactoryContainer</code>. In other words, we have successfully swept the instability out of <code>Transaction</code> and <code>Order</code>, concentrating it inside <code>GoodsFactoryContainer</code>.</p>
+    <p>Now, <code>Transaction</code> and our specialized factories are stable, with clear single responsibilities and excellent extensibility. The only remaining point of instability is the <code>GoodsFactoryContainer</code>. We have transferred the instability from <code>Transaction</code> and <code>Order</code> into <code>GoodsFactoryContainer</code>.</p>
 
     <p>In software architecture, <strong>instability can only be transferred, never truly eliminated</strong>. Our ultimate goal is simply to isolate and minimize the blast radius of this instability, thereby maximizing the stability of the rest of our system.</p>
 
     <p>If instability can only be transferred, why bother moving it at all?</p>
 
-    <p>In our gas station system, product creation is inherently unstable due to the shifting, volatile nature of real-world business requirements. This variation is what threatens the stability of our code. By extracting this volatile creation logic away from the stable business process of handling an order, abstracting it behind clean interfaces, and hiding the concrete resolution inside a container, we ensure that future changes to product types will never leak into our transaction-processing logic.</p>
+    <p>In our gas station system, product creation is inherently unstable due to the shifting nature of business requirements. This variation threatens the stability of our code. By extracting this volatile creation logic from the stable business process of handling an order, abstracting it behind clean interfaces, and hiding the concrete resolution inside a container, we ensure that future changes to product types never leak into our transaction-processing logic.</p>
 
-    <p>Notice the elegant simplicity of the client code:</p>
+    <p>Notice the simplicity of the client code:</p>
 
     <pre><code>$factory = GoodsFactoryContainer::getFactory($type);
 $goods = $factory->create($goodsId);</code></pre>
@@ -291,17 +291,17 @@ $goods = $factory->create($goodsId);</code></pre>
 
     <p><code>Order</code> depends on <code>GoodsInterface</code>. Who resolves that interface? <code>FactoryInterface</code>. And who resolves <code>FactoryInterface</code>? <code>GoodsFactoryContainer</code>.</p>
 
-    <p>If we need to adjust product creation logic in the future, the change is entirely self-contained. No modifications leak past the boundary of <code>GoodsFactoryContainer</code> and its specific factory classes. Because the container is designed explicitly to handle this volatile selection, modifying it does not violate the spirit of the Open-Closed Principle or Single Responsibility Principle. (In contrast, forcing changes upon <code>Transaction</code> or <code>Order</code> to accommodate new products <em>would</em> be a direct violation, as those classes should have zero awareness of creation details).</p>
+    <p>If we need to adjust product creation logic, the change is entirely self-contained. No modifications leak past <code>GoodsFactoryContainer</code> and its factory classes. Because the container is designed to handle volatile selection, modifying it does not violate the Open-Closed Principle or Single Responsibility Principle. (Forcing changes upon <code>Transaction</code> or <code>Order</code> to accommodate new products <em>would</em> violate these principles, as those classes should have zero awareness of creation details).</p>
 
-    <p>Through the twin pillars of abstraction and isolation, the Factory Pattern elegantly tames object creation complexity. However, it comes with a prominent warning: if your domain model has multi-dimensional variations, the number of concrete classes and corresponding factories can explode, severely harming maintainability. For instance, if your products vary across two independent dimensions with three variations each, you quickly end up with 3 &times; 3 = 9 classes and 9 factories. This is precisely where the <strong>Abstract Factory</strong> shines: it collapses these dimensions by grouping related products, letting a single factory handle an entire product family, thereby preventing class explosion.</p>
+    <p>Through abstraction and isolation, the Factory Pattern tames object creation complexity. However, it carries a caveat: if your domain model has multi-dimensional variations, the number of concrete classes and corresponding factories can explode. For instance, products varying across two independent dimensions with three variations each yield 3 &times; 3 = 9 classes and 9 factories. This is where the <strong>Abstract Factory</strong> shines: it collapses these dimensions by grouping related products, letting a single factory handle an entire product family and preventing class explosion.</p>
 
-    <p>In practice, I have rarely encountered real-world scenarios that genuinely warranted such a complex setup, which is why I've omitted an Abstract Factory implementation here. If your design requires complex, multi-dimensional inheritance, it is usually a sign that your architecture is leaning too heavily on inheritance&mdash;a common pitfall. In modern software engineering, we prefer <strong>composition over inheritance</strong> (leveraging patterns like the Decorator or Strategy) to keep our systems lean and flexible.</p>
+    <p>In practice, I have rarely encountered a real-world scenario that warranted such a complex setup, which is why I have omitted an Abstract Factory implementation here. If your design requires complex, multi-dimensional inheritance, it is usually a sign that your architecture leans too heavily on inheritance&mdash;a common pitfall. Modern software engineering prefers <strong>composition over inheritance</strong> (leveraging patterns like the Decorator or Strategy) to keep systems lean and flexible.</p>
 
     <h2>Summary</h2>
 
-    <p>The Factory Pattern is highly prevalent in modern frameworks. Perhaps the most famous real-world example is the <strong>Inversion of Control (IoC) Container</strong>. An IoC container is essentially a centralized "super-factory" tasked with instantiating and managing objects across the entire system. It automatically resolves deep, complex dependency trees, allowing developers to configure which concrete implementation resolves a given interface at the outermost configuration layer&mdash;exactly what factories excel at.</p>
+    <p>The Factory Pattern is prevalent in modern frameworks. The most famous real-world example is the <strong>Inversion of Control (IoC) Container</strong>&mdash;a centralized factory that instantiates and manages objects across the entire system. It automatically resolves deep dependency trees, allowing developers to configure which concrete implementation resolves a given interface at the outermost configuration layer.</p>
 
-    <p>When applying the Factory Pattern in your projects, always adhere to the <strong>KISS principle</strong> (Keep It Simple, Stupid). Start with a Simple Factory. In the early phases of a system's lifecycle, our domain understanding is rarely deep enough to justify elaborate architectures. Reaching for heavy machinery prematurely invariably leads to over-engineering. Remember: there are no silver bullets in software design. Every design pattern introduces trade-offs in readability, complexity, and cognitive load. The Factory Pattern is no exception (as we've seen, even the Factory Method requires a container helper, adding structural overhead). As the codebase matures and we refactor, our understanding will crystallize. Only when we encounter concrete pain points should we transition to more complex abstractions.</p>
+    <p>When applying the Factory Pattern, adhere to the <strong>KISS principle</strong> (Keep It Simple, Stupid). Start with a Simple Factory. In the early phases of a system's lifecycle, our domain understanding is rarely deep enough to justify elaborate architectures. Reaching for heavy machinery prematurely leads to over-engineering. There are no silver bullets in software design; every pattern introduces trade-offs in readability, complexity, and cognitive load. The Factory Pattern is no exception&mdash;even the Factory Method requires a container helper, adding structural overhead. As the codebase matures and we refactor, our understanding crystallizes. Only when we encounter concrete pain points should we transition to more complex abstractions.</p>
 
     <p>To summarize:</p>
 

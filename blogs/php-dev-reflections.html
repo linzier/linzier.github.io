@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PHP Development Reflections: Thoughts on Backend Development</title>
+  <title>PHP Development Reflections</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,12 +17,12 @@
 </header>
 <div class="container">
   <article>
-    <h1>PHP Development Reflections: Thoughts on Backend Development</h1>
+    <h1>PHP Development Reflections</h1>
     <div class="meta">2020-04-20 | Software Engineering</div>
 
     <h2>Introduction</h2>
 
-    <p>After years of working with PHP and diverse backend technologies, I have accumulated a set of observations about what goes wrong in large-scale systems and how we can construct them more thoughtfully. This article is a collection of those reflections &mdash; the recurring pitfalls I have observed, the architectural patterns that offer relief, and the conceptual clarifications I wish someone had shared with me earlier in my career.</p>
+    <p>After years of working with PHP and diverse backend technologies, I have collected a set of observations about what goes wrong in large-scale systems and how to build them better. This article covers the recurring pitfalls, the architectural patterns that help, and the conceptual clarifications I wish I had known earlier.</p>
 
     <h2>Current Problems in Backend Development</h2>
 
@@ -32,7 +32,7 @@
 
     <h3>God Services</h3>
 
-    <p>A "God Service" is a class or module that knows too much and does too much. It handles user authentication, orchestrates payments, sends emails, and generates reports &mdash; all within the same 3,000-line file. God services emerge organically as developers add "just one more quick feature" to an existing class. They are notoriously difficult to test, understand, and modify without causing cascading regressions.</p>
+    <p>A "God Service" is a class or module that knows too much and does too much. It handles user authentication, orchestrates payments, sends emails, and generates reports &mdash; all within the same 3,000-line file. God services emerge organically as developers add "just one more quick feature" to an existing class. They are difficult to test, understand, and modify without causing cascading regressions.</p>
 
     <h3>Duplicate Functionality</h3>
 
@@ -40,15 +40,15 @@
 
     <h3>Anemic Models</h3>
 
-    <p>An anemic model is a domain object that acts as a passive bag of data (with only getters and setters) but lacks any real behavior. All business logic is extracted into external service classes that manipulate the model's state. This directly contradicts the core premise of object-oriented design, where objects are meant to encapsulate both data and the behavior operating on that data.</p>
+    <p>An anemic model is a domain object that acts as a passive bag of data (with only getters and setters) but lacks any real behavior. All business logic is extracted into external service classes that manipulate the model's state. This contradicts the premise of object-oriented design: objects should encapsulate both data and the behavior that operates on it.</p>
 
     <h3>Tech-Oriented Module Division</h3>
 
-    <p>Many systems are structured by technical layer rather than by business capability. Developers organize code into folders like <code>controllers/</code>, <code>services/</code>, <code>repositories/</code>, and <code>models/</code>. Consequently, tracing a single business feature turns into a jarring exercise in folder-hopping. While this organization is convenient from a purely technical standpoint, it obscures the actual business domain.</p>
+    <p>Many systems are structured by technical layer rather than by business capability. Developers organize code into folders like <code>controllers/</code>, <code>services/</code>, <code>repositories/</code>, and <code>models/</code>. Consequently, tracing a single business feature turns into a jarring exercise in folder-hopping. While technically convenient, this organization obscures the business domain.</p>
 
     <h3>Frontend-Backend Decoupling and Logic Duplication</h3>
 
-    <p>When the frontend and backend are developed as isolated projects, teams are often tempted to duplicate validation, transformations, and business rules in both codebases. The frontend validates user input using its own logic, while the backend repeats the process on the server. When a business rule changes, both codebases must be carefully updated in tandem. This duplication introduces high maintenance costs and is a breeding ground for subtle, frustrating inconsistencies.</p>
+    <p>When the frontend and backend are developed as isolated projects, teams are often tempted to duplicate validation, transformations, and business rules in both codebases. The frontend validates user input using its own logic, while the backend repeats the process on the server. When a business rule changes, both codebases must be carefully updated in tandem. This duplication drives high maintenance costs and produces subtle inconsistencies.</p>
 
     <h3>Framework Impedance Mismatch and Conway's Law</h3>
 
@@ -56,7 +56,7 @@
 
     <h3>OOP Skepticism</h3>
 
-    <p>After observing years of poorly applied object-oriented design &mdash; massive classes, deep and fragile inheritance trees, and gratuitous abstractions &mdash; many developers become cynical about OOP as a whole. They declare object-oriented programming to be overhyped and pivot completely to functional or procedural paradigms. However, the root problem is not OOP itself, but rather the superficial application of its ideas without a deep understanding of cohesion, coupling, and abstraction.</p>
+    <p>After observing years of poorly applied object-oriented design &mdash; massive classes, deep and fragile inheritance trees, and gratuitous abstractions &mdash; many developers become cynical about OOP as a whole. They declare OOP overhyped and pivot to functional or procedural paradigms. The root problem is not OOP itself, but its shallow application without understanding cohesion, coupling, and abstraction.</p>
 
     <h2>Design Patterns That Help</h2>
 
@@ -64,7 +64,7 @@
 
     <p>The Dependency Inversion Principle (the "D" in SOLID) states that high-level modules should not depend on low-level modules; both must depend on abstractions. In practice, this means a service should not be responsible for instantiating its own dependencies; instead, those dependencies should be injected from the outside.</p>
 
-    <p>Consider a service that dispatches email notifications. In a naive implementation, the service instantiates a concrete <code>EmailSender</code> directly. This tightly couples the service to a specific delivery mechanism. By adopting dependency injection, the service instead accepts an <code>EmailSenderInterface</code> in its constructor. The actual implementation (SMTP, SendGrid, or a mock for unit testing) is determined and injected externally.</p>
+    <p>Consider a service that dispatches email notifications. In a naive implementation, the service instantiates a concrete <code>EmailSender</code> directly. This tightly couples the service to a specific delivery mechanism. With dependency injection, the service accepts an <code>EmailSenderInterface</code> in its constructor instead. The actual implementation (SMTP, SendGrid, or a mock for unit testing) is determined and injected externally.</p>
 
     <p>The fundamental insight here is the separation of <strong>usage</strong> from <strong>construction</strong>. The service consumes the dependency but remains completely agnostic about how it is created. This decoupling makes the service easy to test with test doubles, straightforward to configure, and highly readable due to its explicit contract.</p>
 

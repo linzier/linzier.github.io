@@ -26,7 +26,7 @@
 
     <p>I plan to write a series of articles exploring tree-based data structures: binary search trees, red-black trees, skip lists, and B-trees. Each of these structures was designed to solve the same fundamental challenge: how to efficiently insert, delete, and search for elements within a massive dataset.</p>
 
-    <p>In this first installment, we will cover the absolute foundation of this family: the Binary Search Tree (BST).</p>
+    <p>In this first installment, we cover the foundation of this family: the Binary Search Tree (BST).</p>
 
     <h2>The Basic Problem</h2>
 
@@ -52,7 +52,7 @@
 
     <h2>The Problem with Binary Search</h2>
 
-    <p>However, binary search relies on an array. Unfortunately, arrays are highly inefficient for insertions and deletions.</p>
+    <p>Binary search relies on an array, however &mdash; and arrays are inefficient for insertions and deletions.</p>
 
     <h2>The Core Insight: From Arrays to Trees</h2>
 
@@ -72,7 +72,7 @@
 
     <h2>Special Case: Finding the Minimum Element</h2>
 
-    <p>To find the minimum, simply start at the root and continuously traverse down the left child pointers until you can go no further.</p>
+    <p>To find the minimum, start at the root and follow the left child pointers until reaching a leaf.</p>
 
     <p><img src="images/bst-06.png" alt="Finding the minimum element by going left"></p>
 
@@ -115,7 +115,7 @@
 
     <h2>The Problem with Binary Search Trees</h2>
 
-    <p>Because new nodes are always inserted as leaf nodes at the bottom of the tree, the tree's height can become highly unbalanced and skewed depending on the insertion order.</p>
+    <p>Because new nodes are always inserted as leaves, the tree can become severely unbalanced and skewed depending on insertion order.</p>
 
     <p><img src="images/bst-13.png" alt="A skewed binary search tree degenerating into a linked list"></p>
 

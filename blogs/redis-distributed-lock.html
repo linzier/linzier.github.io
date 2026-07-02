@@ -25,7 +25,7 @@
     <h2>The Scenario</h2>
     <p>Imagine you're running a batch processing service. You have multiple instances of the service running in production, and every minute a scheduler pushes a batch of tasks into a message queue. Each instance picks up tasks and processes them.</p>
     <p>There is just one catch: the scheduler is naive—it has no knowledge of which tasks are already queued. As a result, it might enqueue duplicate tasks, leading to multiple instances picking up and processing the exact same workload.</p>
-    <p>How do you prevent this? You need a way for the instances to coordinate — a way to say "I'm working on task X, don't touch it." In a single-process world, you'd use a local lock. But with multiple processes across multiple machines, you need a <strong>distributed lock</strong>.</p>
+    <p>The solution: a coordination mechanism that lets instances declare "I'm working on task X, don't touch it." In a single-process system, a local lock suffices. Across multiple machines, you need a <strong>distributed lock</strong>.</p>
 
     <p><img src="images/redis-lock-02.png" alt="Batch processing service flow"></p>
 
@@ -41,8 +41,8 @@
     <p>This works... until it doesn't.</p>
 
     <h2>First Failure: The Lock Never Expires</h2>
-    <p>What happens if your instance crashes after acquiring the lock but before releasing it? The key will persist in Redis indefinitely. As a result, no other instance can ever acquire the lock, leaving the task permanently stuck in limbo.</p>
-    <p><strong>The fix:</strong> Associate a TTL (time-to-live) with the key so that it automatically expires after a designated duration.</p>
+    <p>If the instance crashes after acquiring the lock but before releasing it, the key persists in Redis indefinitely. No other instance can acquire the lock, and the task is stuck permanently.</p>
+    <p><strong>The fix:</strong> Set a TTL (time-to-live) on the key so it expires automatically.</p>
     <pre><code>SET lock:task:123 "instance-1" EX 30 NX</code></pre>
     <p>This is an atomic operation: set the key with a 30-second expiry, but only if it doesn't already exist. Now, even if the instance crashes, the lock will automatically be released after 30 seconds.</p>
     <p>Problem solved, right? Not quite.</p>
@@ -62,7 +62,7 @@
       <li>Instance A finishes and deletes the lock — but it just deleted Instance B's lock!</li>
       <li>Instance C can now also acquire the lock. Both B and C are processing the same task.</li>
     </ol>
-    <p>The root of the issue is that Instance A inadvertently deleted a lock it no longer owned.</p>
+    <p>Instance A inadvertently deleted a lock it no longer owned.</p>
     <p><strong>The fix:</strong> Associate each lock acquisition with a unique owner identifier (such as a UUID), and ensure only the matching owner can release it.</p>
     <pre><code>// Acquire: use a random value as the owner ID
 SET lock:task:123 "owner-uuid-abc" EX 30 NX
@@ -71,8 +71,8 @@ SET lock:task:123 "owner-uuid-abc" EX 30 NX
 if redis.get("lock:task:123") == "owner-uuid-abc" then
     redis.del("lock:task:123")
 end</code></pre>
-    <p>But wait — this check-then-delete is not atomic. Between the <code>GET</code> and the <code>DEL</code>, the lock could expire and be acquired by someone else. We need to make it atomic.</p>
-    <p><strong>The real fix:</strong> Use a Lua script. Redis executes Lua scripts atomically — no other command can run in between.</p>
+    <p>However, this check-then-delete is not atomic. Between the <code>GET</code> and the <code>DEL</code>, the lock could expire and be acquired by another instance.</p>
+    <p><strong>The fix:</strong> Use a Lua script. Redis executes Lua scripts atomically.</p>
     <pre><code>local val = redis.call('GET', KEYS[1])
 if val == ARGV[1] then
     return redis.call('DEL', KEYS[1])
@@ -83,7 +83,7 @@ end</code></pre>
 
     <h2>Optimization 1: Lock Waiting with Retry</h2>
     <p>So far, our lock acquisition is non-blocking: if the lock is held, you get 0 and that's it. But in many scenarios, you want to wait for the lock to become available.</p>
-    <p>The simplest approach is polling with retry:</p>
+    <p>The simplest approach: polling with retry.</p>
     <pre><code>func acquireLock(key, value, ttl, retryCount, retryDelay) {
     for i := 0; i &lt; retryCount; i++ {
         if redis.Set(key, value, ttl, "NX") {
@@ -93,18 +93,18 @@ end</code></pre>
     }
     return false
 }</code></pre>
-    <p>If the acquisition fails, the client waits for a brief duration before retrying, up to a maximum of <code>retryCount</code> times. Crucially, the retry interval should incorporate a randomized backoff (jitter) to mitigate thundering herd problems when multiple instances attempt to acquire the lock simultaneously.</p>
+    <p>On failure, the client waits before retrying, up to <code>retryCount</code> times. The retry interval should include randomized backoff (jitter) to avoid thundering herd problems when multiple instances compete for the lock.</p>
 
     <h2>Optimization 2: Lock Timeout Detection</h2>
-    <p>Here's a subtle issue: what if acquiring the lock itself takes longer than the TTL?</p>
-    <p>Imagine:</p>
+    <p>Consider this: what if acquiring the lock itself takes longer than the TTL?</p>
+    <p>Scenario:</p>
     <ol>
       <li>Instance A tries to acquire the lock. It's held by someone else.</li>
       <li>Instance A retries for 40 seconds before the lock becomes available and it acquires it.</li>
       <li>But the TTL is only 30 seconds.</li>
       <li>Instance A starts processing, but the lock will expire in 30 seconds — before the task is done.</li>
     </ol>
-    <p>The lock is effectively useless because it expires before the work is complete.</p>
+    <p>The lock is useless: it expires before the work is complete.</p>
     <p><strong>The fix:</strong> Record the time when you start trying to acquire the lock. After acquisition, check if the elapsed time exceeds the TTL. If so, don't proceed — the lock is unreliable.</p>
     <pre><code>startTime := time.Now()
 acquired := acquireLock(key, value, ttl, retryCount, retryDelay)
@@ -123,7 +123,7 @@ if time.Since(startTime) &gt; ttl {
       <li>If the TTL is too aggressive (short), the lock may expire prematurely before the task completes.</li>
       <li>If the TTL is too conservative (long), a crashed instance will leave the lock orphaned, blocking other instances for an unacceptable duration.</li>
     </ul>
-    <p>The ideal solution: set a reasonable initial TTL, but periodically extend it while you're still working. This is the <strong>watchdog</strong> pattern.</p>
+    <p>The solution: set a reasonable initial TTL and periodically extend it while working. This is the <strong>watchdog</strong> pattern.</p>
     <pre><code>// After acquiring the lock, start a goroutine to refresh the TTL
 go func() {
     ticker := time.NewTicker(ttl / 3)
@@ -141,12 +141,12 @@ go func() {
         }
     }
 }()</code></pre>
-    <p>The watchdog renews the TTL every <code>ttl/3</code> seconds (or some fraction of the TTL). When the task completes, the watchdog stops and the lock is released normally. If the instance crashes, the watchdog stops too, and the lock expires naturally.</p>
-    <p>This is exactly how Redisson (the popular Java Redis client) implements its lock watchdog. The default TTL is 30 seconds, and the watchdog renews it every 10 seconds.</p>
+    <p>The watchdog renews the TTL every <code>ttl/3</code> seconds. When the task completes, the watchdog stops and the lock is released normally. If the instance crashes, the watchdog stops and the lock expires naturally.</p>
+    <p>This is how Redisson (the popular Java Redis client) implements its lock watchdog: a 30-second TTL renewed every 10 seconds.</p>
 
     <h2>What About Reentrancy?</h2>
     <p>A reentrant lock allows the same thread or owner to acquire the lock multiple times without deadlocking. Java's <code>ReentrantLock</code> is a classic example of this. Do you actually need reentrancy for distributed locks?</p>
-    <p>In practice, <strong>you rarely need reentrancy in a distributed context</strong>. If your architecture demands acquiring the same lock twice in a single execution flow, it is often a symptom of design smells:</p>
+    <p><strong>You rarely need reentrancy in a distributed context.</strong> If your code requires acquiring the same lock twice in a single execution flow, it often signals a design problem:</p>
     <ul>
       <li>The lock's scope is too coarse-grained and should be narrowed down.</li>
       <li>The code path is tangled. It is better to refactor and decouple the locked operations from unlocked helper routines.</li>
@@ -156,10 +156,10 @@ go func() {
     <pre><code>HSET lock:task:123 owner "uuid" count 1  // first acquisition
 HINCRBY lock:task:123 count 1             // reentrant acquisition
 HINCRBY lock:task:123 count -1            // release (delete when count reaches 0)</code></pre>
-    <p>But seriously, think hard about whether you need this. Most of the time, you don't.</p>
+    <p>In practice, reconsider whether you truly need this. Most applications do not.</p>
 
     <h2>Not a Silver Bullet: When to Use Lua Instead</h2>
-    <p>Distributed locks are often overused. Consider the classic seckill (flash sale) scenario: you have 100 items in inventory, and thousands of users try to buy at the same time. The naive approach:</p>
+    <p>Distributed locks are often overused. Consider the classic flash-sale scenario: you have 100 items in inventory, and thousands of users try to buy at the same time. The naive approach:</p>
     <pre><code>// WRONG: using a distributed lock for inventory deduction
 lock("inventory:item:123")
 stock = redis.get("stock:item:123")
@@ -168,7 +168,7 @@ if stock &gt; 0 then
     create_order()
 end
 unlock("inventory:item:123")</code></pre>
-    <p>This works, but it's terrible for performance. Every request has to wait for the lock, creating a massive bottleneck.</p>
+    <p>This works but creates a performance bottleneck. Every request waits for the lock.</p>
     <p>The better approach: use a Lua script to make the check-and-decrement atomic.</p>
     <pre><code>local stock = tonumber(redis.call('GET', KEYS[1]))
 if stock &gt; 0 then
@@ -177,11 +177,11 @@ if stock &gt; 0 then
 else
     return 0  -- sold out
 end</code></pre>
-    <p>The Lua script runs atomically in Redis — no lock needed. This is simpler, faster, and more reliable than a distributed lock.</p>
+    <p>The script runs atomically — no lock needed. Simpler, faster, and more reliable than a distributed lock.</p>
     <p><strong>Rule of thumb:</strong> If you can express the entire critical section as a single Redis operation (or Lua script), do that instead of using a distributed lock. Distributed locks are for coordinating actions <em>outside</em> of Redis — like preventing multiple instances from processing the same task.</p>
 
     <h2>Summary: Building a Production-Ready Distributed Lock</h2>
-    <p>Let's recap the evolution:</p>
+    <p>The evolution:</p>
     <ol>
       <li><strong>SETNX</strong> — basic lock, but no expiry. Crashed instances hold locks forever.</li>
       <li><strong>SET ... EX NX</strong> — add TTL. Locks auto-expire, but now you might unlock someone else's lock.</li>
@@ -196,16 +196,16 @@ end</code></pre>
       <li>Ownership tracking</li>
       <li>Failure modes you don't have with local locks (Redis down, network partition, clock skew)</li>
     </ul>
-    <p>Don't reach for a distributed lock unless you truly need cross-process coordination. And when you do, use a battle-tested library like Redisson (Java), Redlock (multiple languages), or go-redsync (Go) rather than rolling your own.</p>
+    <p>Do not reach for a distributed lock unless you need cross-process coordination. When you do, use a battle-tested library like Redisson (Java), Redlock (multiple languages), or go-redsync (Go) rather than building your own.</p>
 
     <h2>Idempotency vs. Distributed Locks</h2>
     <p>Finally, a note on a common confusion. Distributed locks and idempotency solve <strong>different problems</strong>:</p>
     <ul>
-      <li><strong>Distributed locks</strong> prevent concurrent execution. They ensure that only one process does a thing at a time.</li>
-      <li><strong>Idempotency</strong> ensures that doing the same thing multiple times has the same effect as doing it once. It handles retries, duplicate messages, and replays.</li>
+      <li><strong>Distributed locks</strong> prevent concurrent execution. Only one process executes a task at a time.</li>
+      <li><strong>Idempotency</strong> ensures that repeating an operation has the same effect as executing it once. It handles retries and duplicate messages.</li>
     </ul>
-    <p>In our batch processing example, the distributed lock prevents two instances from processing the same task simultaneously. But if Instance A processes the task, crashes, and Instance B retries the task, the lock won't help — you need idempotency for that (e.g., a unique constraint in the database, or an idempotency key).</p>
-    <p>Often, you need both. The lock handles the concurrent case; idempotency handles the sequential-duplicate case. Understanding the difference is key to designing robust distributed systems.</p>
+    <p>In our batch processing example, the distributed lock prevents two instances from processing the same task simultaneously. But if Instance A processes the task, crashes, and Instance B retries, the lock will not help &mdash; you need idempotency (e.g., a unique database constraint or an idempotency key).</p>
+    <p>Often, you need both. The lock handles concurrency; idempotency handles sequential duplicates. Understanding the difference is essential for robust distributed systems.</p>
   </article>
 </div>
 <footer>

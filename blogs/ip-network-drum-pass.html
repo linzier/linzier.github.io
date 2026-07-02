@@ -30,9 +30,9 @@
 
     <p>Think of it as a global relay race. A packet starts at your computer and is handed off to your local router. The router inspects the packet's destination address and forwards it to the next hop. That router passes it to the next, and so on, until the packet arrives at its final destination.</p>
 
-    <p>Each "handoff" is called a <strong>hop</strong>. A typical packet might make 10 to 20 hops on its journey from your computer to a server on the other side of the world. Each hop takes a fraction of a second (usually a few milliseconds), and the entire journey is completed in the blink of an eye.</p>
+    <p>Each "handoff" is called a <strong>hop</strong>. A typical packet might make 10 to 20 hops on its journey from your computer to a server on the other side of the world. Each hop takes a fraction of a second (usually a few milliseconds), and the entire journey completes in milliseconds.</p>
 
-    <p>Here is the ingenious part: different packets from the same message don't have to take the same route. Packet 1 might route through New York, while Packet 2 transits through London. The network is highly dynamic &mdash; routers go down, links get congested, and the routing system adapts in real time.</p>
+    <p>The crucial insight: different packets from the same message do not have to take the same route. Packet 1 might route through New York, while Packet 2 transits through London. The network is highly dynamic &mdash; routers go down, links get congested, and the routing system adapts in real time.</p>
 
     <p>This is called <strong>packet switching</strong>, and it is the foundational design principle of the internet. It is what makes the internet incredibly robust, scalable, and efficient.</p>
 
@@ -46,7 +46,7 @@
 
     <p>For example: <code>192.168.1.100</code></p>
 
-    <p>This is actually the number 192&times;256&sup3; + 168&times;256&sup2; + 1&times;256 + 100 = 3,232,235,876. But thankfully, nobody writes it that way.</p>
+    <p>This is the number 192&times;256&sup3; + 168&times;256&sup2; + 1&times;256 + 100 = 3,232,235,876. Fortunately, nobody writes it that way.</p>
 
     <p>An IPv4 address has two parts:</p>
 
@@ -75,7 +75,7 @@
 
     <h3>IPv6: The Next Generation</h3>
 
-    <p>While IPv4 provides about 4.3 billion addresses (2&sup3;&sup2;), the explosion of internet-connected devices has exhausted this pool. IPv6 was designed to solve this crisis by using 128-bit addresses, providing 3.4&times;10&sup3;&sup8; addresses &mdash; enough to assign a unique IP address to every single grain of sand on Earth.</p>
+    <p>While IPv4 provides about 4.3 billion addresses (2&sup3;&sup2;), the explosion of internet-connected devices has exhausted this pool. IPv6 was designed to solve this crisis by using 128-bit addresses, providing 3.4&times;10&sup3;&sup8; addresses &mdash; enough to assign a unique IP address to every grain of sand on Earth.</p>
 
     <p>IPv6 addresses are written in hexadecimal, with eight groups of four hex digits separated by colons:</p>
 
@@ -103,7 +103,7 @@
 
     <ul>
       <li><strong>Interior Gateway Protocols (IGPs):</strong> Used within a single organization or autonomous system (AS). Examples include OSPF (Open Shortest Path First) and EIGRP (Enhanced Interior Gateway Routing Protocol). These protocols find the shortest path within a network.</li>
-      <li><strong>Exterior Gateway Protocols (EGPs):</strong> Used between different autonomous systems. The protocol used on the public internet is <strong>BGP</strong> (Border Gateway Protocol). BGP is the glue that holds the internet together &mdash; it allows different networks (ISPs, companies, universities) to exchange routing information and reach each other.</li>
+      <li><strong>Exterior Gateway Protocols (EGPs):</strong> Used between different autonomous systems. The protocol used on the public internet is <strong>BGP</strong> (Border Gateway Protocol). BGP is the protocol that binds the internet together &mdash; it allows different networks (ISPs, companies, universities) to exchange routing information and reach each other.</li>
     </ul>
 
     <p>BGP is a sophisticated, policy-driven protocol. Unlike IGPs, which focus purely on finding the shortest path, BGP allows network administrators to enforce business preferences and routing policies. For example, a company might choose to route traffic through one ISP over another to save costs, even if that path is technically longer.</p>
@@ -135,7 +135,7 @@
 
     <p>If you check your computer's IP address, you might see a private address like <code>192.168.1.100</code>. Yet when you visit a website, the server sees a completely different IP &mdash; your ISP's public IP address. How does this happen?</p>
 
-    <p>The magic that makes this possible is <strong>NAT</strong> (Network Address Translation).</p>
+    <p>The mechanism that enables this is <strong>NAT</strong> (Network Address Translation).</p>
 
     <h3>Private vs. Public IPs</h3>
 
@@ -170,7 +170,7 @@
 
     <p>This is technically called <strong>NAPT</strong> (Network Address Port Translation) or <strong>masquerading</strong>. It allows hundreds of devices on a private network to share a single public IP address, using unique port numbers to keep their connections distinct.</p>
 
-    <p>NAT is the primary reason the internet did not run out of IPv4 addresses decades ago. It is a highly practical, enduring workaround that has extended the lifespan of IPv4 by decades.</p>
+    <p>NAT is the primary reason the internet did not exhaust its IPv4 addresses decades ago. It remains a practical, enduring workaround.</p>
 
     <h2>The Journey of a Packet: From Your Computer to a Server</h2>
 
@@ -187,7 +187,7 @@
       <li><strong>Rendering:</strong> Your browser receives the HTTP response and renders the web page.</li>
     </ol>
 
-    <p>All of this unfolds in a fraction of a second. The next time you load a web page, appreciate the incredible journey those packets take &mdash; leaping across routers, bridging oceans and continents, all to deliver a simple webpage or image.</p>
+    <p>All of this unfolds in milliseconds. The next time you load a web page, consider the journey those packets take &mdash; hopping across routers, crossing oceans and continents, to deliver a simple webpage or image.</p>
 
     <h2>Summary</h2>
 
@@ -200,7 +200,7 @@
       <li>The lifecycle of a packet involves DNS resolution, NAT, multi-hop routing, and destination reassembly.</li>
     </ol>
 
-    <p>IP is the elegant, resilient foundation of the internet. It makes no guarantees of delivery (that is TCP's job), but it reliably delivers packets from point A to point B, one hop at a time &mdash; a global game of pass-the-parcel.</p>
+    <p>IP is the elegant, resilient foundation of the internet. It makes no guarantees of delivery (that is TCP's job), but it reliably delivers packets from point A to point B, one hop at a time &mdash; a global game of pass-the-drum.</p>
 
   </article>
 </div>

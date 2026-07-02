@@ -24,11 +24,11 @@
 
     <h2>The Origins of Unicode</h2>
 
-    <p>The journey began in 1987 when two engineers&mdash;Joe Becker from Apple and Lee Collins from Xerox&mdash;set out to investigate the feasibility of a truly universal character set. Their mission was staggeringly ambitious: to design a single, unified character set capable of representing every character in every writing system on Earth.</p>
+    <p>The journey began in 1987 when two engineers&mdash;Joe Becker from Apple and Lee Collins from Xerox&mdash;set out to investigate a truly universal character set. Their mission was ambitious: to design a single character set capable of representing every character in every writing system on Earth.</p>
 
     <p>At the time, this goal was widely considered impossible. How could you fit tens of thousands of Chinese ideographs, thousands of Korean Hangul syllables, and hundreds of alphabetic scripts into a single codespace? The industry consensus held that separate, localized standards for each writing system were the only practical approach.</p>
 
-    <p>However, Becker and Collins made several key architectural insights that completely shifted the paradigm:</p>
+    <p>Becker and Collins made several key architectural insights that shifted the paradigm:</p>
 
     <ol>
       <li><strong>Two Bytes Are Sufficient:</strong> Their analysis revealed that a 16-bit space (yielding 65,536 unique values) could comfortably accommodate all modern writing systems in active use, with ample room to spare. This was a massive revelation: a global character set did not require the memory overhead of 32-bit code points.</li>
@@ -79,13 +79,13 @@
 
     <h2>The Three Encoding Forms</h2>
 
-    <p>Defining code points is only half the battle; we must still serialize those numbers into raw bytes. This translation is managed by the three official <strong>Unicode encoding forms</strong>: UTF-8, UTF-16, and UTF-32.</p>
+    <p>Defining code points is only half the work; we must still serialize those numbers into bytes. This translation is managed by the three official <strong>Unicode encoding forms</strong>: UTF-8, UTF-16, and UTF-32.</p>
 
     <h3>UTF-16: The Original Fixed-Width Ambition</h3>
 
-    <p>When Becker and Collins drafted the initial specifications, they envisioned a simple, 16-bit fixed-width world. They believed 65,536 code points were more than enough to capture all modern human communication. This design was realized as the UTF-16 encoding form.</p>
+    <p>When Becker and Collins drafted the initial specifications, they envisioned a simple 16-bit fixed-width world. They believed 65,536 code points sufficed for all modern human communication. This design was realized as the UTF-16 encoding form.</p>
 
-    <p>However, the sheer scale of CJK characters and the need to support historical scripts eventually shattered this assumption. The 16-bit space was too small to be the final boundary of human history.</p>
+    <p>However, the sheer scale of CJK characters and the need to support historical scripts eventually shattered this assumption. The 16-bit space could not contain all of human written history.</p>
 
     <p>To expand the codespace without breaking existing systems, Unicode introduced <strong>surrogate pairs</strong>. BMP characters (U+0000 to U+FFFF) continue to occupy a single 16-bit code unit. However, characters in supplementary planes (above U+FFFF) are represented as a pair of 16-bit code units, carved out of a dedicated "safe zone" in the BMP known as the <strong>surrogate range</strong>:</p>
 
@@ -103,9 +103,9 @@ High 10 bits: 0x3D8 → high surrogate: U+D800 + 0x3D8 = U+D83D
 Low 10 bits: 0x200 → low surrogate:  U+DC00 + 0x200 = U+DE00
 UTF-16: 0xD83D 0xDE00</code></pre>
 
-    <p>UTF-16 is therefore a <strong>variable-width</strong> encoding, where characters occupy either 2 or 4 bytes. This was a significant departure from Becker's original fixed-width vision, but it was a necessary compromise to encompass the entire active and historical spectrum of human writing.</p>
+    <p>UTF-16 is therefore a <strong>variable-width</strong> encoding, where characters occupy 2 or 4 bytes. This departed from Becker's original fixed-width vision but was necessary to encompass the full spectrum of human writing.</p>
 
-    <p>Today, UTF-16 is the standard memory format inside legacy software runtimes, including Java, .NET, JavaScript engines (V8, JavaScriptCore), and the Windows API layer. These systems represent in-memory strings as arrays of 16-bit code units, mapping supplementary plane characters via surrogate pairs.</p>
+    <p>Today, UTF-16 is the standard in-memory string format in Java, .NET, JavaScript engines (V8, JavaScriptCore), and the Windows API layer. These systems represent strings as arrays of 16-bit code units, encoding supplementary plane characters via surrogate pairs.</p>
 
     <h3>UTF-8: The Defacto Global Standard</h3>
 
@@ -118,21 +118,21 @@ UTF-16: 0xD83D 0xDE00</code></pre>
       <li>U+10000 to U+10FFFF: 4 bytes (formatted as <code>11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</code>)</li>
     </ul>
 
-    <p>The true genius of UTF-8 is its <strong>seamless backward compatibility with ASCII</strong>. The lower 128 code points are encoded identically to legacy ASCII. This meant:</p>
+    <p>The defining advantage of UTF-8 is its <strong>seamless backward compatibility with ASCII</strong>. The lower 128 code points are encoded identically to ASCII. This meant:</p>
 
     <ul>
       <li>Every legacy ASCII file is already, by definition, a valid UTF-8 file.</li>
-      <li>Existing software engines optimized for ASCII can process UTF-8 files safely without crashing, as long as they do not attempt to parse raw, non-ASCII byte regions.</li>
-      <li>Global infrastructure did not require a coordinated, high-risk conversion of database formats; the transition occurred gradually and naturally.</li>
+      <li>Existing ASCII-optimized software can process UTF-8 files safely, provided it does not attempt to parse non-ASCII byte regions.</li>
+      <li>Global infrastructure did not require a coordinated conversion of database formats; the transition occurred gradually.</li>
     </ul>
 
-    <p>This effortless integration was the primary driver behind UTF-8's total victory in the character set wars. The software world had amassed billions of lines of ASCII text and legacy code; UTF-8 coexisted with this heritage, while UTF-16 and UTF-32 demanded breaking, clean-slate rewrites.</p>
+    <p>This effortless integration drove UTF-8's dominance in the character set wars. The software world had amassed billions of lines of ASCII text; UTF-8 coexisted with this heritage, while UTF-16 and UTF-32 demanded breaking, clean-slate rewrites.</p>
 
-    <p>UTF-8 offers several other exceptional design traits:</p>
+    <p>UTF-8 offers several other notable design properties:</p>
     <ul>
       <li><strong>Self-Synchronizing:</strong> If a network stream suffers a packet drop or corruption, a parser can immediately re-align itself to the next character boundary. Lead bytes always begin with a distinctive bit pattern (matching <code>11...0</code>), while trailing continuation bytes are strictly bound to <code>10xxxxxx</code>.</li>
       <li><strong>Hardware Endianness Independent:</strong> Unlike UTF-16 and UTF-32, UTF-8 treats data as a flat array of single bytes. There is no byte order ambiguity, making the format immune to big-endian versus little-endian confusion.</li>
-      <li><strong>Highly Compact:</strong> For Western or English-heavy text, UTF-8 matches the storage efficiency of standard ASCII. It is incredibly efficient for network payloads like HTML, JSON, and source code, where syntax consists largely of ASCII tags and operators.</li>
+      <li><strong>Compact:</strong> For Western or English-heavy text, UTF-8 matches ASCII storage efficiency. It is highly efficient for network payloads such as HTML, JSON, and source code, where syntax consists largely of ASCII characters.</li>
     </ul>
 
     <p>Today, UTF-8 represents the default encoding of the web, accounting for over 98% of surveyed web pages. It is the mandatory encoding format for HTML5, XML, JSON, and almost all modern REST APIs and protocol buffers.</p>
@@ -141,21 +141,21 @@ UTF-16: 0xD83D 0xDE00</code></pre>
 
     <p>UTF-32 represents the ultimate extension of the fixed-width philosophy: every single code point is mapped directly to a single 32-bit code unit. The *n*-th character is guaranteed to live at byte offset *n* &times; 4.</p>
 
-    <p>However, UTF-32 is rarely used for storage or network transport because it introduces severe memory bloat. Since the vast majority of human text falls far below U+10000, the upper two bytes of almost every 4-byte character are simply wasted zeros. In practice, UTF-32 payloads are double the size of UTF-16 and up to four times the size of UTF-8 for western text.</p>
+    <p>However, UTF-32 is rarely used for storage or transport because of severe memory overhead. Since most human text falls below U+10000, the upper two bytes of almost every 4-byte character are wasted zeros. In practice, UTF-32 payloads are twice the size of UTF-16 and up to four times the size of UTF-8 for Western text.</p>
 
     <p>Despite this inefficiency, UTF-32 remains valuable in specialized in-memory string-processing libraries. When an application needs to run complex character indexing, slicing, or position lookups, a fixed-width 4-byte array enables $O(1)$ lookup times. In contrast, variable-width formats like UTF-8 and UTF-16 require linear scanning from the start of the string ($O(N)$ complexity) to locate the *n*-th character.</p>
 
     <h2>The Pragmatic Compromise: Compatibility vs. Purity</h2>
 
-    <p>Unicode's design philosophy prioritizes <strong>round-trip compatibility</strong> with legacy systems. This means that if a character was defined in a pre-Unicode regional standard, Unicode must provide a direct mapping for it, ensuring that converting text from a legacy format to Unicode and back preserves the exact original binary structure.</p>
+    <p>Unicode's design philosophy prioritizes <strong>round-trip compatibility</strong> with legacy systems. If a character was defined in a pre-Unicode regional standard, Unicode must provide a direct mapping, ensuring that converting text from a legacy format to Unicode and back preserves the original binary structure.</p>
 
-    <p>While this principle was crucial for industry adoption, it forced several compromises, most notably the introduction of <strong>duplicate code points</strong> &mdash; different numeric addresses that represent the exact same abstract character.</p>
+    <p>While crucial for industry adoption, this principle forced compromises, most notably <strong>duplicate code points</strong> &mdash; different numeric addresses representing the same abstract character.</p>
 
     <p>A classic example is the <strong>Kelvin sign</strong> (U+212A, "&#x212A;") and the standard <strong>Latin capital letter K</strong> (U+004B, "K"). Visually, they are identical; semantically, they represent the same letter. However, because the Kelvin sign was defined separately in older technical character sets, Unicode assigned it a distinct code point to satisfy the round-trip conversion constraint.</p>
 
-    <p>Similarly, the <strong>Angstrom sign</strong> (U+212B, "&#x212B;") is a duplicate of the precomposed <strong>Latin capital letter A with ring above</strong> (U+00C5, "&#xC5;"), and the <strong>Ohm sign</strong> (U+2126) is a duplicate of the Greek <strong>Latin capital letter Omega</strong> (U+03A9, "&#x3A9;").</p>
+    <p>Similarly, the <strong>Angstrom sign</strong> (U+212B, "&#x212B;") is a duplicate of the precomposed <strong>Latin capital letter A with ring above</strong> (U+00C5, "&#xC5;"), and the <strong>Ohm sign</strong> (U+2126) is a duplicate of the Greek <strong>capital letter Omega</strong> (U+03A9, "&#x3A9;").</p>
 
-    <p>The Unicode standard defines <strong>normalization forms</strong> to detect and resolve these duplicate strings, but the redundant code points remain permanently in the codespace. This represents a highly pragmatic trade-off: structural purity was sacrificed for backward compatibility, and this pragmatism is precisely why Unicode succeeded where purer, academic standards failed.</p>
+    <p>The Unicode standard defines <strong>normalization forms</strong> to detect and resolve these duplicates, but the redundant code points remain permanently. This is a pragmatic trade-off: structural purity was sacrificed for backward compatibility, and this pragmatism is why Unicode succeeded where purer academic standards failed.</p>
 
     <p><img src="images/unicode-03-fullwidth.png" alt="Full Width characters from East Asian standards"><em>Full Width characters inherited from East Asian encoding standards</em></p>
 
@@ -169,7 +169,7 @@ UTF-16: 0xD83D 0xDE00</code></pre>
       <li>Unicode abstracts characters away from physical rendering. Code points denote abstract conceptual units rather than specific visual glyphs.</li>
       <li>The codespace spans 17 planes. Plane 0 (the BMP) houses almost all modern daily text, while Planes 1&ndash;16 accommodate emojis, historical scripts, and rare CJK characters.</li>
       <li>Three standardized encoding forms serialize this data: UTF-8 (variable-width, 1&ndash;4 bytes, completely backward-compatible with ASCII), UTF-16 (variable-width, 2 or 4 bytes, using surrogate pairs for supplementary planes), and UTF-32 (fixed-width, 4 bytes, highly efficient for string index offsets in memory).</li>
-      <li>Ensuring round-trip compatibility with legacy regional encodings forced several compromises, such as duplicate code points (e.g., the Kelvin sign). This pragmatic design paved the way for its universal adoption.</li>
+      <li>Round-trip compatibility with legacy encodings forced compromises such as duplicate code points (e.g., the Kelvin sign). This pragmatism paved the way for universal adoption.</li>
     </ol>
 
     <p>While Unicode is complex, its architecture represents one of the most successful engineering standards in human history, laying the foundation for all modern software internationalization.</p>

@@ -22,7 +22,7 @@
 
     <h2>Three Versions of Branches</h2>
 
-    <p>When working with Git, it is crucial to recognize that there are effectively three "versions" of any given branch at any moment:</p>
+    <p>When working with Git, it is important to recognize that there are effectively three "versions" of any given branch at any moment:</p>
 
     <ol>
       <li><strong>Remote branch</strong> &mdash; The source-of-truth branch as it exists on the remote server (e.g., GitHub or GitLab).</li>
@@ -30,11 +30,11 @@
       <li><strong>Local branch</strong> &mdash; Your active workspace branch on your local machine, where you edit files and make commits.</li>
     </ol>
 
-    <p>Understanding the distinction between these three is crucial for avoiding confusion when pushing, pulling, and merging.</p>
+    <p>Understanding the distinction between these three avoids confusion when pushing, pulling, and merging.</p>
 
     <h2>Repository = Version Control + Working Directory</h2>
 
-    <p>A Git repository is composed of two main parts:</p>
+    <p>A Git repository has two main parts:</p>
 
     <ul>
       <li><strong>The version control database</strong> (the <code>.git</code> directory), which stores all commits, branches, tags, and metadata.</li>
@@ -49,7 +49,7 @@
       <li><strong>Repository (Git Directory)</strong> &mdash; Where committed, immutable snapshots are permanently stored under version control.</li>
     </ul>
 
-    <p>The typical workflow is: edit files in the working directory, stage changes in the staging area, then commit them to the version area.</p>
+    <p>The typical workflow: edit files in the working directory, stage changes in the staging area, then commit them to the repository.</p>
 
     <h2>The .git Directory Overview</h2>
 
@@ -84,7 +84,7 @@
 
     <pre><code>git remote add origin &lt;url&gt;</code></pre>
 
-    <p>Links a local repository to a remote server. The name <code>origin</code> is a convention, not a requirement.</p>
+    <p>Links a local repository to a remote server. <code>origin</code> is a convention, not a requirement.</p>
 
     <h2>Creating Branches from Remote</h2>
 
@@ -96,34 +96,34 @@
 
     <pre><code>git checkout &lt;branch-name&gt;</code></pre>
 
-    <p>Git will automatically set up tracking if there is exactly one remote branch with that name.</p>
+    <p>Git automatically sets up tracking if exactly one remote branch matches that name.</p>
 
     <h2>git pull: Rebase vs Merge</h2>
 
-    <p>At its core, <code>git pull</code> is a shorthand command that executes <code>git fetch</code> followed immediately by either <code>git merge</code> or <code>git rebase</code>.</p>
+    <p><code>git pull</code> is shorthand for <code>git fetch</code> followed by either <code>git merge</code> or <code>git rebase</code>.</p>
 
     <h3>Merge Mode (Default)</h3>
 
     <pre><code>git pull origin &lt;branch&gt;</code></pre>
 
-    <p>This fetches the remote changes and creates a merge commit to combine them with your local branch, resulting in a non-linear history.</p>
+    <p>This fetches remote changes and creates a merge commit, resulting in a non-linear history.</p>
 
     <h3>Rebase Mode</h3>
 
     <pre><code>git pull --rebase origin &lt;branch&gt;</code></pre>
 
-    <p>This fetches remote updates and replays your local, unpushed commits on top of the updated remote branch, yielding a clean, linear commit history.</p>
+    <p>This fetches remote updates and replays your local unpushed commits on top of the updated remote branch, yielding a linear history.</p>
 
     <blockquote>You can set rebase as the default behavior for a branch: <code>git config branch.&lt;name&gt;.rebase true</code></blockquote>
 
     <h2>Merging Branches: Best Practices</h2>
 
-    <p>When merging a feature branch into the main branch, it is recommended to use the <code>--no-ff</code> flag:</p>
+    <p>When merging a feature branch into the main branch, use the <code>--no-ff</code> flag:</p>
 
     <pre><code>git checkout main
 git merge --no-ff feature-branch</code></pre>
 
-    <p>The <code>--no-ff</code> flag forces Git to create a merge commit even when a fast-forward merge would be possible. This preserves the history of the feature branch as a distinct unit of work, making it easier to understand the project history and to revert entire features if needed.</p>
+    <p>The <code>--no-ff</code> flag forces Git to create a merge commit even when a fast-forward merge is possible. This preserves the feature branch history as a distinct unit of work, making it easier to understand the project history and revert entire features if needed.</p>
 
     <h2>git diff: Various Comparisons</h2>
 
@@ -144,19 +144,19 @@ git merge --no-ff feature-branch</code></pre>
 
     <pre><code>git checkout -- &lt;file&gt;</code></pre>
 
-    <p>This discards uncommitted changes in the working directory, restoring the file to the staging area version.</p>
+    <p>This discards uncommitted working directory changes, restoring the file to the staging area version.</p>
 
     <h3>Unstaging Files</h3>
 
     <pre><code>git reset HEAD &lt;file&gt;</code></pre>
 
-    <p>This moves a file from the staging area back to the working directory (unstages it).</p>
+    <p>This unstages a file, moving it from the staging area back to the working directory.</p>
 
     <h3>Resetting to a Previous Commit</h3>
 
     <pre><code>git reset --hard &lt;commit&gt;</code></pre>
 
-    <p>This resets both the staging area and the working directory to match the specified commit, discarding all changes after it. Use with caution.</p>
+    <p>This resets both the staging area and working directory to match the specified commit, discarding all subsequent changes. Use with caution.</p>
 
     <h2>Squashing Commits with Interactive Rebase</h2>
 
@@ -164,13 +164,13 @@ git merge --no-ff feature-branch</code></pre>
 
     <pre><code>git rebase -i HEAD~N</code></pre>
 
-    <p>This opens an editor showing the last N commits. You can mark commits with <code>squash</code> (or <code>s</code>) to combine them with the previous commit, or <code>fixup</code> (or <code>f</code>) to discard the commit message. This is useful for cleaning up a messy commit history before pushing.</p>
+    <p>This opens an editor showing the last N commits. Mark commits with <code>squash</code> (or <code>s</code>) to combine them with the previous commit, or <code>fixup</code> (or <code>f</code>) to discard the commit message. Useful for cleaning up a messy commit history before pushing.</p>
 
     <h2>File History: git blame</h2>
 
     <pre><code>git blame &lt;file&gt;</code></pre>
 
-    <p>This shows the last commit that modified each line of a file, along with the author and date. It is invaluable for understanding why a particular line was changed and who made the change.</p>
+    <p>This shows the last commit that modified each line of a file, along with the author and date&mdash;invaluable for understanding why a line changed and who changed it.</p>
 
     <h2>Git Log: Various Options</h2>
 
@@ -191,15 +191,15 @@ git merge --no-ff feature-branch</code></pre>
 
     <pre><code>git cherry-pick &lt;commit&gt;</code></pre>
 
-    <p>This applies a specific commit from another branch onto the current branch. It is useful when you want to bring in a particular fix or feature without merging the entire branch.</p>
+    <p>This applies a specific commit from another branch onto the current branch&mdash;useful for bringing in a particular fix or feature without merging the entire branch.</p>
 
     <h2>Reverting Merges</h2>
 
-    <p>Reverting a merge commit requires special care because a merge has two parents:</p>
+    <p>Reverting a merge commit requires care because a merge has two parents:</p>
 
     <pre><code>git revert -m 1 &lt;merge-commit&gt;</code></pre>
 
-    <p>The <code>-m 1</code> flag specifies which parent to keep (usually 1, which is the branch you merged into). This creates a new commit that undoes the changes introduced by the merge.</p>
+    <p>The <code>-m 1</code> flag specifies which parent to keep (usually 1, the branch you merged into). This creates a new commit that undoes the merge.</p>
 
     <blockquote>Note: after reverting a merge, if you later want to re-merge the same branch, you must first revert the revert commit, otherwise Git will think those changes are already included.</blockquote>
 
@@ -227,7 +227,7 @@ git merge --no-ff feature-branch</code></pre>
       <li><strong>hotfix/*</strong> &mdash; urgent fixes for production.</li>
     </ul>
 
-    <p>This model works well for projects with scheduled releases but can be overly complex for continuous deployment environments.</p>
+    <p>This model suits projects with scheduled releases but is often too complex for continuous deployment.</p>
 
     <h2>Batch Deleting Branches</h2>
 
@@ -248,14 +248,14 @@ git merge --no-ff feature-branch</code></pre>
       <li><strong>Linux/macOS</strong>: LF (<code>\n</code>)</li>
     </ul>
 
-    <p>When developers on different platforms collaborate, line ending mismatches can cause spurious diffs and build failures. Git provides the <code>core.autocrlf</code> setting to handle this:</p>
+    <p>Cross-platform collaboration causes line ending mismatches, leading to spurious diffs and build failures. Git provides the <code>core.autocrlf</code> setting:</p>
 
     <ul>
       <li><strong>Windows</strong>: <code>git config --global core.autocrlf true</code> &mdash; converts LF to CRLF on checkout, and CRLF back to LF on commit.</li>
       <li><strong>Linux/macOS</strong>: <code>git config --global core.autocrlf input</code> &mdash; converts CRLF to LF on commit, but does not change line endings on checkout.</li>
     </ul>
 
-    <p>A better approach is to use a <code>.gitattributes</code> file in the repository root to enforce consistent line endings per file type:</p>
+    <p>A better approach: use a <code>.gitattributes</code> file in the repository root to enforce consistent line endings per file type:</p>
 
     <pre><code>* text=auto
 *.js text eol=lf
@@ -263,7 +263,7 @@ git merge --no-ff feature-branch</code></pre>
 *.bat text eol=crlf
 *.png binary</code></pre>
 
-    <p>This ensures that all team members use the same line endings regardless of their operating system, eliminating an entire class of cross-platform issues.</p>
+    <p>This ensures all team members use the same line endings regardless of operating system, eliminating cross-platform issues.</p>
 
   </article>
 </div>

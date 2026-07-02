@@ -21,8 +21,8 @@
     <div class="meta">2022-06-29 | Algorithms | 857 reads</div>
 
     <h2>The Problem</h2>
-    <p>Compute <code>n^m</code> — raising a base <code>n</code> to an integer exponent <code>m</code>. This is one of the most common operations in programming, appearing in everything from modular arithmetic in cryptography to matrix exponentiation in dynamic programming.</p>
-    <p>The straightforward approach is simple: multiply <code>n</code> by itself <code>m</code> times.</p>
+    <p>Compute <code>n^m</code> — raising a base <code>n</code> to an integer exponent <code>m</code>. This operation appears everywhere, from modular arithmetic in cryptography to matrix exponentiation in dynamic programming.</p>
+    <p>The straightforward approach: multiply <code>n</code> by itself <code>m</code> times.</p>
 
     <pre><code>// Naive approach
 func pow(n, m int) int {
@@ -33,7 +33,7 @@ func pow(n, m int) int {
     return result
 }</code></pre>
 
-    <p>This requires <code>m</code> multiplications, giving us <strong>O(m)</strong> time complexity. While this is perfectly acceptable for small exponents, it quickly becomes a bottleneck when <code>m</code> grows to a billion or a trillion. We need a more scalable approach.</p>
+    <p>This requires <code>m</code> multiplications — <strong>O(m)</strong> time. Acceptable for small exponents, but a bottleneck when <code>m</code> reaches billions or trillions. A more scalable approach is needed.</p>
 
     <h2>The Key Insight: Binary Decomposition</h2>
     <p>The key insight is that any integer exponent can be uniquely decomposed into a sum of powers of 2, which corresponds directly to its binary representation.</p>
@@ -43,7 +43,7 @@ func pow(n, m int) int {
     <p>Therefore:</p>
     <pre><code>3^29 = 3^16 * 3^8 * 3^4 * 3^1</code></pre>
 
-    <p>Now here's the magic: we can compute each of these powers efficiently by repeated squaring:</p>
+    <p>Notably, each of these powers can be computed efficiently by repeated squaring:</p>
     <ul>
       <li>Start with <code>3^1 = 3</code></li>
       <li>Square it: <code>3^2 = 9</code></li>
@@ -91,7 +91,7 @@ func pow(n, m int) int {
     return result
 }</code></pre>
 
-    <p>The algorithm is beautifully simple:</p>
+    <p>The algorithm is simple:</p>
     <ul>
       <li><code>m &amp; 1 == 1</code> checks if the lowest bit is 1 — if so, multiply the result by the current base.</li>
       <li><code>base *= base</code> squares the base for the next bit position.</li>
@@ -100,7 +100,7 @@ func pow(n, m int) int {
     <p>The loop runs exactly <code>floor(log2(m)) + 1</code> times — the number of bits in <code>m</code>.</p>
 
     <h2>Benchmark Results</h2>
-    <p>Let's compare three approaches in Go:</p>
+    <p>Three approaches compared in Go:</p>
     <ol>
       <li><strong>Naive multiplication</strong> — the O(m) loop</li>
       <li><strong>Quick pow</strong> — our binary exponentiation</li>
@@ -111,7 +111,7 @@ func pow(n, m int) int {
 BenchmarkQuickPow-8    200000000    6.8 ns/op
 BenchmarkMathPow-8     20000000     65.2 ns/op</code></pre>
 
-    <p>The results speak for themselves:</p>
+    <p>The results:</p>
     <ul>
       <li>Quick pow is about <strong>3.5x faster</strong> than naive multiplication for m=29.</li>
       <li>Quick pow is about <strong>10x faster</strong> than <code>math.Pow</code>.</li>
@@ -119,14 +119,14 @@ BenchmarkMathPow-8     20000000     65.2 ns/op</code></pre>
     <p>The advantage of quick pow grows as <code>m</code> increases. For <code>m = 1,000,000</code>, naive requires a million multiplications while quick pow needs only about 20.</p>
 
     <h3>Why is math.Pow so slow?</h3>
-    <p>Go's <code>math.Pow</code> operates on <code>float64</code> values and relies on a highly general algorithm designed to handle fractional or negative exponents, complex edge cases (like NaN and infinity), and floating-point precision. This versatility, however, introduces significant overhead. When you only need integer exponentiation, quick pow eliminates these unnecessary calculations.</p>
+    <p>Go's <code>math.Pow</code> operates on <code>float64</code> values and relies on a general algorithm that handles fractional and negative exponents, edge cases (NaN, infinity), and floating-point precision. This versatility introduces overhead. For integer-only exponentiation, quick pow eliminates these unnecessary calculations.</p>
 
     <h2>When to Use Quick Pow</h2>
     <p>Quick pow shines when:</p>
     <ul>
       <li><strong>You only need integer powers.</strong> No fractional or negative exponents.</li>
-      <li><strong>You can ensure no overflow.</strong> Since we're working with integers, the result must fit in the integer type. For modular exponentiation (common in cryptography), you take the modulus at each step to prevent overflow.</li>
-      <li><strong>Performance matters.</strong> In competitive programming, cryptographic operations, or any hot path where you're computing many exponentials.</li>
+      <li><strong>You can ensure no overflow.</strong> The result must fit in the integer type. For modular exponentiation (common in cryptography), take the modulus at each step to prevent overflow.</li>
+      <li><strong>Performance matters.</strong> In competitive programming, cryptographic operations, or any performance-critical path that computes many exponentials.</li>
     </ul>
 
     <h3>Modular Exponentiation</h3>
@@ -147,7 +147,7 @@ BenchmarkMathPow-8     20000000     65.2 ns/op</code></pre>
 
     <h2>Summary</h2>
     <p>Quick pow reduces the time complexity of exponentiation from O(m) to O(log m) by exploiting the binary representation of the exponent. The algorithm is simple, fast, and widely applicable. When you need integer exponentiation and can guarantee no overflow, it's the clear winner over both naive multiplication and general-purpose floating-point power functions.</p>
-    <p>The core takeaway: whenever you encounter a problem involving "repeated doubling," think binary decomposition. This same powerful principle underpins fast multiplication (the Russian peasant algorithm), computing Fibonacci numbers via matrix exponentiation, and many other advanced algorithms.</p>
+    <p>The key insight: whenever you encounter "repeated doubling," think binary decomposition. This same powerful principle underpins fast multiplication (the Russian peasant algorithm), computing Fibonacci numbers via matrix exponentiation, and many other advanced algorithms.</p>
 
   </article>
 </div>

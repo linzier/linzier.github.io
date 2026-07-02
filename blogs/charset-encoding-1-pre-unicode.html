@@ -85,7 +85,7 @@
 
     <h2>Enter the East Asian Character Sets</h2>
 
-    <p>While European languages could manage with 8-bit, single-byte extensions, East Asian writing systems&mdash;Chinese, Japanese, and Korean (CJK)&mdash;contain tens of thousands of unique ideographs. An 8-bit space (capped at 256 entries) was mathematically incapable of representing them. The industry had to pivot to multi-byte encoding architectures.</p>
+    <p>While European languages could manage with 8-bit extensions, East Asian writing systems&mdash;Chinese, Japanese, and Korean (CJK)&mdash;contain tens of thousands of unique ideographs. An 8-bit space (capped at 256 entries) was mathematically incapable of representing them. The industry had to pivot to multi-byte encoding architectures.</p>
 
     <h3>GB 2312: Simplified Chinese</h3>
 
@@ -94,7 +94,7 @@
     <p>To accommodate this large character set, GB 2312 implemented a <strong>two-byte encoding scheme</strong>:</p>
     <ul>
       <li>Bytes falling in the standard 0x00&ndash;0x7F range are interpreted as standard ASCII, maintaining native backward compatibility.</li>
-      <li>Bytes in the high-range 0xA1&ndash;0xFE bracket act as markers signaling the start of a two-byte Chinese character. The first byte represents the "high byte" (lead byte) and the second represent the "low byte" (trail byte).</li>
+      <li>Bytes in the high-range 0xA1&ndash;0xFE bracket act as markers signaling the start of a two-byte Chinese character. The first byte represents the "high byte" (lead byte) and the second represents the "low byte" (trail byte).</li>
     </ul>
 
     <p>This design was highly effective: standard ASCII English text remained readable by older programs, while Chinese characters were easily identified by checking if the high-order bit of a byte was set.</p>
@@ -105,7 +105,7 @@
 
     <p><img src="images/pre-unicode-13-quwei-code-table.jpg" alt="Code value comparison table"><em>Comparison of original quwei code, national standard code, and internal code</em></p>
 
-    <p>Later, the Chinese government expanded GB 2312 into <strong>GBK</strong> (1995), which incorporated Traditional Chinese characters and minority scripts, expanding the vocabulary to over 20,000 characters. This was eventually succeeded by the mandatory <strong>GB 18030</strong> (2000) standard, which supports more than 70,000 characters using a sophisticated variable-width scheme (spanning one, two, or four bytes).</p>
+    <p>The Chinese government later expanded GB 2312 into <strong>GBK</strong> (1995), which incorporated Traditional Chinese characters and minority scripts, expanding the vocabulary to over 20,000 characters. This was succeeded by the mandatory <strong>GB 18030</strong> (2000) standard, which supports more than 70,000 characters using a variable-width scheme spanning one, two, or four bytes.</p>
 
     <h3>Big5: Traditional Chinese</h3>
 
@@ -115,7 +115,7 @@
 
     <h3>Shift JIS and EUC-JP: Japanese</h3>
 
-    <p>Japan developed several parallel standards to solve character representation, with the two most prominent being:</p>
+    <p>Japan developed several parallel standards for character representation, the two most prominent being:</p>
 
     <ul>
       <li><strong>Shift JIS</strong> (1982): A double-byte encoding that neatly mapped the JIS X 0208 character set (containing roughly 6,879 characters) alongside half-width katakana. By shifting byte ranges, it avoided overlapping with standard ASCII lead bytes. Shift JIS remains common in legacy Japanese enterprise systems and older desktop environments.</li>
@@ -124,13 +124,13 @@
 
     <h3>EUC-KR: Korean</h3>
 
-    <p>Korea adopted <strong>EUC-KR</strong>, which maps the KS X 1001 character set (encompassing approximately 2,350 common Hangul syllables and 4,888 Hanja characters). Similar to other EUC variants, it relies on a two-byte structure for native characters and a single byte for ASCII.</p>
+    <p>Korea adopted <strong>EUC-KR</strong>, which maps the KS X 1001 character set (approximately 2,350 common Hangul syllables and 4,888 Hanja characters). Like other EUC variants, it uses a two-byte structure for native characters and a single byte for ASCII.</p>
 
     <p>While alternative systems like <strong>JOHAB</strong> and <strong>ISO 2022-KR</strong> were introduced, EUC-KR remained the dominant standard for Korean web pages and databases.</p>
 
     <h2>The Global Chaos of Mismatched Encodings</h2>
 
-    <p>By the dawn of the 1990s, the digital world was a patchwork of dozens of incompatible, regional character encodings. Because there was no centralized mapping, the same sequence of raw bytes would be interpreted in wildly different ways depending on which encoding standard a program assumed.</p>
+    <p>By the early 1990s, the digital world was a patchwork of dozens of incompatible regional character encodings. With no centralized mapping, the same sequence of raw bytes was interpreted in wildly different ways depending on which encoding a program assumed.</p>
 
     <p>For example, the byte <code>0xB0</code> represents the degree symbol (&deg;) under ISO 8859-1. However, under GB 2312, that same <code>0xB0</code> represents the lead byte of a Simplified Chinese character. In a Shift JIS environment, it mapped to an entirely different half-width katakana character.</p>
 
@@ -138,15 +138,15 @@
 
     <p>This issue was particularly severe during the early days of the World Wide Web. Early email protocols, web pages, and Usenet newsgroups rarely announced their encoding formats in their headers, forcing web browsers to guess. When the browser guessed wrong, users were presented with walls of nonsense characters.</p>
 
-    <p>To mitigate this, software engineers had to build complex encoding detection heuristics &mdash; algorithms that analyzed byte frequency and patterns to guess the most likely source character set. These heuristics were inherently fragile and highly localized. An algorithm tuned for English might easily misclassify a French document as Turkish, compounding the user's frustration.</p>
+    <p>To mitigate this, software engineers built complex encoding detection heuristics &mdash; algorithms that analyzed byte frequency and patterns to guess the source character set. These heuristics were inherently fragile and highly localized. An algorithm tuned for English might misclassify a French document as Turkish, compounding the user's frustration.</p>
 
     <h2>The Need for a Universal Standard</h2>
 
-    <p>As the internet connected the globe and international trade became standard, this digital Tower of Babel became completely untenable. The global software industry needed a single, unified character set that could map every written character in human history &mdash; and do it without conflicts, overlaps, or regional assumptions.</p>
+    <p>As the internet connected the globe and international trade became routine, this digital Tower of Babel became untenable. The software industry needed a single, unified character set that could map every written character in human history &mdash; without conflicts, overlaps, or regional assumptions.</p>
 
     <p>That universal solution was <strong>Unicode</strong>.</p>
 
-    <p>In the next article, we will examine the modern character encoding model &mdash; the theoretical blueprint that explains how Unicode cleanly decouples character definitions from actual binary storage on disk.</p>
+    <p>The next article examines the modern character encoding model &mdash; the theoretical blueprint that explains how Unicode decouples character definitions from binary storage on disk.</p>
 
   </article>
 </div>

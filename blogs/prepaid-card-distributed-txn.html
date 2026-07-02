@@ -30,17 +30,17 @@
       <li>Record the transaction history.</li>
     </ol>
 
-    <p>In this naive architecture, all operations were bundled inside a single service method and executed sequentially. There was no distributed transaction handling to speak of. While this approach performed adequately during periods of low traffic and stable networks, it was an architectural ticking time bomb &mdash; and it didn't take long to explode.</p>
+    <p>In this naive architecture, all operations were bundled inside a single service method and executed sequentially. There was no distributed transaction handling to speak of. While this approach performed adequately under low traffic and stable networks, it lacked any fault tolerance &mdash; and failure was inevitable.</p>
 
     <h2>The Architectural Pitfalls</h2>
 
     <h3>Complete Absence of Failure Recovery</h3>
 
-    <p>The original design relied on a perfect, uninterrupted "happy path." If the payment deduction succeeded but the downstream card recharge failed due to a network blip, the user was left in financial limbo &mdash; their funds were deducted, but never credited. The system offered no automated rollbacks, no compensation tasks, and no out-of-band reconciliation. For any platform handling financial value, this is an unacceptable vulnerability.</p>
+    <p>The original design relied on a perfect, uninterrupted "happy path." If the payment deduction succeeded but the downstream card recharge failed due to a network blip, the user's funds were deducted but never credited. The system offered no automated rollbacks, no compensation tasks, and no out-of-band reconciliation. For any platform handling financial value, this is an unacceptable vulnerability.</p>
 
     <h3>Business Logic Creep in the Delivery Layer</h3>
 
-    <p>A significant portion of the transactional business logic was allowed to creep into frontend controllers and the outer orchestration layer, rather than being encapsulated within a dedicated domain service. The controllers were directly managing payment validations, manual balance arithmetic, and raw exception handling. This serious leak violated the separation of concerns, making unit testing near impossible and complicating modifications.</p>
+    <p>A significant portion of the transactional business logic was allowed to creep into frontend controllers and the outer orchestration layer, rather than being encapsulated within a dedicated domain service. The controllers were directly managing payment validations, manual balance arithmetic, and raw exception handling. This leak violated separation of concerns, making unit testing difficult and modifications error-prone.</p>
 
     <h3>Lack of Boundary Pre-checks</h3>
 
@@ -48,7 +48,7 @@
 
     <h3>The Fallacy of Infallible Downstream Services</h3>
 
-    <p>The legacy code treated the downstream card recharge service as a deterministic, infallible system. In reality, any remote network service is subject to diverse failure modes: transient timeouts, database lock contention, unexpected container restarts, and physical infrastructure disruptions. Assuming 100% downstream reliability is a guaranteed recipe for persistent data corruption.</p>
+    <p>The legacy code treated the downstream card recharge service as a deterministic, infallible system. In reality, any remote network service is subject to diverse failure modes: transient timeouts, database lock contention, unexpected container restarts, and physical infrastructure disruptions. Assuming 100% downstream reliability will inevitably cause data corruption.</p>
 
     <h2>The Refactoring Journey</h2>
 
@@ -86,25 +86,25 @@
       <li>However, the network drops the return packet. The caller waits, hits its timeout threshold, and throws a network exception.</li>
     </ol>
 
-    <p>From the orchestrator's perspective, the operation timed out. If it interprets this timeout as a definitive failure and immediately triggers an automated refund, a severe inconsistency occurs: The customer has been refunded their money, yet their prepaid card was successfully credited. The platform has double-spent, resulting in a direct financial loss.</p>
+    <p>From the orchestrator's perspective, the operation timed out. If it interprets this timeout as a definitive failure and triggers an automated refund, an inconsistency occurs: the customer is refunded, yet the prepaid card was successfully credited. The platform has double-spent.</p>
 
     <blockquote>In a distributed system, you can never interpret a network timeout as a failure. A timeout represents absolute uncertainty &mdash; the request is in an indeterminate third state: It may have succeeded, it may have failed, or it may still be processing.</blockquote>
 
     <h2>Why "Query-Before-Refund" is a Fallacy</h2>
 
-    <p>A common, superficial fix is to check state before acting: "Before initiating a refund, query the card service to check if the balance was credited. If it was, mark it as a success; if not, proceed with the refund."</p>
+    <p>A superficial fix is to check state before acting: "Before initiating a refund, query the card service to check if the balance was credited. If it was, mark it as a success; if not, proceed with the refund."</p>
 
     <p>While this sounds logical, it fails under real-world production conditions:</p>
 
     <ul>
-      <li><strong>The query itself can time out:</strong> If the network or the downstream database is suffering from high latency, your status query is just as likely to time out as the original mutation request, keeping you in an uncertain state.</li>
+      <li><strong>The query itself can time out:</strong> If the network or downstream database has high latency, your status query is as likely to time out as the original request, leaving you in the same uncertain state.</li>
       <li><strong>The mutation may still be in flight:</strong> The downstream card service might have received the request and queued it for execution. If you query it at that exact millisecond, it will return "not found." You then proceed with a refund, only for the queued mutation to complete successfully moments later, triggering the double-credit bug.</li>
       <li><strong>Race conditions:</strong> Without strict distributed locking, there is an unavoidable race condition between checking the state and executing the refund. You cannot atomically query and mutate across separate physical network barriers.</li>
     </ul>
 
     <h2>The Robust Solution: Scheduled Out-of-Band Reconciliation</h2>
 
-    <p>To build an unbreakable system, we must design for eventual consistency and accept transient uncertainty. Instead of trying to force a synchronous resolution, the system decouples state mutation from state reconciliation:</p>
+    <p>To build a reliable system, we must design for eventual consistency and accept transient uncertainty. Instead of trying to force a synchronous resolution, the system decouples state mutation from state reconciliation:</p>
 
     <ol>
       <li>The system records the recharge attempt in a local database with a status of "pending."</li>
@@ -114,7 +114,7 @@
       <li>A <strong>scheduled reconciliation task</strong> (cron or distributed worker) runs periodically (e.g., every 10 minutes) and queries transactions that have remained in a "pending" state for longer than a specified safety threshold (e.g., 30 minutes).</li>
     </ol>
 
-    <p>This time window is critical. It provides an adequate buffer for any in-flight downstream operations to finalize or fail. By the time the reconciliation task executes, the state of the downstream system has settled, allowing the worker to make a deterministic decision: complete the transaction or issue a refund.</p>
+    <p>This time window is critical. It provides a buffer for in-flight downstream operations to finalize or fail. By the time the reconciliation task executes, the downstream state has settled, allowing the worker to make a deterministic decision: complete the transaction or issue a refund.</p>
 
     <h2>Adding a Sentinel: The "Recharging" Transaction Log</h2>
 

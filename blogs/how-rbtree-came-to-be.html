@@ -22,7 +22,7 @@
 
     <h2>The Key to Balance</h2>
 
-    <p>Picking up where we left off &mdash; in the previous article, <em>The Essence of Binary Search Trees</em>, we mentioned a serious practical problem with binary search trees: tree skew. Inserting data in a particular order can cause a binary search tree to degenerate into a plain linked list, degrading all operations to O(n) time complexity.</p>
+    <p>In the previous article, <em>The Essence of Binary Search Trees</em>, we identified a serious practical problem with binary search trees: tree skew. Inserting data in a particular order can cause the tree to degenerate into a linked list, degrading all operations to O(n).</p>
 
     <p><img src="images/rbtree-01.png" alt="Binary search tree degenerated into a linked list"></p>
 
@@ -32,9 +32,9 @@
 
     <p>"How can we insert new nodes without destroying the tree's balance?"</p>
 
-    <p>Suddenly, his eyes lit up!</p>
+    <p>Then it clicked.</p>
 
-    <p>"Yes! That is the core issue: the tree always <strong>grows downward</strong>." Professor R realized that every time a new node is inserted, it is appended as a child under an existing leaf, thereby increasing the tree's height by one.</p>
+    <p>"That is the core issue: the tree always <strong>grows downward</strong>." Professor R realized that every time a new node is inserted, it is appended as a child under an existing leaf, increasing the tree's height by one.</p>
 
     <p>"So, what if we prevent the tree from growing downward?"</p>
 
@@ -42,7 +42,7 @@
 
     <p><img src="images/rbtree-02.png" alt="Inserting element 2 together with node 1"></p>
 
-    <p>By doing this, the tree stops growing in height. But a new problem emerges: if we keep squeezing every new element into the same node, won't our tree eventually collapse into a single giant node and degenerate back into an array?</p>
+    <p>The tree stops growing in height. But a new problem emerges: if we keep squeezing every new element into the same node, the tree collapses into a single giant node and degenerates back into an array.</p>
 
     <p><img src="images/rbtree-03.png" alt="Continuing to insert elements into a single node"></p>
 
@@ -52,31 +52,31 @@
 
     <p><img src="images/rbtree-04.png" alt="Node splitting in a 2-3 tree"></p>
 
-    <p>In this way, a single node containing three elements splits into three independent nodes, raising the height of that subtree by one.</p>
+    <p>A node containing three elements splits into three independent nodes, raising the height of that subtree by one.</p>
 
-    <p>In a standard binary search tree, each node has at most two children. In our new balanced tree, a node can hold up to two elements. When a node contains two keys, <code>a</code> and <code>b</code>, it naturally partitions the key space into three intervals. Consequently, such a node can have two or three children. This elegant structure is called a <strong>2-3 Tree</strong>.</p>
+    <p>In a standard binary search tree, each node has at most two children. In our new balanced tree, a node holds up to two elements. A node with two keys, <code>a</code> and <code>b</code>, partitions the key space into three intervals and can have two or three children. This structure is called a <strong>2-3 Tree</strong>.</p>
 
     <p><img src="images/rbtree-05.png" alt="A 2-3 tree"></p>
 
-    <p>Let's trace this by inserting elements 1 through 11 in order to see how the 2-3 tree maintains its perfect balance:</p>
+    <p>Inserting elements 1 through 11 in order shows how the 2-3 tree maintains its balance:</p>
 
     <p><img src="images/rbtree-06.png" alt="Inserting elements 1 to 11 into a 2-3 tree"></p>
 
-    <p>Only one situation increases the tree height: splitting of the root node. This process is symmetric, so no matter how the splits occur, the entire tree remains balanced.</p>
+    <p>Only one situation increases tree height: splitting the root. This process is symmetric, so the entire tree remains balanced regardless of how splits occur.</p>
 
     <h2>The Problem with 2-3 Trees</h2>
 
-    <p>Professor R ran into a wall during implementation: this seemingly elegant data structure turned out to be an absolute nightmare to implement in code.</p>
+    <p>Professor R hit a wall during implementation: this seemingly elegant data structure proved extraordinarily difficult to code.</p>
 
     <p>Hearing his frustrations, Professor L smiled and sketched on a napkin: "Don't fret. Whether it's a 2-node or a 3-node, they are logically equivalent. In fact, we can represent any 2-3 tree using a simple binary tree!"</p>
 
     <p><img src="images/rbtree-07.png" alt="Professor L's sketch: representing 3-nodes with 2-nodes"></p>
 
-    <p>Use red lines to mark the relationship between the two elements within a 3-node. This way, we can use 2-nodes to represent 3-nodes.</p>
+    <p>Red lines mark the relationship between the two elements within a 3-node, allowing 2-nodes to represent 3-nodes.</p>
 
     <p><img src="images/rbtree-08.png" alt="A 4-node represented with two red lines"></p>
 
-    <p>We can transfer the edge color to the lower node, giving us a tree with two types of nodes: red and black.</p>
+    <p>Transfer the edge color to the lower node, yielding a tree with two node types: red and black.</p>
 
     <p><img src="images/rbtree-09.png" alt="Red-black tree with edge colors transferred to nodes"></p>
 
@@ -91,7 +91,7 @@
 
     <p><img src="images/rbtree-10.png" alt="A 2-3 tree represented as a left-leaning red-black tree"></p>
 
-    <h2>The Magical Three Axes</h2>
+    <h2>The Three Core Operations</h2>
 
     <p>Left rotation:</p>
 
@@ -105,7 +105,7 @@
 
     <p><img src="images/rbtree-16.png" alt="Color flip"></p>
 
-    <p>Left rotation, right rotation, and color flip &mdash; with these three tools, we can handle all red-black tree properties without ever thinking about 2-3 trees again.</p>
+    <p>Left rotation, right rotation, and color flip&mdash;with these three operations, we can enforce all red-black tree properties without ever thinking about 2-3 trees again.</p>
 
     <h2>Inserting an Element</h2>
 
@@ -121,7 +121,7 @@
 
     <p><img src="images/rbtree-13.png" alt="Inserting element 11 causing cascade splits"></p>
 
-    <p>The new node is initialized as red, then we use the "three axes" to restore the properties.</p>
+    <p>The new node is initialized as red, then we apply the three core operations to restore the properties.</p>
 
     <p>Case 1: The parent of the new node is black:</p>
 
@@ -147,7 +147,7 @@
 
     <p><img src="images/rbtree-22.png" alt="Recursion to root: making root black"></p>
 
-    <p>Here are the rotation code implementations. Left rotation to make right-leaning red nodes left-leaning:</p>
+    <p>The rotation implementations. Left rotation converts right-leaning red nodes to left-leaning:</p>
 
     <p><img src="images/rbtree-23.png" alt="Left rotation code"></p>
 
@@ -157,19 +157,19 @@
 
     <h2>Deletion</h2>
 
-    <p>Consider this red-black tree. What happens if we delete leaf node 7?</p>
+    <p>Consider this red-black tree. What happens when we delete leaf node 7?</p>
 
     <p><img src="images/rbtree-25.png" alt="A red-black tree before deleting node 7"></p>
 
-    <p>After deleting node 7, it is still a valid red-black tree, but it can no longer be converted to a 2-3 tree:</p>
+    <p>After deleting node 7, the result is still a valid red-black tree, but it can no longer be converted to a 2-3 tree:</p>
 
     <p><img src="images/rbtree-26.png" alt="After deleting node 7: path disappears"></p>
 
-    <p>We must ensure that no path disappears when a node is deleted. We introduce sentinel nodes (nil nodes), which are always black:</p>
+    <p>We must ensure no path disappears on deletion. We introduce sentinel nodes (nil nodes), always black:</p>
 
     <p><img src="images/rbtree-27.png" alt="Red-black tree with sentinel nil nodes"></p>
 
-    <p>To delete a black node, we first find a red node on the path from the node to the root and swap colors:</p>
+    <p>To delete a black node, find a red node on the path to the root and swap colors:</p>
 
     <p><img src="images/rbtree-28.png" alt="Path from node 7 to root"></p>
 
@@ -184,12 +184,12 @@
     <h2>Summary</h2>
 
     <ol>
-      <li><strong>Root Cause of Skew:</strong> Identified that standard binary search trees skew due to their downward growth strategy (always appending leaves).</li>
+      <li><strong>Root Cause of Skew:</strong> Standard binary search trees skew because new nodes are always appended as leaves (downward growth).</li>
       <li><strong>Preventative Strategy:</strong> To maintain balance, we changed the growth direction&mdash;adopting a split-based, upward growth strategy.</li>
-      <li><strong>The 2-3 Tree:</strong> Out of this upward-growth strategy, the 2-3 Tree was born, which maintains perfect balance through root-level splitting.</li>
-      <li><strong>The Red-Black Tree:</strong> To simplify the high implementation complexity of 2-3 Trees, we mapped them to binary trees with red and black links.</li>
+      <li><strong>The 2-3 Tree:</strong> This upward-growth strategy produced the 2-3 Tree, which maintains perfect balance through root-level splitting.</li>
+      <li><strong>The Red-Black Tree:</strong> To simplify the implementation complexity of 2-3 Trees, we mapped them to binary trees with red and black links.</li>
       <li><strong>Left-Leaning RB Trees:</strong> By standardizing 3-nodes as left-leaning red nodes, we distilled four core properties of Left-Leaning Red-Black (LLRB) trees.</li>
-      <li><strong>Core Operations:</strong> We discovered that we can maintain all red-black tree invariants using just three local, constant-time operations: left rotation, right rotation, and color flipping.</li>
+      <li><strong>Core Operations:</strong> All red-black tree invariants can be maintained with just three local, constant-time operations: left rotation, right rotation, and color flipping.</li>
     </ol>
 
     <p>Full source code: <a href="https://github.com/linzier/algo-ts">https://github.com/linzier/algo-ts</a></p>

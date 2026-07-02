@@ -22,9 +22,9 @@
 
     <h2>The Problem: "System Error" Tells You Nothing</h2>
 
-    <p>Picture this: you are using an app, and suddenly a dialog box pops up with the words: "System Error." That's it. No explanation of what went wrong, no suggestion on what to do next, and no error code to reference. Just two cold, generic words: "System Error."</p>
+    <p>You are using an app when a dialog box pops up: "System Error." That is it. No explanation of what went wrong, no suggestion on what to do next, no error code to reference. Just two cold, generic words: "System Error."</p>
 
-    <p>As a user, you are left completely in the dark. Did you do something wrong? Is the server down? Is it a bug? Should you try again, or should you reach out to support? You have no idea. All you know is that something broke, and the system is refusing to explain what.</p>
+    <p>As a user, you have no useful information. Did you do something wrong? Is the server down? Is it a bug? Should you try again, or contact support? You have no idea. All you know is that something broke, and the system refuses to explain what.</p>
 
     <p>As a developer, I see this pattern everywhere. It is one of the most frustrating aspects of software because it represents a complete failure of communication between the system and the user. And yet, it persists in enterprise codebases worldwide.</p>
 
@@ -32,17 +32,17 @@
 
     <h2>Why Do Developers Do This?</h2>
 
-    <p>Before pointing fingers, let's understand why so many teams fall into the "System Error" trap. It usually boils down to three common justifications:</p>
+    <p>Before assigning blame, consider why so many teams fall into the "System Error" trap. It usually stems from three common justifications:</p>
 
     <h3>1. The Newcomer's Default</h3>
 
-    <p>When you are first learning to code, you rarely think about error boundaries. You focus entirely on building the "happy path." When edge cases eventually arise and cause exceptions, you catch them and display... something. A generic "System Error" is the path of least resistance. It is technically accurate&mdash;the system did encounter an error&mdash;and it feels "safe" because it doesn't reveal database schemas or stack traces to the UI.</p>
+    <p>When you are first learning to code, you rarely think about error boundaries. You focus on the "happy path." When edge cases eventually cause exceptions, you catch them and display... something. A generic "System Error" is the path of least resistance. It is technically accurate&mdash;the system did encounter an error&mdash;and it feels "safe" because it does not reveal database schemas or stack traces to the UI.</p>
 
     <h3>2. The "Security through Obscurity" Misconception</h3>
 
     <p>Many developers are taught that revealing detailed error messages is a major security risk. The reasoning is that showing the exact error gives malicious actors a roadmap of your system's internals. Consequently, they believe it is best to mask everything behind a generic message and dump the real details into server logs.</p>
 
-    <p>While there is a grain of truth here, this principle is wildly overapplied. In the vast majority of standard business applications, the marginal security benefit of hiding error details is far outweighed by the guaranteed frustration of legitimate users every single time a transaction fails.</p>
+    <p>While there is a grain of truth here, this principle is overapplied. In the vast majority of business applications, the marginal security benefit of hiding error details is far outweighed by the guaranteed frustration of legitimate users every time a transaction fails.</p>
 
     <h3>3. High-Security Over-Compliance</h3>
 
@@ -58,13 +58,13 @@
       <li>"System Error: Permission denied"</li>
     </ul>
 
-    <p>This is a step in the right direction. It gives the user a rough idea of where the issue lies. If they see "database connection failed," they know it is an internal infrastructure issue and they should try again later. If they see "invalid parameter," they understand the issue is likely on their side.</p>
+    <p>This is a step forward. It gives the user a rough idea of where the issue lies: "database connection failed" signals an infrastructure problem; "invalid parameter" points to user input.</p>
 
-    <p>However, this approach is still deeply flawed. These category flags are almost always written by developers, for developers&mdash;meaning they leak technical jargon into the user interface. "Invalid parameter" is developer-speak. A typical user has no idea what a "parameter" is, let alone which specific field was invalid or how they should go about correcting it.</p>
+    <p>However, this approach is still flawed. These category flags are written by developers, for developers&mdash;they leak technical jargon into the user interface. "Invalid parameter" is developer-speak. A typical user has no idea what a "parameter" is, let alone which field was invalid or how to correct it.</p>
 
     <h2>Second Improvement: Unified Error Code Systems</h2>
 
-    <p>The next evolutionary step is introducing a formal, unified error code system. Instead of sprinkling ad-hoc string literals throughout the code, you define a centralized map of error codes and their corresponding user-friendly messages in a configuration or constants file.</p>
+    <p>The next step is a formal, unified error code system. Instead of ad-hoc string literals throughout the code, you define a centralized map of error codes and their corresponding user-friendly messages in a configuration file.</p>
 
     <p>Something like:</p>
 
@@ -75,7 +75,7 @@ ERR_003=Account locked
 ERR_004=Insufficient balance
 ERR_005=Transaction limit exceeded</code></pre>
 
-    <p>When an error occurs, the system looks up the error code and displays the corresponding message. This has several advantages:</p>
+    <p>When an error occurs, the system looks up the error code and displays the corresponding message. Advantages:</p>
 
     <ul>
       <li><strong>Consistency:</strong> The same error always produces the same message.</li>
@@ -84,19 +84,19 @@ ERR_005=Transaction limit exceeded</code></pre>
       <li><strong>Centralization:</strong> All error messages are in one place, making it easier to review and manage them.</li>
     </ul>
 
-    <p>This is a real improvement, and many production systems use this approach. But it's not without its own problems.</p>
+    <p>This is a clear improvement, and many production systems use this approach. But it has its own problems.</p>
 
     <h2>Problems with Error Codes</h2>
 
     <h3>Too Generic</h3>
 
-    <p>Error codes naturally tend to represent broad, static categories. While "ERR_004 = Insufficient balance" informs the user of the general issue, it completely lacks specificity. What is the current balance? How much did the transaction attempt to charge? Which specific account is involved? Although the system possesses all of this rich contextual information at the moment the exception is raised, it is completely discarded when flattened into a rigid, static error code.</p>
+    <p>Error codes tend to represent broad, static categories. While "ERR_004 = Insufficient balance" informs the user of the general issue, it lacks specificity. What is the current balance? How much did the transaction attempt to charge? Which account is involved? The system possesses all of this contextual information when the exception is raised, yet it is discarded when flattened into a rigid error code.</p>
 
     <h3>Losing Important Context</h3>
 
-    <p>Consider a real-world scenario: a user is trying to transfer money, and the transfer fails because the amount exceeds their daily limit. With a generic error code, they see "Transaction limit exceeded." But what's the limit? What was the amount they tried to transfer? How much have they already transferred today? None of this is in the error code.</p>
+    <p>Consider a real-world scenario: a user transfers money, and the transfer fails because the amount exceeds their daily limit. With a generic error code, they see "Transaction limit exceeded." But what is the limit? What amount did they try to transfer? How much have they already transferred today? None of this is in the error code.</p>
 
-    <p>The developer who wrote the code knows all of this information. They have the user's account, the transaction amount, the daily limit, the amount already transferred. They could write a message like: "Transfer of $5,000 exceeds your daily limit of $3,000. You have already transferred $1,500 today." But the error code system doesn't allow for this kind of dynamic, contextual message.</p>
+    <p>The developer has all of this information: the user's account, the transaction amount, the daily limit, the amount already transferred. They could write: "Transfer of $5,000 exceeds your daily limit of $3,000. You have already transferred $1,500 today." But the error code system does not allow this kind of dynamic, contextual message.</p>
 
     <h3>The Temptation to Abandon the System</h3>
 
@@ -113,9 +113,9 @@ ERR_005=Transaction limit exceeded</code></pre>
 
     <h2>The "Freedom" Approach: Let Developers Write Whatever They Want</h2>
 
-    <p>Some teams, frustrated with the limitations of error codes, swing to the opposite extreme: let developers write whatever error messages they want. No error codes, no configuration files, just free-form text.</p>
+    <p>Some teams, frustrated with the limitations of error codes, swing to the opposite extreme: developers write whatever error messages they want. No error codes, no configuration files, just free-form text.</p>
 
-    <p>This certainly solves the context problem. Developers can write messages that are as specific and helpful as they want. "Transfer of $5,000 exceeds your daily limit of $3,000" is easy to produce in this model.</p>
+    <p>This solves the context problem. Developers can write messages as specific and helpful as needed. "Transfer of $5,000 exceeds your daily limit of $3,000" is easy to produce in this model.</p>
 
     <p>But it introduces a host of new problems:</p>
 
@@ -127,37 +127,37 @@ ERR_005=Transaction limit exceeded</code></pre>
       <li><strong>Information leakage:</strong> Without any review process, developers might accidentally include sensitive information in error messages.</li>
     </ul>
 
-    <p>This approach trades one set of problems for another, and most of the new problems are worse than the old ones.</p>
+    <p>This trades one set of problems for another, and most of the new problems are worse.</p>
 
     <h2>The Balanced Approach: Forced Custom Messages + Unified Error Codes</h2>
 
-    <p>After years of seeing these approaches fail in various ways, I've come to believe that the right solution combines the best aspects of both worlds. The key insight is to distinguish between two fundamentally different types of exceptions.</p>
+    <p>After years of seeing these approaches fail, I believe the right solution combines the best aspects of both. The key insight is to distinguish between two fundamentally different types of exceptions.</p>
 
     <h3>Business Exceptions vs. Bug Exceptions</h3>
 
     <p>Not all exceptions are created equal. I divide them into two categories:</p>
 
-    <p><strong>Business exceptions</strong> are expected error conditions that arise from the normal operation of the system. The user entered an invalid password. The account doesn't have enough balance. The transaction exceeds the daily limit. These are not bugs — they're part of the normal business logic. The system should handle them gracefully and provide helpful, specific messages to the user.</p>
+    <p><strong>Business exceptions</strong> are expected error conditions arising from normal system operation. The user entered an invalid password. The account lacks sufficient balance. The transaction exceeds the daily limit. These are not bugs&mdash;they are part of the normal business logic. The system should handle them gracefully with helpful, specific messages.</p>
 
-    <p><strong>Bug exceptions</strong> are unexpected errors that indicate a bug in the system. A null pointer exception. A database connection failure. An out-of-memory error. These are not part of the normal business logic. They indicate that something has gone wrong in the system itself.</p>
+    <p><strong>Bug exceptions</strong> are unexpected errors indicating a defect. A null pointer exception. A database connection failure. An out-of-memory error. These are not part of normal business logic; they indicate the system itself has failed.</p>
 
-    <p>The critical insight is that these two types of exceptions should be handled very differently.</p>
+    <p>These two types of exceptions must be handled differently.</p>
 
     <h3>Bug Exceptions Should NOT Consider User Experience</h3>
 
-    <p>When a bug exception occurs, the system is in an unknown state. Something has gone wrong that the developers did not anticipate. In this situation, trying to provide a user-friendly error message is not just futile — it's dangerous.</p>
+    <p>When a bug exception occurs, the system is in an unknown state. Something went wrong that the developers did not anticipate. In this situation, trying to provide a user-friendly message is not just futile&mdash;it is dangerous.</p>
 
-    <p>Why? Because you don't know what went wrong. You don't know what state the system is in. You don't know what information is safe to reveal. Any message you show the user is a guess, and a wrong guess could be misleading, confusing, or even a security risk.</p>
+    <p>You do not know what went wrong. You do not know what state the system is in. You do not know what information is safe to reveal. Any message shown to the user is a guess, and a wrong guess could be misleading, confusing, or a security risk.</p>
 
-    <p>For bug exceptions, the right approach is simple: show a generic message ("System Error" or "An unexpected error occurred") and log the details. The details go into the logs, where developers can find them and fix the bug. The user gets a generic message that tells them something went wrong and they should try again or contact support.</p>
+    <p>For bug exceptions, the right approach is simple: show a generic message ("System Error" or "An unexpected error occurred") and log the details. The logs give developers what they need to fix the bug. The user gets a generic message telling them something went wrong and to try again or contact support.</p>
 
-    <p>This is the one case where "System Error" is actually appropriate. Not for business exceptions, but for genuine bugs.</p>
+    <p>This is the one case where "System Error" is appropriate&mdash;not for business exceptions, but for genuine bugs.</p>
 
     <h3>The Principle: Force Custom Messages for Business Exceptions</h3>
 
-    <p>For business exceptions, the approach is different. Here, the developer knows exactly what went wrong. They have all the context. They know what information would be helpful to the user. So we should require them to provide a custom, specific error message.</p>
+    <p>For business exceptions, the approach is different. The developer knows exactly what went wrong and has all the context. We should require them to provide a custom, specific error message.</p>
 
-    <p>The way to enforce this is through the type system. Define a base class for business exceptions that requires a message:</p>
+    <p>Enforce this through the type system. Define a base class for business exceptions that requires a message:</p>
 
 <pre><code>/**
  * Base class for business exceptions.
@@ -182,7 +182,7 @@ public abstract class BusinessException extends RuntimeException {
     }
 }</code></pre>
 
-    <p>Notice that the constructor requires both an error code and a message. The developer cannot create a business exception without providing both. This enforces the principle at the type level: every business exception must have a custom message.</p>
+    <p>The constructor requires both an error code and a message. The developer cannot create a business exception without providing both, enforcing the principle at the type level: every business exception must have a custom message.</p>
 
     <h3>Use Message + Log Strategy</h3>
 
@@ -193,7 +193,7 @@ public abstract class BusinessException extends RuntimeException {
       <li>Log the exception (with stack trace) for debugging purposes.</li>
     </ol>
 
-    <p>The message is for the user. The log is for the developers. They serve different purposes and should be treated differently.</p>
+    <p>The message is for the user; the log is for developers. They serve different purposes.</p>
 
 <pre><code>try {
     // Business logic
@@ -208,13 +208,13 @@ public abstract class BusinessException extends RuntimeException {
 
     <h3>Systems Should Only Use Error Codes, Never Match on Messages</h3>
 
-    <p>One of the most important rules is this: <strong>systems should identify errors by their error codes, never by matching on error messages.</strong></p>
+    <p>One critical rule: <strong>systems should identify errors by their error codes, never by matching on error messages.</strong></p>
 
-    <p>Consider a scenario where one service calls another service. The called service returns an error. The calling service needs to decide how to handle it. Should it look at the error message?</p>
+    <p>Consider a scenario where one service calls another and receives an error. The calling service must decide how to handle it. Should it look at the error message?</p>
 
-    <p>Absolutely not. Error messages are for humans. They can change at any time. They can be translated into different languages. They can be reformatted. If you're matching on error messages, your code will break the moment someone changes a word.</p>
+    <p>No. Error messages are for humans. They can change at any time, be translated, or be reformatted. If you match on error messages, your code breaks the moment someone changes a word.</p>
 
-    <p>Instead, systems should use error codes. Error codes are stable, machine-readable identifiers. They don't change when you reword a message. They don't change when you add a new language. They are the contract between services.</p>
+    <p>Systems should use error codes instead. Error codes are stable, machine-readable identifiers. They do not change when you reword a message or add a new language. They are the contract between services.</p>
 
 <pre><code>// WRONG: matching on message
 if (error.getMessage().contains("insufficient balance")) {
@@ -228,7 +228,7 @@ if ("INSUFFICIENT_BALANCE".equals(error.getErrorCode())) {
 
     <h3>Define Error Code Constants, Never Use Literals</h3>
 
-    <p>Error codes should be defined as constants, never used as string literals scattered throughout the code. This ensures consistency and makes refactoring easier.</p>
+    <p>Error codes should be defined as constants, never as string literals scattered throughout the code. This ensures consistency and makes refactoring easier.</p>
 
 <pre><code>/**
  * Error code constants for the payment module.
@@ -245,7 +245,7 @@ public final class PaymentErrorCodes {
     }
 }</code></pre>
 
-    <p>Then use these constants when throwing exceptions:</p>
+    <p>Use these constants when throwing exceptions:</p>
 
 <pre><code>if (balance.compareTo(amount) < 0) {
     throw new BusinessException(
@@ -257,7 +257,7 @@ public final class PaymentErrorCodes {
 
     <h2>Putting It All Together</h2>
 
-    <p>Let me summarize the approach I'm advocating:</p>
+    <p>Here is the approach I advocate:</p>
 
     <ol>
       <li><strong>Distinguish between business exceptions and bug exceptions.</strong> They are fundamentally different and should be handled differently.</li>
@@ -332,13 +332,13 @@ public Response handleRequest(Request request) {
 
     <h2>Conclusion</h2>
 
-    <p>"System Error" is a symptom of a deeper problem: the failure to distinguish between expected business exceptions and unexpected bugs. Once you make this distinction, the path forward becomes clear.</p>
+    <p>"System Error" is a symptom of a deeper problem: the failure to distinguish between expected business exceptions and unexpected bugs. Once you make this distinction, the path forward is clear.</p>
 
-    <p>Business exceptions deserve specific, helpful messages that tell the user exactly what went wrong and what they can do about it. Bug exceptions deserve generic messages and detailed logs. And both deserve stable error codes that other systems can rely on.</p>
+    <p>Business exceptions deserve specific, helpful messages that tell the user exactly what went wrong and what to do about it. Bug exceptions deserve generic messages and detailed logs. Both deserve stable error codes that other systems can rely on.</p>
 
-    <p>The approach I've described here — forced custom messages, unified error codes, clear separation of business and bug exceptions — is not the only way to handle errors. But after years of seeing the alternatives fail, I believe it's the best balance of usability, maintainability, and robustness.</p>
+    <p>The approach I have described&mdash;forced custom messages, unified error codes, clear separation of business and bug exceptions&mdash;is not the only way to handle errors. But after years of seeing the alternatives fail, I believe it is the best balance of usability, maintainability, and robustness.</p>
 
-    <p>So the next time you're tempted to write <code>throw new Exception("System Error")</code>, stop and ask yourself: is this a business exception or a bug? If it's a business exception, write a helpful message. If it's a bug, log the details and show a generic message. Either way, your users — and your fellow developers — will thank you.</p>
+    <p>The next time you are tempted to write <code>throw new Exception("System Error")</code>, ask yourself: is this a business exception or a bug? If it is a business exception, write a helpful message. If it is a bug, log the details and show a generic message. Either way, your users&mdash;and your fellow developers&mdash;will thank you.</p>
 
   </article>
 </div>

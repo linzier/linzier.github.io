@@ -38,13 +38,13 @@
 
     <p>Imagine spending 1,000 yuan at the supermarket, only to find your bank card was charged 2,000. How would you feel?</p>
 
-    <p>(Of course, you and I are highly unlikely to ever experience this &mdash; because any financial software making such a fundamental blunder wouldn't survive long in the market.)</p>
+    <p>(You and I will never experience this &mdash; any financial software making such a fundamental blunder would not survive long in the market.)</p>
 
     <p>This double-charging problem brings us to the concept of API idempotency.</p>
 
-    <p>Idempotency ensures that state-changing (write-type) APIs guarantee data correctness even when called repeatedly. This is particularly crucial in data creation flows and non-idempotent updates (such as deducting a balance), whereas resource deletions are typically idempotent by nature.</p>
+    <p>Idempotency guarantees that write operations produce correct data even when invoked repeatedly. This is particularly crucial in data creation flows and non-idempotent updates (such as deducting a balance), whereas resource deletions are typically idempotent by nature.</p>
 
-    <p>We cannot predict exactly how clients will call our APIs. Network requests can time out, or callers might have implementation issues (such as a frontend interface that allows a user to rapidly double-click a button). Good API design must treat duplicate requests as a normal occurrence. If redundant calls corrupt data, the blame lies squarely with the API provider, not the client.</p>
+    <p>We cannot predict how clients will call our APIs. Network requests can time out, or callers may have implementation bugs (such as a UI that allows rapid double-clicks). Good API design must treat duplicate requests as a normal occurrence. If redundant calls corrupt data, the fault lies with the API provider, not the client.</p>
 
     <p>Implementing idempotency typically spans two layers: the business logic layer and the database layer.</p>
 
@@ -52,9 +52,9 @@
 
     <p>This approach is highly common. Before writing or modifying data, you query the database using the request parameters (such as the user ID or order ID) to verify if the transaction has already been processed. This prevents duplicate operations (such as double-crediting points or double-charging a card).</p>
 
-    <p>The main advantage is its simplicity and alignment with standard business flows. When product managers and developers design system workflows, they naturally include these lookup checks, making it the most intuitive approach. Because it is so intuitive, most production systems already implement some form of this basic check.</p>
+    <p>The main advantage is its simplicity and alignment with standard business flows. When product managers and developers design system workflows, they naturally include these lookup checks, making it the most intuitive approach. Because this approach is intuitive, most production systems already implement some form of it.</p>
 
-    <p>However, a simple select-then-insert cannot resolve concurrency issues. When redundant requests arrive in rapid succession&mdash;such as a user frantically double-clicking a button (in the absence of frontend rate limiting) or a bot farming rewards&mdash;two requests can hit the server almost simultaneously. Both will execute the database query at the exact same time, both will find no existing record, and both will proceed to write duplicate data.</p>
+    <p>However, a simple select-then-insert cannot resolve concurrency issues. When redundant requests arrive in rapid succession&mdash;such as a user rapidly double-clicking a button (without frontend rate limiting) or a bot farming rewards&mdash;two requests can hit the server nearly simultaneously. Both execute the database query at the same instant, both find no existing record, and both proceed to write duplicate data.</p>
 
     <p>Consequently, in high-stakes scenarios (like issuing coupons or crediting points), requests must be mutually exclusive at the user level: only one request per user should be processed at a time, forcing duplicate requests to serialize.</p>
 
@@ -62,7 +62,7 @@
 
     <p><img src="images/api-02.png" alt="Redis distributed lock flowchart"></p>
 
-    <p>However, if your database setup uses read-write separation, you might find that the locking approach still allows some duplicates to leak through. Once the business logic finishes, the lock is released. A duplicate request can then slip in; if the newly written data has not yet replicated to the read replica, the query will return empty, causing the business logic to run a second time (resulting in double-credited points). While a replication delay of a few milliseconds might seem negligible, it is easily exploited by automated scripts.</p>
+    <p>However, if your database uses read-write separation, the locking approach may still allow duplicates. Once the business logic finishes, the lock is released. A duplicate request can then arrive before the newly written data has replicated to the read replica; the query returns empty, and the business logic runs again (resulting in double-credited points). A replication delay of a few milliseconds may seem negligible, but automated scripts exploit it easily.</p>
 
     <p>To address this, we must enforce constraints at the database level.</p>
 
@@ -83,7 +83,7 @@
     <pre><code>GET lock_key
     DEL lock_key</code></pre>
 
-    <p>But does this multi-step lookup solve the issue? Not quite: executing these as two separate Redis commands lacks atomicity. A race condition could occur between the check and the delete, and it also requires two network round trips. The optimal approach is to execute a Lua script via Redis's <code>EVAL</code> command, guaranteeing absolute atomicity (supported natively by virtually all redis client SDKs):</p>
+    <p>But does this multi-step lookup solve the issue? Not quite: executing these as two separate Redis commands lacks atomicity. A race condition could occur between the check and the delete, and it also requires two network round trips. The optimal approach is to execute a Lua script via Redis's <code>EVAL</code> command, guaranteeing absolute atomicity (supported natively by virtually all Redis client SDKs):</p>
 
     <pre><code>EVAL "if (redis.call('get', KEYS[1]) == ARGV[1]) then redis.call('del', KEYS[1]); end; return 1;" lock_key private_val</code></pre>
 
@@ -152,7 +152,7 @@
 
     <p>The simplest and most robust approach is to return a success status. If your API uses a unified success code (such as <code>code=200</code>), you should return that directly.</p>
 
-    <p>Some engineering teams prefer to define a distinct range of success codes. In this setup, you can differentiate between "operation successfully executed" and "operation was already processed" using distinct payload metadata (e.g., returning 200 for a fresh write and 201 for a deduplicated transaction). This provides the client with clear diagnostic context without breaking their success-handling logic.</p>
+    <p>Some engineering teams define separate success code ranges. In this setup, you can differentiate between "operation executed" and "operation already processed" using distinct payload metadata (e.g., returning 200 for a fresh write and 201 for a deduplicated transaction). This provides the client with clear diagnostic context without breaking its success-handling logic.</p>
 
     <h3>Frontend-to-Backend Idempotency</h3>
 
@@ -214,7 +214,7 @@
 
     <p>An API's robustness is measured by its capacity to gracefully handle unexpected, real-world anomalies.</p>
 
-    <p>What defines a fragile API? It is an API that relies heavily on the clean formatting of external inputs and the flawless performance of downstream third-party services. When an input contains unexpected structures (or SQL injection strings), or when a dependency times out, a fragile API crumbles, leaving behind inconsistent state (such as charging a user's balance without updating their order status).</p>
+    <p>What defines a fragile API? One that depends heavily on clean external inputs and the flawless operation of downstream services. When input contains unexpected structures (or SQL injection strings), or when a dependency times out, a fragile API crumbles, leaving behind inconsistent state (such as debiting a user's balance without updating the order status).</p>
 
     <p>While almost any developer can write an API that handles the happy path, only a fraction can write one that is truly robust.</p>
 
@@ -228,7 +228,7 @@
 
     <h3>Input Exceptions</h3>
 
-    <p>"Never trust client input" is an industry truism, yet it is rarely implemented comprehensively. Key areas to audit include:</p>
+    <p>"Never trust client input" is an industry truism, yet rarely implemented comprehensively. Key areas to audit include:</p>
 
     <ul>
       <li>Parameter type constraints</li>
@@ -236,23 +236,23 @@
       <li>Mitigation of malicious payloads</li>
     </ul>
 
-    <p>API payloads should adhere to the "minimal input" principle: clients should only submit parameters relevant to their actions, and the API should handle defaults internally. I have seen APIs that demand twenty or thirty parameters, requiring developers to pass arbitrary mock values (like 0 or empty strings) for fields they do not care about. This significantly complicates integration and invites bugs caused by mismatched placeholders.</p>
+    <p>API payloads should adhere to the "minimal input" principle: clients should only submit parameters relevant to their actions, and the API should handle defaults internally. I have seen APIs that demand twenty or thirty parameters, forcing developers to pass arbitrary mock values (such as 0 or empty strings) for fields they do not need. This complicates integration and invites bugs from mismatched placeholders.</p>
 
     <p>When validating abnormal input, the main focus should be on <strong>string types</strong>.</p>
 
-    <p><strong>Threat #1: Cross-Site Scripting (XSS).</strong> Expecting every developer to sanitize every string parameter manually is a recipe for failure; sanitization must be enforced at the framework level. Request parameters should be stripped of malicious structures before they ever reach the controller layer. Although this is web security 101, a shocking number of production systems remain vulnerable because they lack automated penetration testing.</p>
+    <p><strong>Threat #1: Cross-Site Scripting (XSS).</strong> Expecting every developer to sanitize every string parameter manually is a recipe for failure; sanitization must be enforced at the framework level. Request parameters should be stripped of malicious structures before they reach the controller layer. Although this is fundamental web security, many production systems remain vulnerable because they lack automated penetration testing.</p>
 
     <p>XSS involves injecting malicious client-side scripts into a application's pages. For example, if a user enters <code>&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code> into a profile field and the server stores it raw, the script will execute in the browser of anyone who views that profile, potentially exposing sensitive session cookies.</p>
 
     <p>Simply stripping <code>&lt;script&gt;</code> tags is insufficient, as attackers can bypass simple filters using event handlers like <code>&lt;img onerror="alert(document.cookie)" src="http://invalid-url"&gt;</code>. To defend against this, always use reputable, battle-tested HTML sanitization libraries.</p>
 
-    <p>XSS is dangerous because the injected script executes within the context of a trusted domain, giving it access to session cookies (unless protected by the <code>HttpOnly</code> flag), localStorage, and downstream APIs. This makes it significantly more potent than Cross-Site Request Forgery (CSRF).</p>
+    <p>XSS is dangerous because the injected script executes within the context of a trusted domain, granting access to session cookies (unless protected by the <code>HttpOnly</code> flag), localStorage, and downstream APIs. This makes it significantly more potent than Cross-Site Request Forgery (CSRF).</p>
 
     <p><strong>Threat #2: SQL Injection.</strong> This is another classic security issue, yet it remains prevalent because developers occasionally bypass ORMs to write raw SQL strings using concatenation. A single vulnerability can expose the entire database or allow attackers to drop tables. Developers write raw SQL for various reasons &mdash; unfamiliarity with the ORM, complex queries that are hard to express via abstract APIs, or simple habit.</p>
 
-    <p>The most effective way to eliminate SQL injection is through peer code review, ensuring all database interactions go through a secure repository layer. Additionally, automated linting tools can scan the codebase for unsafe string concatenation in database queries.</p>
+    <p>The most effective way to eliminate SQL injection is peer code review, ensuring all database interactions go through a secure repository layer. Automated linting tools can also scan the codebase for unsafe string concatenation in database queries.</p>
 
-    <p><strong>Threat #3: Data Formatting.</strong> Enforcing length boundaries on string parameters is excellent hygiene. It prevents buffer issues downstream where consumer systems might not handle oversized payloads gracefully. Schema validation should also enforce strict patterns for common types like email addresses, phone numbers, and regional identifiers to block garbage data from entering the database.</p>
+    <p><strong>Threat #3: Data Formatting.</strong> Enforcing length boundaries on string parameters is essential hygiene. It prevents downstream buffer issues where consumer systems might not handle oversized payloads gracefully. Schema validation should also enforce strict patterns for common types such as email addresses, phone numbers, and regional identifiers to block garbage data at the entry point.</p>
 
     <p>Rather than relying on developers to write custom validation logic for every field, the web framework should provide declarative schema validation (e.g., via annotations or middleware) so that inputs are rejected automatically at the network boundary.</p>
 
@@ -264,7 +264,7 @@
 
     <h3>Workflow Exceptions</h3>
 
-    <p>By "workflow exceptions," I am not referring to flawed business logic &mdash; that is a functional bug, which lies outside the scope of robustness. I mean uncontrollable, real-world anomalies that disrupt an otherwise correct execution flow.</p>
+    <p>By "workflow exceptions," I mean uncontrollable, real-world anomalies that disrupt an otherwise correct execution flow &mdash; not flawed business logic, which is a functional bug outside the scope of robustness.</p>
 
     <p>Reflect on the APIs you have written. Have you encountered any of these issues?</p>
 
@@ -278,7 +278,7 @@
 
     <p>And most importantly: when one of these steps fails midway, how does the system recover, and what happens to any partial state or data already committed?</p>
 
-    <p>These runtime exceptions share two core traits:</p>
+    <p>These exceptions share two core traits:</p>
 
     <ol>
       <li>They are mostly uncontrollable (the application cannot prevent them from happening);</li>
@@ -292,20 +292,20 @@
       <li>The recovery paths must be thoroughly mapped out so the system's behavior aligns with business expectations.</li>
     </ul>
 
-    <p>Developers cannot rely on wishful thinking ("the network is always stable"). While absorbing an exception does not mean the workflow should blindly continue&mdash;often, aborting is the only safe option&mdash;failing to handle an exception properly is the leading cause of data corruption. For example, in a prepaid recharge workflow, if the payment gateway call fails but the code ignores the exception, the system might proceed to credit the user's account anyway, resulting in a loss of funds.</p>
+    <p>Developers cannot rely on wishful thinking ("the network is always stable"). Absorbing an exception does not mean the workflow should blindly continue&mdash;often, aborting is the only safe option&mdash;but failing to handle an exception properly is the leading cause of data corruption. For example, in a prepaid recharge workflow, if the payment gateway call fails but the code ignores the exception, the system might proceed to credit the user's account anyway, resulting in a loss of funds.</p>
 
     <p>Standard recovery patterns include:</p>
 
     <ul>
       <li><strong>Immediate Abort (Fail-Fast):</strong> If a critical step like balance deduction fails, immediately abort the transaction to keep the payment status aligned with the actual balance.</li>
       <li><strong>Defensive Guarding:</strong> Check conditions proactively. Before writing to a file, verify that the parent directory exists, or create it. Before division, check if the denominator is zero; if it is, return a default fallback value like zero immediately.</li>
-      <li><strong>Retries (with Exponential Backoff):</strong> Common when calling remote APIs. If a connection times out, you can retry once after a short delay (such as one second). However, caution is required: network timeouts often indicate that the downstream service is overloaded. Blindly spamming retries will compound the load and risk crashing the target service entirely. Furthermore, retries tie up local threads and resources. If the downstream service suffers a prolonged outage, retries will pile up, triggering an avalanche effect across your own cluster. Keep timeouts short (e.g., under two seconds), restrict retry counts, and pair them with circuit breakers and rate limiters.</li>
-      <li><strong>Asynchronous Reconciliation (Compensation):</strong> For non-critical dependencies, log the error, complete the primary transaction, and delegate the failed secondary step to a background task or message queue. For example, if a "grant bonus coupon" call fails during a payment callback, instead of failing the entire transaction, you can log a "pending compensation" record to the database. A background worker can then retry the grant asynchronously. This pattern decouples dependencies, frees up immediate request threads, and allows for flexible retry policies (like backoff intervals of 10s, 30s, 1m). However, this is only viable if subsequent steps do not depend on the output of the failed node and the business can tolerate minor propagation delays.</li>
+      <li><strong>Retries (with Exponential Backoff):</strong> Common when calling remote APIs. If a connection times out, retry once after a short delay (such as one second). However, caution is required: network timeouts often indicate that the downstream service is overloaded. Blindly spamming retries compounds the load and risks crashing the target service entirely. Furthermore, retries consume local threads and resources. If the downstream service suffers a prolonged outage, retries accumulate, triggering an avalanche effect across your cluster. Keep timeouts short (e.g., under two seconds), restrict retry counts, and pair them with circuit breakers and rate limiters.</li>
+      <li><strong>Asynchronous Reconciliation (Compensation):</strong> For non-critical dependencies, log the error, complete the primary transaction, and delegate the failed step to a background task or message queue. For example, if a "grant bonus coupon" call fails during a payment callback, log a "pending compensation" record instead of failing the entire transaction. A background worker then retries the grant asynchronously. This pattern decouples dependencies, frees request threads, and allows flexible retry policies (such as backoff intervals of 10s, 30s, 1m). This is viable only if subsequent steps do not depend on the failed node's output and the business can tolerate minor propagation delays.</li>
     </ul>
 
     <h3>Performance Exceptions</h3>
 
-    <p>A robust API must provide predictable performance characteristics, namely the ability to maintain acceptable response times under load (e.g., maintaining a low p99 latency at 1,000 QPS).</p>
+    <p>A robust API must provide predictable performance, maintaining acceptable response times under load (e.g., low p99 latency at 1,000 QPS).</p>
 
     <p>Performance degradation typically stems from three vectors:</p>
 
@@ -315,7 +315,7 @@
       <li>Sudden, unpredictable traffic spikes (such as during flash sales).</li>
     </ol>
 
-    <p>The vast majority of performance issues are caused by internal architectural oversights &mdash; most notably, a lack of database indexing or a complete absence of caching. Therefore, API performance tuning should always begin with indexing and caching, which yield the highest return on investment.</p>
+    <p>Most performance issues stem from internal architectural oversights &mdash; most notably, missing database indexes or absent caching. API performance tuning should always begin with indexing and caching, which yield the highest return on investment.</p>
 
     <p>When downstream dependencies are the source of bottlenecks, we have two primary paths:</p>
 
@@ -324,7 +324,7 @@
       <li>Decouple the dependency by making the call asynchronous.</li>
     </ol>
 
-    <p>If an API has been optimized to its theoretical limit and still cannot meet traffic demands, horizontal scaling (adding more instances to the application cluster) becomes necessary. However, in practice, application servers are rarely the ultimate bottleneck; storage layers (relational databases) are much harder to scale and typically govern the limits of the entire system.</p>
+    <p>If an API has been optimized to its limit and still cannot meet traffic demands, horizontal scaling (adding more instances) becomes necessary. However, application servers are rarely the ultimate bottleneck; storage layers (relational databases) are much harder to scale and typically govern the system's limits.</p>
 
     <p>In our modern, high-concurrency landscape, three fundamental techniques yield the highest return for most software organizations: <strong>caching, indexing, and asynchronous processing</strong>.</p>
 
@@ -332,7 +332,7 @@
 
     <h2>3. Security</h2>
 
-    <p>While input sanitation (XSS and SQL injection defense) is a vital part of API security, this section focuses on securing APIs from unauthorized access and data leakage.</p>
+    <p>While input sanitization (XSS and SQL injection defense) is a vital part of API security, this section focuses on preventing unauthorized access and data leakage.</p>
 
     <p>We classify API access patterns into two categories:</p>
 
@@ -341,7 +341,7 @@
       <li>Backend-to-backend calls</li>
     </ol>
 
-    <p>The fundamental difference is exposure: frontend clients operate in untrusted environments (completely exposed), whereas backend clients communicate from within secure networks or firewalls.</p>
+    <p>The fundamental difference is exposure: frontend clients operate in untrusted, completely exposed environments, whereas backend clients communicate from within secure networks or firewalls.</p>
 
     <h3>Frontend-to-Backend Calls</h3>
 
@@ -356,11 +356,11 @@
 
     <h4>Session-Based Authentication</h4>
 
-    <p>Traditional browser-based web applications rely heavily on cookies and sessions. Upon authentication, the backend generates a random session identifier (<code>sessionId</code>) and stores it in memory or database, writing it to the browser's cookies. Subsequent requests automatically include the cookie, and the server validates the active session.</p>
+    <p>Traditional browser-based web applications rely on cookies and sessions. Upon authentication, the backend generates a random session identifier (<code>sessionId</code>) and stores it in memory or a database, writing it to the browser's cookies. Subsequent requests automatically include the cookie, and the server validates the active session.</p>
 
     <p><img src="images/api-04.png" alt="Session authentication sequence diagram"></p>
 
-    <p>Because browsers manage cookies automatically and frameworks handle session state transparently, session authentication is incredibly easy to implement. However, this simplicity introduces several challenges:</p>
+    <p>Because browsers manage cookies automatically and frameworks handle session state transparently, session authentication is straightforward to implement. However, this simplicity introduces several challenges:</p>
 
     <ul>
       <li><strong>Cross-Domain Constraints:</strong> Cookies are subject to Same-Origin Policy (SOP) restrictions. Managing authentication across subdomains or different domains requires complex cookie configurations (like setting wildcard domains) or Single Sign-On (SSO) systems.</li>
@@ -370,13 +370,13 @@
       <li><strong>Mobile App Incompatibility:</strong> Native mobile clients (iOS/Android) do not handle cookie management natively like browsers do, forcing mobile developers to write custom boilerplate to capture, store, and attach cookies.</li>
     </ul>
 
-    <p>While all of these hurdles are solvable, many engineering teams neglect these defenses &mdash; leaving applications vulnerable to CSRF, failing to set the <code>HttpOnly</code> cookie flag, or skipping input sanitation entirely.</p>
+    <p>All these hurdles are solvable, yet many engineering teams neglect these defenses &mdash; leaving applications vulnerable to CSRF, failing to set the <code>HttpOnly</code> cookie flag, or skipping input sanitization entirely.</p>
 
-    <p>Is there an alternative mechanism that bypasses cookie-related overhead completely?</p>
+    <p>Is there an alternative that bypasses cookie-related overhead entirely?</p>
 
     <h4>Token-Based Authentication</h4>
 
-    <p>Since session issues largely stem from browser-managed cookies, we can decouple our authentication from cookies entirely.</p>
+    <p>Since session issues largely stem from browser-managed cookies, we can decouple authentication from cookies entirely.</p>
 
     <p>When a user logs in, the backend generates a unique random string (a token) and returns it in a custom response header (such as <code>X-Auth-Token</code>) or response body. The client application stores this token securely (e.g., in localStorage or native device storage) and manually appends it to an HTTP header (like <code>Authorization</code>) on all subsequent API requests. The backend parses this header, validates the token against its cache, and loads the user session.</p>
 
@@ -384,7 +384,7 @@
 
     <p>Additionally, eliminating cookie dependencies removes cross-domain restrictions and makes token authentication highly compatible with mobile apps and single-page applications (SPAs).</p>
 
-    <p>However, this basic token pattern still mirrors sessions on the server side: it requires generating a random key and maintaining a token-to-user mapping in a central cache. The horizontal scaling and server storage overhead challenges remain unresolved.</p>
+    <p>However, this basic token pattern still mirrors sessions on the server side: it requires generating a random key and maintaining a token-to-user mapping in a central cache. The horizontal scaling and storage overhead challenges remain.</p>
 
     <p>To eliminate this server-side state, we must design a token that carries its own validation payload.</p>
 
@@ -398,7 +398,7 @@
 
     <pre><code>token = base64_encode(userInfo) + "." + sign(base64_encode(userInfo), secretKey)</code></pre>
 
-    <p>The resulting token string follows the structure <code>xxxxxxxxxx.yyyy</code>, where <code>x</code> is the base64-encoded user payload, and <code>y</code> is the signature computed over <code>x</code>.</p>
+    <p>The resulting token follows the structure <code>xxxxxxxxxx.yyyy</code>, where <code>x</code> is the base64-encoded user payload and <code>y</code> is the signature computed over <code>x</code>.</p>
 
     <p>Without possession of our server-side <code>secretKey</code>, an attacker cannot modify the payload without invalidating the signature. This signed, stateless token model is codified by the <strong>JWT</strong> specification.</p>
 
@@ -418,7 +418,7 @@
       <li><strong>Signature (Segment 3):</strong> A cryptographic hash computed over the encoded header and payload using a secret key, protecting the token against tampering.</li>
     </ul>
 
-    <p>Note: Because the Header and Payload are simply Base64-encoded, they are readable by anyone. You must never store sensitive information (like passwords) inside a standard JWT payload. JWT guarantees integrity and authenticity (via signing), not confidentiality (encryption).</p>
+    <p>Note: Because the Header and Payload are simply Base64-encoded, they are readable by anyone. Never store sensitive information (such as passwords) in a standard JWT payload. JWT guarantees integrity and authenticity (via signing), not confidentiality (encryption).</p>
 
     <p>Stateless JWT authentication follows this flow:</p>
 
@@ -428,11 +428,11 @@
       <li>The server decodes the incoming header and payload, recomputes the signature using its local secret, and compares it with the signature segment. If they match, the token is verified, and the user claims are extracted directly from the payload.</li>
     </ol>
 
-    <p>Because the backend parses all necessary session data directly from the token itself, it does not need to store session state in memory or Redis. This completely eliminates server-side session lookup overhead and facilitates trivial horizontal scaling.</p>
+    <p>Because the backend extracts all session data directly from the token, it does not need to store session state in memory or Redis. This eliminates server-side session lookup overhead and enables trivial horizontal scaling.</p>
 
     <p>We typically include an expiration claim (<code>exp</code>) within the payload. The token is rejected once the current time surpasses this timestamp.</p>
 
-    <p>However, this introduces a usability challenge. Suppose a user logs in at 11:00 with a 1-hour expiration. If they are actively using the application at 11:59:58, their request succeeds. But when they submit a form two seconds later at 12:00:00, their token expires, and they are abruptly logged out and redirected to the login page. This is a terrible user experience.</p>
+    <p>However, this introduces a usability challenge. Suppose a user logs in at 11:00 with a 1-hour expiration. If they are actively using the application at 11:59:58, their request succeeds. But when they submit a form two seconds later at 12:00:00, their token expires, and they are abruptly logged out and redirected to the login page. This produces a poor user experience.</p>
 
     <p>To avoid this, we must implement a <strong>token refresh mechanism</strong> to keep active users authenticated.</p>
 
@@ -442,7 +442,7 @@
 
     <p>The client application detects this header and updates its stored token. This ensures that users who are actively interacting with the system stay logged in, while inactive users are naturally logged out after a period of inactivity.</p>
 
-    <p>No matter which authentication scheme you select, one rule is absolute: <strong>always enforce HTTPS across your entire API surface</strong>. Without TLS encryption, session IDs and JWT tokens are easily intercepted on public networks, making your authentication futile.</p>
+    <p>Regardless of which authentication scheme you choose, one rule is absolute: <strong>always enforce HTTPS across your entire API surface</strong>. Without TLS encryption, session IDs and JWT tokens are easily intercepted on public networks, rendering authentication futile.</p>
 
     <h3>Backend-to-Backend Calls</h3>
 
@@ -453,9 +453,9 @@
       <li><strong>Confidentiality (Encryption):</strong> For highly sensitive data, we must also prevent third parties from reading the payload. This is achieved by encrypting the body (using symmetric algorithms like AES, or asymmetric algorithms like RSA).</li>
     </ul>
 
-    <p>In most scenarios, standard internal APIs only require request signing (to verify the caller's identity and detect tampering), while payloads containing sensitive financial or personal data require signing plus payload encryption.</p>
+    <p>In most cases, standard internal APIs require only request signing (to verify the caller's identity and detect tampering), while payloads containing sensitive financial or personal data require signing plus encryption.</p>
 
-    <p>While cryptographic signing is highly secure, many developers overlook a common vulnerability when designing server-to-server APIs: <strong>replay attacks</strong>.</p>
+    <p>Although cryptographic signing is highly secure, many developers overlook a common vulnerability in server-to-server API design: <strong>replay attacks</strong>.</p>
 
     <p>Suppose Server A calls Server B. Server A signs the query parameters using a shared secret and appends the signature to the URL. Server B intercepts the request, computes the signature using the same secret and algorithm, and compares it with the incoming parameter. If they match, Server B executes the request.</p>
 
@@ -463,25 +463,25 @@
 
     <p>If an attacker intercepts this signed URL, they can resubmit the exact same request a year later. As long as the secret and signing algorithm remain unchanged, the signature remains mathematically valid, and Server B will execute the duplicate action.</p>
 
-    <p>Because production environments typically log incoming requests for diagnostic purposes, a log leak could expose thousands of valid, signed request templates that are ripe for replay exploitation.</p>
+    <p>Because production environments log incoming requests for diagnostics, a log leak could expose thousands of valid, signed request templates ripe for replay exploitation.</p>
 
     <p>To prevent this, signatures must have a short validity window.</p>
 
-    <p>We can require a request timestamp (such as Unix epoch milliseconds) to be included in the signed parameters. When Server B receives the request, it first verifies that the request timestamp is within an acceptable drift window (e.g., within 5 minutes of Server B's current system clock). If the drift is too large, B rejects the request immediately. This bounds the signature's validity to a tight, five-minute window, drastically reducing the window for replay attacks. (Note that this requires both servers to keep their system clocks synchronized via NTP).</p>
+    <p>We can require a request timestamp (such as Unix epoch milliseconds) in the signed parameters. When Server B receives the request, it first verifies that the timestamp falls within an acceptable drift window (e.g., within 5 minutes of B's system clock). If the drift is too large, B rejects the request immediately. This bounds the signature's validity to a five-minute window, drastically reducing the replay attack surface. (This requires both servers to synchronize their clocks via NTP.)</p>
 
     <p>To further secure server-to-server APIs, restrict access via IP whitelisting and isolate traffic within Virtual Private Clouds (VPCs).</p>
 
     <h2>Afterword</h2>
 
-    <p>Designing high-quality APIs extends far beyond idempotency, robustness, and security; it also encompasses usability, consistent payload formats, intuitive error classification, and developer experience (DX).</p>
+    <p>Designing high-quality APIs extends beyond idempotency, robustness, and security; it also encompasses usability, consistent payload formats, intuitive error classification, and developer experience (DX).</p>
 
     <p>Outstanding API design is a cultural, team-wide practice rather than an individual effort:</p>
 
     <ul>
-      <li><strong>Enforce Guards Globally:</strong> Push validations and security checks into common middleware and framework layers. Do not rely on individual developers to remember to sanitize inputs, trim whitespace, or validate tokens on every single endpoint. Humans make mistakes, especially across large, collaborative codebases.</li>
-      <li><strong>Implement Automated Testing:</strong> Integrate automated security scanners, penetration testing, and performance stress-testing into your Continuous Integration (CI) pipelines. Automated tools catch regressions long before they reach production.</li>
+      <li><strong>Enforce Guards Globally:</strong> Push validations and security checks into shared middleware and framework layers. Do not rely on individual developers to sanitize inputs, trim whitespace, or validate tokens on every endpoint.</li>
+      <li><strong>Implement Automated Testing:</strong> Integrate security scanners, penetration testing, and performance stress-testing into your CI pipelines. Automated tools catch regressions before they reach production.</li>
       <li><strong>Foster Engineering Standards:</strong> Educate the team on defensive programming, SQL injection prevention, caching strategies, and asynchronous execution patterns. High engineering standards must be a shared goal.</li>
-      <li><strong>Leverage the Right Frameworks:</strong> Select development frameworks that natively support security-by-default, offering built-in features for XSS filtering, CSRF mitigation, declarative parameter validation, and secure session management. Ensure the team is thoroughly trained on these built-in controls.</li>
+      <li><strong>Leverage the Right Frameworks:</strong> Select frameworks that natively support security-by-default, offering built-in XSS filtering, CSRF mitigation, declarative parameter validation, and secure session management. Ensure the team is trained on these controls.</li>
     </ul>
 
   </article>

@@ -20,9 +20,9 @@
     <h1>A Programmer's Mathematical Thinking: Deriving Rectangle Area</h1>
     <div class="meta">2022-07-11 | Thinking</div>
 
-    <p>Most people learn the area of a rectangle in elementary school: area equals length times width. You memorize the formula, use it on tests, and move on. But have you ever stopped to ask <em>why</em>? Why is the area of a rectangle equal to length times width? Where does this formula come from? Who decided it was true?</p>
+    <p>Most people learn the area of a rectangle in elementary school: area equals length times width. You memorize the formula, use it on tests, and move on. But why? Why is the area of a rectangle equal to length times width? Where does this formula come from?</p>
 
-    <p>This question might seem trivial — after all, it's just a rectangle — but the process of answering it reveals something profound about mathematical thinking. And that same process, it turns out, is exactly what programmers do every day when they solve algorithmic problems.</p>
+    <p>This question might seem trivial &mdash; after all, it is just a rectangle &mdash; but the process of answering it reveals something important about mathematical thinking. That same process is exactly what programmers use every day to solve algorithmic problems.</p>
 
     <p>In this article, I'll derive the area of a rectangle from first principles, then show how the same thinking pattern applies to one of the classic programming problems: string edit distance.</p>
 
@@ -44,7 +44,7 @@
 
     <p><img src="images/math-03.png" alt="Rectangle with arbitrary length l and width w"></p>
 
-    <p>The first step is to give the unknown a name. The farmer doesn't know the area, so let's call it <strong>S</strong>. Now we have a symbol that represents what we're trying to find. This might seem like a small thing, but it's crucial. By giving the unknown a name, we can talk about it, reason about it, and manipulate it.</p>
+    <p>The first step is to give the unknown a name. The farmer does not know the area, so let us call it <strong>S</strong>. By naming the unknown, we can talk about it, reason about it, and manipulate it.</p>
 
     <p>So: let <strong>S</strong> be the area of the rectangle.</p>
 
@@ -54,7 +54,7 @@
 
     <p><strong>S = S(l, w)</strong></p>
 
-    <p>This says: the area S depends on the length l and the width w. We don't know <em>how</em> it depends on them yet, but we know that it does. This is progress. We've gone from "I don't know the area" to "the area is some function of the length and width."</p>
+    <p>This says: the area S depends on the length l and the width w. We do not know <em>how</em> yet, but we know that it does &mdash; progress from "I do not know the area" to "the area is some function of length and width."</p>
 
     <h3>Step 3: Find Relationships Through Experimentation</h3>
 
@@ -112,7 +112,7 @@
 
     <h3>Step 6: Define the Unit</h3>
 
-    <p>What is S(1, 1)? It's the area of a square with side length 1. This is our unit of area. By definition, we <em>define</em> the area of a 1x1 square to be 1:</p>
+    <p>What is S(1, 1)? It is the area of a square with side length 1. This is our unit of area. We <em>define</em> the area of a 1x1 square to be 1:</p>
 
     <p><strong>S(1, 1) = 1</strong></p>
 
@@ -122,7 +122,7 @@
 
     <p><strong>S(l, w) = l * w * 1 = l * w</strong></p>
 
-    <p>And there it is: the area of a rectangle is length times width. Not because someone handed it down from on high, but because we derived it from first principles through observation, experimentation, generalization, and definition.</p>
+    <p>And there it is: the area of a rectangle is length times width. Not because it was decreed, but because we derived it from first principles through observation, experimentation, generalization, and definition.</p>
 
     <h2>Part 2: What Just Happened?</h2>
 
@@ -130,9 +130,9 @@
 
     <p>The process we just went through captures, I believe, the very essence of mathematical thinking. And it is quite different from what most people imagine.</p>
 
-    <p>Many people view mathematics as a static collection of eternal truths, discovered by lone geniuses through pure intuition or divine inspiration. The popular myth is that Euclid simply intuited the axioms of geometry, Newton instantly knew the laws of calculus, and Gauss effortlessly perceived patterns in number theory.</p>
+    <p>Many people view mathematics as a static collection of eternal truths, discovered by lone geniuses through pure intuition. The popular myth is that Euclid simply intuited the axioms of geometry and Newton instantly knew the laws of calculus.</p>
 
-    <p>But that is not how mathematics actually progresses. Mathematics is built on experience, observation, experimentation, symbolization, generalization, and rigorous reasoning. It is a deeply human activity, grounded in the physical world and refined through logical proof.</p>
+    <p>That is not how mathematics progresses. It is built on experience, observation, experimentation, symbolization, generalization, and rigorous reasoning &mdash; a deeply human activity, grounded in the physical world and refined through logical proof.</p>
 
     <p>Let's trace the steps we took:</p>
 
@@ -151,7 +151,7 @@
 
     <h2>Part 3: How Does This Relate to Programmers?</h2>
 
-    <p>You might be wondering: this is nice, but what does it have to do with programming? The answer is: everything. The same thinking pattern — observe, symbolize, parameterize, generalize, reason — is exactly what programmers use to solve algorithmic problems.</p>
+    <p>What does this have to do with programming? Everything. The same thinking pattern &mdash; observe, symbolize, parameterize, generalize, reason &mdash; is how programmers solve algorithmic problems.</p>
 
     <p>Let me show you with a concrete example.</p>
 
@@ -195,7 +195,7 @@
 
     <p>This works in just two steps. Can we do it in one? No, because the strings differ in at least two positions, making an edit distance of 2 optimal.</p>
 
-    <p>By working through concrete examples, we build intuition for the problem. We see what operations are useful, and we start to notice patterns.</p>
+    <p>Working through concrete examples builds intuition and reveals useful patterns.</p>
 
     <h3>Step 2: Identify the Operations</h3>
 
@@ -216,7 +216,7 @@
 
     <p>be the edit distance between the first i characters of str1 and the first j characters of str2.</p>
 
-    <p>This is the key insight. By parameterizing, we've turned a single problem (edit distance between two specific strings) into a family of problems (edit distance between all possible prefixes). And the family is easier to solve than the individual problem, because the subproblems are related to each other.</p>
+    <p>This is the key insight. By parameterizing, we turned a single problem into a family of related subproblems &mdash; and related subproblems are easier to solve than isolated ones.</p>
 
     <p><img src="images/math-06.png" alt="Edit distance subproblem illustration"></p>
 
@@ -316,7 +316,7 @@
     return dp[m][n];
 }</code></pre>
 
-    <p>And there it is: the edit distance algorithm, derived from first principles using the same thinking pattern we used for the rectangle area.</p>
+    <p>The edit distance algorithm &mdash; derived from first principles using the same thinking pattern as the rectangle area.</p>
 
     <h2>Part 4: The Common Pattern</h2>
 
@@ -375,19 +375,19 @@
 
     <p>Many programmers think of mathematics as a collection of formulas and theorems to be memorized. They think of mathematical thinking as something that happens only in academia, not in everyday programming. But that's a mistake.</p>
 
-    <p>Mathematical thinking — the ability to observe patterns, symbolize unknowns, parameterize problems, generalize from specifics, and reason deductively — is the core skill of programming. Every time you solve an algorithmic problem, every time you design a data structure, every time you debug a complex issue, you're doing mathematical thinking.</p>
+    <p>Mathematical thinking &mdash; the ability to observe patterns, symbolize unknowns, parameterize problems, generalize from specifics, and reason deductively &mdash; is the core skill of programming. Every algorithmic problem, every data structure, every complex debug session is mathematical thinking.</p>
 
-    <p>The good news is that this skill can be developed. You don't need to memorize more formulas. You need to practice the process: start with concrete examples, identify patterns, symbolize and parameterize, generalize, and reason. Do this often enough, and it becomes second nature.</p>
+    <p>This skill is developed, not innate. You do not need to memorize more formulas. Practice the process: start with concrete examples, identify patterns, symbolize and parameterize, generalize, and reason. Repeat until it becomes second nature.</p>
 
     <h2>Conclusion</h2>
 
-    <p>The area of a rectangle is length times width. But the interesting thing is not the formula — it's how we got there. The process of observation, experimentation, symbolization, generalization, and reasoning is the heart of mathematical thinking. And it's the heart of programming too.</p>
+    <p>The area of a rectangle is length times width. But what matters is not the formula &mdash; it is how we got there. Observation, experimentation, symbolization, generalization, and reasoning: that is the heart of mathematical thinking, and the heart of programming too.</p>
 
-    <p>The next time you're faced with a difficult algorithmic problem, don't panic. Don't try to remember a formula. Instead, start with concrete examples. Play with them. Look for patterns. Symbolize the unknown. Parameterize the problem. Generalize from the specific to the general. And then reason your way to the solution.</p>
+    <p>The next time you face a difficult algorithmic problem, do not reach for a formula. Start with concrete examples. Play with them. Look for patterns. Symbolize the unknown. Parameterize the problem. Generalize from the specific to the general. Then reason your way to the solution.</p>
 
-    <p>It's the same process the farmer used to figure out the area of his land. It's the same process mathematicians have used for thousands of years. And it's the same process you can use to solve any programming problem.</p>
+    <p>It is the same process the farmer used. It is the same process mathematicians have used for thousands of years. And it is the same process you can use to solve any programming problem.</p>
 
-    <p>Math is not divine revelation. It's human thinking, systematic and rigorous. And it's available to all of us.</p>
+    <p>Mathematics is not revelation. It is human thinking &mdash; systematic, rigorous, and available to all of us.</p>
 
     <p><img src="images/math-11.png" alt="Summary"></p>
 

@@ -20,41 +20,41 @@
     <h1>REST as an Architectural Style &mdash; What Exactly Is It?</h1>
     <div class="meta">2021-12-15 | Architecture</div>
 
-    <p>Ask any backend developer to define REST, and you will likely hear some variation of &ldquo;clean URLs&rdquo; or &ldquo;using HTTP verbs instead of routing everything through POST.&rdquo; While not incorrect, this barely scratches the surface. REST is not a protocol, not a library, and certainly not just a URL style guide. It is an <strong>architectural style</strong> &mdash; a coherent set of constraints that, when applied together, produce a particular kind of distributed system with desirable properties.</p>
+    <p>Ask any backend developer to define REST, and you will hear &ldquo;clean URLs&rdquo; or &ldquo;using HTTP verbs instead of routing everything through POST.&rdquo; Not wrong, but barely scratching the surface. REST is not a protocol, not a library, and not a URL style guide. It is an <strong>architectural style</strong> &mdash; a set of constraints that, applied together, produce a distributed system with desirable properties.</p>
 
-    <p>The term was coined and formally defined by Roy Fielding in his 2000 doctoral dissertation at UC Irvine. Interestingly, Fielding was not just an academic &mdash; he was one of the principal authors of the HTTP specification (RFC 2616) and a co-founder of the Apache HTTP Server project. So when he wrote about how the web <em>should</em> work, he had a pretty good idea of what he was talking about.</p>
+    <p>The term was coined by Roy Fielding in his 2000 doctoral dissertation at UC Irvine. Fielding was not merely an academic &mdash; he was a principal author of the HTTP specification (RFC 2616) and a co-founder of the Apache HTTP Server project. When he wrote about how the web <em>should</em> work, he spoke from direct experience.</p>
 
     <h2>The Six Constraints of REST</h2>
 
-    <p>Fielding defined REST through a set of architectural constraints. A system is only &ldquo;truly RESTful&rdquo; if it satisfies <strong>all</strong> of these constraints. Drop one, and you no longer have REST &mdash; you have something else, perhaps something useful, but not REST.</p>
+    <p>Fielding defined REST through a set of architectural constraints. A system is &ldquo;truly RESTful&rdquo; only if it satisfies <strong>all</strong> of these constraints. Drop one, and you no longer have REST.</p>
 
     <h3>1. Client-Server Separation</h3>
 
     <p>The client and the server operate on a separation of concerns. The client manages user interface and presentation, while the server handles data storage, business logic, and security. This decoupled boundary allows each component to evolve independently. The client does not need to know how the server stores data, and the server does not need to know how the client renders its UI.</p>
 
-    <p>This is the most basic constraint, and nearly every modern API satisfies it. But it is worth stating explicitly because it establishes the foundation for everything that follows.</p>
+    <p>This is the most basic constraint, and nearly every modern API satisfies it. It establishes the foundation for everything that follows.</p>
 
     <h3>2. Stateless</h3>
 
     <p>Every request from the client to the server must contain <strong>all the information</strong> necessary to understand and process that request. The server must not store any session state between requests. Authentication credentials, pagination tokens, filtering parameters &mdash; everything travels with the request.</p>
 
-    <p>This constraint has profound implications for scalability. If the server does not maintain session state, any server in a cluster can handle any request. You can add or remove servers at will. Load balancing becomes trivial. Consequently, statelessness is far more than a theoretical preference; it is a critical engineering asset.</p>
+    <p>This constraint has profound implications for scalability. If the server does not maintain session state, any server in a cluster can handle any request. You can add or remove servers at will. Load balancing becomes trivial. Consequently, statelessness is a critical engineering asset.</p>
 
-    <p>Of course, the <em>application</em> still has state. The user is logged in; the shopping cart has three items. That state simply lives on the client side (or in a database), not in the server&rsquo;s memory between requests.</p>
+    <p>The <em>application</em> still has state. The user is logged in; the shopping cart has three items. That state lives on the client side (or in a database), not in the server&rsquo;s memory between requests.</p>
 
     <h3>3. Cacheable</h3>
 
     <p>Responses must explicitly declare themselves as cacheable or non-cacheable. When a response is cacheable, the client (or an intermediary) can reuse it for subsequent identical requests, reducing latency and server load.</p>
 
-    <p>This constraint leverages the HTTP caching mechanisms: <code>Cache-Control</code>, <code>ETag</code>, <code>Last-Modified</code>, <code>Expires</code>. A well-designed REST API uses these headers aggressively, because every cached response is a request that never reaches the server.</p>
+    <p>This constraint leverages HTTP caching: <code>Cache-Control</code>, <code>ETag</code>, <code>Last-Modified</code>, <code>Expires</code>. A well-designed REST API uses these headers aggressively, because every cached response is a request that never reaches the server.</p>
 
     <h3>4. Uniform Interface</h3>
 
-    <p>This is the most important and most frequently violated constraint. The uniform interface has four sub-constraints:</p>
+    <p>The most important and most frequently violated constraint. The uniform interface has four sub-constraints:</p>
 
     <h4>4a. Identification of Resources</h4>
 
-    <p>Every resource is identified by a unique URI. A resource is anything you want to expose as an addressable entity: a user, an order, a blog post, a collection of search results. The URI <code>/users/42</code> identifies a specific user; <code>/orders?status=pending</code> identifies a collection.</p>
+    <p>Every resource is identified by a unique URI. A resource is anything you expose as an addressable entity: a user, an order, a blog post, a search result collection. <code>/users/42</code> identifies a specific user; <code>/orders?status=pending</code> identifies a collection.</p>
 
     <p>Resources are <strong>nouns</strong>, not verbs. <code>/getUser</code> is not RESTful. <code>/users/42</code> is.</p>
 
@@ -68,13 +68,13 @@
 
     <h4>4d. HATEOAS (Hypermedia As The Engine Of Application State)</h4>
 
-    <p>This is the constraint that almost everyone ignores, and it is the one that most clearly separates REST from plain old HTTP APIs.</p>
+    <p>This is the constraint most developers ignore, and it most clearly separates REST from ordinary HTTP APIs.</p>
 
-    <p>HATEOAS means that the client interacts with the service entirely through hypermedia provided dynamically by the server. The client does not hard-code URI patterns. Instead, the server&rsquo;s responses include links that tell the client what it can do next.</p>
+    <p>HATEOAS means the client interacts with the service entirely through hypermedia provided by the server. The client does not hard-code URI patterns. The server&rsquo;s responses include links that tell the client what it can do next.</p>
 
-    <p>Consider a real-world analogy: when browsing a website, you do not need to know the URL of your next destination in advance. You simply click a link, and the server guides you on where to go. A truly RESTful API should operate on the exact same premise.</p>
+    <p>When browsing a website, you do not need to know the next URL in advance. You click a link, and the server guides you. A RESTful API operates the same way.</p>
 
-    <p>A response from a truly RESTful API might look like this:</p>
+    <p>A RESTful API response might look like this:</p>
 
     <pre><code>{
   "id": 42,
@@ -87,23 +87,23 @@
   ]
 }</code></pre>
 
-    <p>The client discovers available actions from the response itself, not from hard-coded knowledge of the API&rsquo;s URL structure.</p>
+    <p>The client discovers available actions from the response, not from hard-coded URL patterns.</p>
 
     <h3>5. Layered System</h3>
 
-    <p>The client cannot tell whether it is connected directly to the end server or to an intermediary in between. Load balancers, reverse proxies, CDN caches, API gateways &mdash; these layers can sit between the client and the origin server without the client knowing or caring.</p>
+    <p>The client cannot tell whether it is connected directly to the origin server or to an intermediary. Load balancers, reverse proxies, CDN caches, API gateways &mdash; these layers sit between the client and the origin server transparently.</p>
 
-    <p>This constraint enables the kind of infrastructure flexibility that modern deployments require. You can add caching layers, security filters, and load balancers without changing a single line of client or server code.</p>
+    <p>This constraint enables the infrastructure flexibility that modern deployments require. You can add caching layers, security filters, and load balancers without changing client or server code.</p>
 
     <h3>6. Code on Demand (Optional)</h3>
 
     <p>This is the only optional constraint. The server can temporarily extend the client&rsquo;s functionality by transmitting executable code. JavaScript in web pages is the canonical example: the server sends HTML plus JavaScript, and the browser executes it.</p>
 
-    <p>Most REST APIs do not use this constraint, and that is perfectly fine. It is there when you need it, but its absence does not disqualify your API from being RESTful.</p>
+    <p>Most REST APIs omit this constraint, and that is acceptable. Its absence does not disqualify an API from being RESTful.</p>
 
     <h2>The Reality: Most &ldquo;REST APIs&rdquo; Are Not RESTful</h2>
 
-    <p>Here lies the uncomfortable truth: the vast majority of APIs that advertise themselves as RESTful are not. They routinely violate multiple core constraints, often without their designers realizing it.</p>
+    <p>The uncomfortable truth: the vast majority of APIs branded as RESTful are not. They violate multiple core constraints, often without their designers realizing it.</p>
 
     <p>Common violations include:</p>
 
@@ -112,16 +112,16 @@
       <li><strong>RPC-style endpoints.</strong> Endpoints like <code>/api/getUserOrders</code> or <code>/api/processPayment</code> are not RESTful. They describe operations, not resources. They use verbs where REST requires nouns.</li>
       <li><strong>Stateful sessions.</strong> Using server-side sessions or cookies to maintain authentication state violates the stateless constraint. Token-based authentication (JWT, OAuth bearer tokens) is the RESTful alternative.</li>
       <li><strong>Ignoring cache headers.</strong> Every response returns <code>Cache-Control: no-cache</code>, defeating one of REST&rsquo;s key scalability features.</li>
-      <li><strong>Non-uniform interfaces.</strong> Different endpoints use different response formats, different error structures, different naming conventions. The uniform interface constraint exists precisely to prevent this.</li>
+      <li><strong>Non-uniform interfaces.</strong> Different endpoints use different response formats, different error structures, different naming conventions. The uniform interface constraint exists to prevent this.</li>
     </ul>
 
     <h2>Does It Matter?</h2>
 
-    <p>Does this distinction actually matter? Roy Fielding himself has expressed frustration over how the term &ldquo;REST&rdquo; has been co-opted to mean little more than &ldquo;HTTP with JSON.&rdquo; When an API is incorrectly branded as RESTful, it misleads developers who make architectural assumptions based on the guarantees REST is supposed to deliver&mdash;such as scalability, generality, independent deployability, and cache-driven latency reduction.</p>
+    <p>Does this distinction matter? Roy Fielding has expressed frustration over how the term &ldquo;REST&rdquo; has been co-opted to mean little more than &ldquo;HTTP with JSON.&rdquo; When an API is branded as RESTful, developers assume the guarantees REST delivers &mdash; scalability, generality, independent deployability, and cache-driven latency reduction.</p>
 
-    <p>That said, many successful APIs violate REST constraints deliberately and pragmatically. Dropping HATEOAS simplifies client development. RPC-style endpoints can be more intuitive for action-oriented workflows. The question is not &ldquo;Is this RESTful?&rdquo; but &ldquo;Do we understand the trade-offs we are making?&rdquo;</p>
+    <p>Many successful APIs violate REST constraints deliberately. Dropping HATEOAS simplifies client development. RPC-style endpoints can be more intuitive for action-oriented workflows. The question is not &ldquo;Is this RESTful?&rdquo; but &ldquo;Do we understand the trade-offs?&rdquo;</p>
 
-    <p>If you choose to deviate from REST, do so consciously. Know which constraints you are relaxing and why. Do not call it REST when it is not, and do not pretend the constraints do not exist.</p>
+    <p>Deviate from REST consciously. Know which constraints you are relaxing and why. Do not call it REST when it is not.</p>
 
     <h2>Summary</h2>
 
@@ -136,7 +136,7 @@
       <li><strong>Code on Demand</strong> (optional) &mdash; the server can extend the client with executable code.</li>
     </ol>
 
-    <p>Most APIs that call themselves REST violate several of these constraints. Understanding the constraints helps you make informed architectural decisions &mdash; whether you choose to follow them or deliberately deviate.</p>
+    <p>Most APIs that call themselves REST violate several of these constraints. Understanding the constraints helps you make informed architectural decisions &mdash; whether you follow them or deviate.</p>
 
   </article>
 </div>
